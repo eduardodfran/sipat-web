@@ -8,6 +8,7 @@ export interface Pothole {
   total_detection_hits: number
   citizen_first_reported_at: string
   latest_activity_at: string
+  image_url: string | null
 }
 
 export interface DashboardStats {
