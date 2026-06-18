@@ -107,15 +107,19 @@ export default function MapCanvas({
           hits: p.total_detection_hits,
           color: SEVERITY_COLOR[p.worst_severity],
           emoji: SEVERITY_EMOJI[p.worst_severity],
+          imageUrl: p.image_url,
+          firstReported: p.citizen_first_reported_at,
+          latestActivity: p.latest_activity_at,
+          potholeId: p.pothole_id,
         }))
 
       features.forEach((p: any) => {
         const marker = LObj.circleMarker([p.lat, p.lng], {
-          radius: 10,
+          radius: 7,
           color: p.color,
           fillColor: p.color,
-          fillOpacity: 0.8,
-          weight: 2,
+          fillOpacity: 0.9,
+          weight: 0,
         }).addTo(markerLayerRef.current)
 
         const label = p.severity === 'Severe' ? '!' : p.hits.toString()
@@ -125,14 +129,68 @@ export default function MapCanvas({
           className: 'hazard-label',
         })
 
+        const firstReported = p.firstReported
+          ? new Date(p.firstReported).toLocaleDateString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : ''
+
+        const lastActivity = p.latestActivity
+          ? new Date(p.latestActivity).toLocaleDateString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : ''
+
         const popup =
           '<div class="hazard-popup">' +
-          '<strong>' + p.emoji + ' ' + p.severity + '</strong>' +
-          '<span class="hits">This hazard has been reported <b>' +
+          (p.imageUrl
+            ? '<img class="hazard-popup-img" src="' +
+              p.imageUrl +
+              '" alt="Hazard detection" />'
+            : '<div class="hazard-popup-img-placeholder">' +
+              '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>' +
+              '</div>') +
+          '<div class="hazard-popup-body">' +
+          '<div class="hazard-popup-header">' +
+          '<span class="hazard-popup-severity" style="color:' +
+          p.color +
+          '">' +
+          p.emoji +
+          ' ' +
+          p.severity +
+          '</span>' +
+          '<span class="hazard-popup-hits">' +
           p.hits +
-          ' times</b></span>' +
+          ' detection' +
+          (p.hits !== 1 ? 's' : '') +
+          '</span>' +
+          '</div>' +
+          (firstReported
+            ? '<div class="hazard-popup-divider"></div>' +
+              '<p class="hazard-popup-date" style="margin-top:8px">Reported: ' +
+              firstReported +
+              '</p>'
+            : '') +
+          (lastActivity && lastActivity !== firstReported
+            ? '<p class="hazard-popup-date">Last seen: ' +
+              lastActivity +
+              '</p>'
+            : '') +
+          '<p class="hazard-popup-coords">' +
+          p.lat.toFixed(5) +
+          ', ' +
+          p.lng.toFixed(5) +
+          '</p>' +
+          '<p class="hazard-popup-id">#' +
+          p.potholeId +
+          '</p>' +
+          '</div>' +
           '</div>'
-        marker.bindPopup(popup)
+        marker.bindPopup(popup, { maxWidth: 320 })
         bounds.push([p.lat, p.lng])
       })
     }

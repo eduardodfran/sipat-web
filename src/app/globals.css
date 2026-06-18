@@ -29,3 +29,131 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Leaflet popup overrides */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-content-wrapper * {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.leaflet-popup-tip-container {
+  display: none !important;
+}
+.leaflet-popup-close-button {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 10 !important;
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 14px !important;
+  line-height: 24px !important;
+  text-align: center !important;
+  color: #a1a1aa !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 50% !important;
+  border: none !important;
+  padding: 0 !important;
+}
+.leaflet-popup-close-button:hover {
+  color: #fff !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: inherit !important;
+  min-width: 280px !important;
+  max-width: 320px !important;
+}
+
+.hazard-popup {
+  width: 280px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(8, 8, 12, 0.82);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.hazard-popup-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hazard-popup-img-placeholder {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hazard-popup-img-placeholder svg {
+  width: 32px;
+  height: 32px;
+  color: #3f3f46;
+}
+
+.hazard-popup-body {
+  padding: 12px 14px;
+}
+
+.hazard-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.hazard-popup-severity {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.hazard-popup-hits {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d4d4d8;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.hazard-popup-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 0 -14px;
+}
+
+.hazard-popup-date {
+  font-size: 12px;
+  color: #a1a1aa;
+  margin: 0 0 4px 0;
+}
+
+.hazard-popup-coords {
+  font-size: 11px;
+  color: #71717a;
+  margin: 0;
+  font-family: ui-monospace, monospace;
+}
+
+.hazard-popup-id {
+  font-size: 10px;
+  color: #52525b;
+  margin: 6px 0 0 0;
+  font-family: ui-monospace, monospace;
+}
