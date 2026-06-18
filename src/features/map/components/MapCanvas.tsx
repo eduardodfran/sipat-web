@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import type { Pothole } from '@/lib/types'
-import type { Severity } from '@/lib/types'
+import type { Pothole, Severity } from '@/lib/types'
 import type { RideRoute } from '@/hooks/useRideRoutes'
 import { getRouteColor } from '@/hooks/useRideRoutes'
 
@@ -23,15 +22,17 @@ const VIEW_OPTIONS: { key: ViewMode; label: string }[] = [
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default function MapCanvas({
-  potholes,
+  allPotholes,
   routes,
   viewMode,
+  filter,
   onViewModeChange,
   onPotholeSelect,
 }: {
-  potholes: Pothole[]
+  allPotholes: Pothole[]
   routes: RideRoute[]
   viewMode: ViewMode
+  filter: Severity | 'All'
   onViewModeChange: (mode: ViewMode) => void
   onPotholeSelect?: (pothole: Pothole) => void
 }) {
@@ -39,7 +40,10 @@ export default function MapCanvas({
   const mapInstanceRef = useRef<any>(null)
   const markerLayerRef = useRef<any>(null)
   const routeLayerRef = useRef<any>(null)
+  const markersRef = useRef<Map<number, { marker: any; severity: string }>>(new Map())
 
+  /* eslint-disable react-hooks/exhaustive-deps */
+  // Draw data effect — runs when the underlying data/view changes (not filter)
   useEffect(() => {
     if (!mapRef.current) return
 
@@ -65,9 +69,11 @@ export default function MapCanvas({
     const showRoutes = viewMode === 'routes' || viewMode === 'all'
     const showPotholes = viewMode === 'potholes' || viewMode === 'all'
     const bounds: [number, number][] = []
+    const newMarkers = new Map<number, { marker: any; severity: string }>()
 
     routeLayerRef.current.clearLayers()
     markerLayerRef.current.clearLayers()
+    markersRef.current.clear()
 
     const LObj = L
 
@@ -90,36 +96,43 @@ export default function MapCanvas({
       })
     }
 
-    // Draw pothole markers
+    // Draw all pothole markers (filter visibility handled separately)
     if (showPotholes) {
-      const features = potholes
+      allPotholes
         .filter(
           (p) =>
             p.consolidated_latitude != null && p.consolidated_longitude != null,
         )
-        .map((p) => ({
-          lat: p.consolidated_latitude!,
-          lng: p.consolidated_longitude!,
-          color: SEVERITY_COLOR[p.worst_severity],
-          potholeId: p.pothole_id,
-        }))
+        .forEach((p) => {
+          const color = SEVERITY_COLOR[p.worst_severity]
+          const marker = LObj.circleMarker(
+            [p.consolidated_latitude!, p.consolidated_longitude!],
+            {
+              radius: 7,
+              color,
+              fillColor: color,
+              fillOpacity: 0.9,
+              weight: 0,
+            },
+          ).addTo(markerLayerRef.current)
 
-      features.forEach((p: any) => {
-        const marker = LObj.circleMarker([p.lat, p.lng], {
-          radius: 7,
-          color: p.color,
-          fillColor: p.color,
-          fillOpacity: 0.9,
-          weight: 0,
-        }).addTo(markerLayerRef.current)
+          const pid = p.pothole_id
+          marker.on('click', () => {
+            onPotholeSelect?.(allPotholes.find((ph) => ph.pothole_id === pid)!)
+          })
 
-        marker.on('click', () => {
-          onPotholeSelect?.(potholes.find((ph) => ph.pothole_id === p.potholeId)!)
+          newMarkers.set(pid, { marker, severity: p.worst_severity })
+          bounds.push([p.consolidated_latitude!, p.consolidated_longitude!])
         })
-
-        bounds.push([p.lat, p.lng])
-      })
     }
+
+    markersRef.current = newMarkers
+
+    // Apply current filter visibility after drawing
+    newMarkers.forEach(({ marker, severity }) => {
+      const match = filter === 'All' || severity === filter
+      marker.setStyle({ fillOpacity: match ? 0.9 : 0.08, opacity: match ? 0.9 : 0.08 })
+    })
 
     map.invalidateSize()
 
@@ -128,9 +141,17 @@ export default function MapCanvas({
     } else {
       map.setView([14.5547, 121.0509], 13)
     }
-  }, [potholes, routes, viewMode])
+  }, [allPotholes, routes, viewMode])
 
-  const hasData = potholes.length > 0 || routes.length > 0
+  // Filter visibility effect — runs only when filter changes (no fitBounds)
+  useEffect(() => {
+    markersRef.current.forEach(({ marker, severity }) => {
+      const match = filter === 'All' || severity === filter
+      marker.setStyle({ fillOpacity: match ? 0.9 : 0.08, opacity: match ? 0.9 : 0.08 })
+    })
+  }, [filter])
+
+  const hasData = allPotholes.length > 0 || routes.length > 0
 
   if (!hasData) {
     return (

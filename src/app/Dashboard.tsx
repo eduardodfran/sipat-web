@@ -49,9 +49,10 @@ export default function Dashboard() {
   return (
     <div className="relative h-[calc(100vh-4rem)]">
       <MapCanvas
-        potholes={potholes}
+        allPotholes={allPotholes}
         routes={routes}
         viewMode={viewMode}
+        filter={filter}
         onViewModeChange={setViewMode}
         onPotholeSelect={setSelectedPothole}
       />
