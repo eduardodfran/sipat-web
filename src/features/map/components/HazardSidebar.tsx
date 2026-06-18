@@ -83,17 +83,9 @@ export default function HazardSidebar({
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 z-30 bg-black transition-opacity duration-300 ${
-          visible ? 'opacity-40' : 'pointer-events-none opacity-0'
-        }`}
-        onClick={onClose}
-      />
-
       {/* Sidebar */}
       <div
-        className={`fixed bottom-0 right-0 top-16 z-40 w-full border-l border-white/[0.06] bg-[#08080c] shadow-2xl shadow-black/40 transition-transform duration-300 sm:w-96 ${
+        className={`fixed bottom-0 right-0 top-16 z-40 w-full border-l border-white/[0.06] bg-[#08080c] shadow-2xl shadow-black/40 transition-transform duration-300 will-change-transform sm:w-96 ${
           visible ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

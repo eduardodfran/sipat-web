@@ -47,11 +47,13 @@ export default function MapCanvas({
     if (!L) return
 
     if (!mapInstanceRef.current) {
-      const map = L.map(mapRef.current, { zoomControl: false })
+      const map = L.map(mapRef.current, { zoomControl: false, preferCanvas: true })
       L.control.zoom({ position: 'bottomright' }).addTo(map)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap',
+        updateWhenIdle: true,
+        keepBuffer: 4,
       }).addTo(map)
 
       routeLayerRef.current = L.layerGroup().addTo(map)

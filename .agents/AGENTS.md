@@ -1,0 +1,4 @@
+- use skills inside.agents/skills and also the global skills
+- Detect when a skill applies.
+- Invoke the skill tool.
+- Follow the skill exactly.

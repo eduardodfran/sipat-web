@@ -89,20 +89,20 @@ export function TimelineDrawer({
         onClose={() => setDetailPothole(null)}
       />
       <div
-        className={`fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 ${
-          expanded ? 'translate-y-0' : 'translate-y-[calc(100%-3.5rem)]'
+        className={`fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-2xl transition-transform duration-300 ${
+          expanded ? 'translate-y-0' : 'translate-y-[calc(100%-3.75rem)]'
         }`}
-    >
-      {/* Drag handle */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-center border-t border-white/[0.06] bg-[#14141c] py-2"
-        aria-label={expanded ? 'Collapse panel' : 'Expand panel'}
       >
-        <div className="h-1 w-10 rounded-full bg-gray-600" />
-      </button>
+        {/* Drag handle */}
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex w-full items-center justify-center rounded-t-2xl border border-white/10 bg-zinc-950/85 py-3 shadow-2xl shadow-black/40 backdrop-blur-xl"
+          aria-label={expanded ? 'Collapse panel' : 'Expand panel'}
+        >
+          <div className="h-1 w-10 rounded-full bg-gray-600" />
+        </button>
 
-      <div className="max-h-[60vh] overflow-y-auto bg-[#14141c] px-4 pb-6 pt-2 sm:px-6">
+        <div className="max-h-[60vh] overflow-y-auto rounded-b-2xl border-b border-l border-r border-white/10 bg-zinc-950/85 px-4 pb-6 pt-2 shadow-2xl shadow-black/40 backdrop-blur-xl sm:px-6">
         {/* Filters */}
         <div className="mb-4 flex items-center gap-2">
           <span className="text-xs font-medium text-gray-500">Filter:</span>
