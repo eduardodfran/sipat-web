@@ -1,6 +1,7 @@
 'use client'
 
 import { usePotholeData } from '@/hooks/usePotholeData'
+import { useRideRoutes } from '@/hooks/useRideRoutes'
 import { AnalyticsBanner } from '@/features/map/components/AnalyticsBanner'
 import MapCanvas from '@/features/map/components/MapCanvas'
 import { TimelineDrawer } from '@/features/map/components/TimelineDrawer'
@@ -9,6 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 export default function Dashboard() {
   const { potholes, allPotholes, stats, loading, error, filter, setFilter } =
     usePotholeData()
+  const { routes } = useRideRoutes()
 
   if (error) {
     return (
@@ -39,7 +41,7 @@ export default function Dashboard() {
       <AnalyticsBanner stats={stats} />
 
       <div className="h-[500px] lg:h-[600px]">
-        <MapCanvas potholes={potholes} />
+        <MapCanvas potholes={potholes} routes={routes} />
       </div>
 
       <TimelineDrawer
