@@ -41,7 +41,13 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 pb-24">
-      <AnalyticsBanner stats={stats} />
+      <AnalyticsBanner
+        stats={{
+          ...stats,
+          routeCount: routes.length,
+          gpsPointCount: routes.reduce((sum, r) => sum + r.points.length, 0),
+        }}
+      />
 
       <div className="h-[500px] lg:h-[600px]">
         <MapCanvas

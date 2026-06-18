@@ -1,7 +1,18 @@
-import Link from 'next/link'
-import type { ReactNode } from 'react'
+'use client'
 
-export function Navbar({ children }: { children?: ReactNode }) {
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+
+const NAV_LINKS = [
+  { href: '/', label: 'Dashboard' },
+  { href: '/rides', label: 'Rides' },
+]
+
+export function Navbar() {
+  const pathname = usePathname()
+  const { user, signOut } = useAuth()
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a1a]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -30,19 +41,40 @@ export function Navbar({ children }: { children?: ReactNode }) {
         </Link>
 
         <nav className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
-          >
-            Dashboard
-          </Link>
-          <Link
-            href="/rides"
-            className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
-          >
-            Rides
-          </Link>
-          {children}
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-sm font-medium transition-colors ${
+                pathname === link.href
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          {user ? (
+            <div className="flex items-center gap-3 border-l border-white/5 pl-4">
+              <span className="hidden text-xs text-gray-500 sm:block">
+                {user.email}
+              </span>
+              <button
+                onClick={signOut}
+                className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-500"
+            >
+              Sign In
+            </Link>
+          )}
         </nav>
       </div>
     </header>

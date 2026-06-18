@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import AuthWrapper from '@/components/layout/AuthWrapper'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[#0a0a1a] text-white antialiased">
         <Script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" strategy="beforeInteractive" />
-        {children}
+        <AuthWrapper>{children}</AuthWrapper>
       </body>
     </html>
   )

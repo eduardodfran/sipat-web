@@ -39,6 +39,8 @@ export function usePotholeData() {
     moderateCount: 0,
     minorCount: 0,
     totalHits: 0,
+    routeCount: 0,
+    gpsPointCount: 0,
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

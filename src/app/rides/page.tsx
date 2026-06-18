@@ -1,7 +1,29 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
+import { useAuth } from '@/contexts/AuthContext'
 import RideManager from '@/features/rides/components/RideManager'
 
 export default function RidesPage() {
+  const router = useRouter()
+  const { user, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading && !user) router.push('/login')
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a1a]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (!user) return null
+
   return (
     <div className="min-h-screen bg-[#0a0a1a]">
       <Navbar />

@@ -17,4 +17,6 @@ export interface DashboardStats {
   moderateCount: number
   minorCount: number
   totalHits: number
+  routeCount: number
+  gpsPointCount: number
 }
