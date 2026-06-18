@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/Badge'
+import PotholeDetailSheet from './PotholeDetailSheet'
 import type { Pothole, Severity } from '@/lib/types'
 
 const SEVERITY_FILTERS: Array<Severity | 'All'> = [
@@ -70,12 +71,18 @@ export function TimelineDrawer({
   onFilterChange: (f: Severity | 'All') => void
 }) {
   const [expanded, setExpanded] = useState(false)
+  const [detailPothole, setDetailPothole] = useState<Pothole | null>(null)
 
   return (
-    <div
-      className={`fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 ${
-        expanded ? 'translate-y-0' : 'translate-y-[calc(100%-3.5rem)]'
-      }`}
+    <>
+      <PotholeDetailSheet
+        pothole={detailPothole}
+        onClose={() => setDetailPothole(null)}
+      />
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 ${
+          expanded ? 'translate-y-0' : 'translate-y-[calc(100%-3.5rem)]'
+        }`}
     >
       {/* Drag handle */}
       <button
@@ -113,9 +120,10 @@ export function TimelineDrawer({
             </p>
           )}
           {potholes.map((p) => (
-            <div
+            <button
               key={p.pothole_id}
-              className="overflow-hidden rounded-xl border border-white/5 bg-[#13133a] shadow-lg shadow-black/20 ring-1 ring-white/5"
+              onClick={() => setDetailPothole(p)}
+              className="w-full overflow-hidden rounded-xl border border-white/5 bg-[#13133a] shadow-lg shadow-black/20 ring-1 ring-white/5 text-left transition-colors hover:bg-[#18184a] cursor-pointer"
             >
               {/* Image section */}
               <HazardImageCard
@@ -150,10 +158,11 @@ export function TimelineDrawer({
                   {p.total_detection_hits === 1 ? 'time' : 'times'}
                 </p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
     </div>
+    </>
   )
 }
