@@ -5,17 +5,18 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/Badge'
 import type { Pothole } from '@/lib/types'
 
-function LoadingSpinner() {
+function ImageSkeleton() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-[#14141c]">
+    <div className="flex h-full w-full animate-pulse flex-col items-center justify-center bg-[#1a1a22]">
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+      <span className="mt-3 text-sm text-gray-500">Loading evidence&hellip;</span>
     </div>
   )
 }
 
 function ImagePlaceholder() {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-[#14141c]">
+    <div className="flex h-full w-full flex-col items-center justify-center bg-[#1a1a22]">
       <svg
         className="h-14 w-14 text-gray-600"
         fill="none"
@@ -39,6 +40,10 @@ function DetailImage({ imageUrl }: { imageUrl: string | null }) {
     imageUrl ? 'loading' : 'error',
   )
 
+  useEffect(() => {
+    setStatus(imageUrl ? 'loading' : 'error')
+  }, [imageUrl])
+
   if (!imageUrl || status === 'error') {
     return <ImagePlaceholder />
   }
@@ -47,7 +52,7 @@ function DetailImage({ imageUrl }: { imageUrl: string | null }) {
     <div className="relative h-64 w-full overflow-hidden rounded-xl bg-[#14141c] sm:h-80">
       {status === 'loading' && (
         <div className="absolute inset-0 z-10">
-          <LoadingSpinner />
+          <ImageSkeleton />
         </div>
       )}
       <Image
