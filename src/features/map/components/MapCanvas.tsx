@@ -52,10 +52,7 @@ export default function MapCanvas({
     if (!L) return
 
     if (!mapInstanceRef.current) {
-      const map = L.map(mapRef.current, { zoomControl: false }).setView(
-        [14.5547, 121.0509],
-        13,
-      )
+      const map = L.map(mapRef.current, { zoomControl: false })
       L.control.zoom({ position: 'bottomright' }).addTo(map)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -140,8 +137,12 @@ export default function MapCanvas({
       })
     }
 
+    map.invalidateSize()
+
     if (bounds.length > 0) {
       map.fitBounds(bounds, { padding: [50, 50] })
+    } else {
+      map.setView([14.5547, 121.0509], 13)
     }
   }, [potholes, routes, viewMode])
 
