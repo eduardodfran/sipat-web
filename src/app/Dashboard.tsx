@@ -17,45 +17,52 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-8 text-center">
-        <p className="text-sm font-medium text-red-400">
-          Failed to load hazard data
-        </p>
-        <p className="mt-1 text-xs text-red-400/60">{error}</p>
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center p-8">
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-8 text-center">
+          <p className="text-sm font-medium text-red-400">
+            Failed to load hazard data
+          </p>
+          <p className="mt-1 text-xs text-red-400/60">{error}</p>
+        </div>
       </div>
     )
   }
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-[72px] rounded-xl" />
-          ))}
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center p-8">
+        <div className="w-full max-w-4xl space-y-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className="h-[72px] rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-[500px] rounded-2xl" />
         </div>
-        <Skeleton className="h-[500px] rounded-2xl" />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 pb-24">
-      <AnalyticsBanner
-        stats={{
-          ...stats,
-          routeCount: routes.length,
-          gpsPointCount: routes.reduce((sum, r) => sum + r.points.length, 0),
-        }}
+    <div className="relative h-[calc(100vh-4rem)]">
+      <MapCanvas
+        potholes={potholes}
+        routes={routes}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
-      <div className="h-[500px] lg:h-[600px]">
-        <MapCanvas
-          potholes={potholes}
-          routes={routes}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
+      {/* Floating analytics overlay */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 pt-4">
+        <div className="pointer-events-auto flex justify-center px-4">
+          <AnalyticsBanner
+            stats={{
+              ...stats,
+              routeCount: routes.length,
+              gpsPointCount: routes.reduce((sum, r) => sum + r.points.length, 0),
+            }}
+          />
+        </div>
       </div>
 
       <TimelineDrawer

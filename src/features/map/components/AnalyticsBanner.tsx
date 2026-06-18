@@ -12,7 +12,7 @@ function StatCard({
   icon: React.ReactNode
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#1a1a22] px-5 py-4">
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-zinc-950 px-5 py-4 shadow-2xl shadow-black/50 ring-1 ring-white/10 backdrop-blur-xl">
       <div
         className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}
       >
@@ -30,7 +30,7 @@ function StatCard({
 
 export function AnalyticsBanner({ stats }: { stats: DashboardStats }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
+    <div className="inline-grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       <StatCard
         label="Total Hazards"
         value={stats.totalPotholes}

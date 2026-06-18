@@ -13,43 +13,52 @@ const SEVERITY_FILTERS: Array<Severity | 'All'> = [
   'Minor',
 ]
 
-function HazardImagePlaceholder() {
-  return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-[#14141c]">
-      <svg
-        className="h-10 w-10 text-gray-600"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.5}
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-        />
-      </svg>
-      <span className="mt-2 text-xs text-gray-600">No image available</span>
-    </div>
-  )
-}
-
 function HazardImageCard({ imageUrl, severity }: { imageUrl: string; severity: Severity }) {
-  const [hasError, setHasError] = useState(false)
+  const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>(
+    imageUrl ? 'loading' : 'error',
+  )
 
-  if (hasError) {
-    return <HazardImagePlaceholder />
+  if (status === 'error') {
+    return (
+      <div className="relative h-40 w-full overflow-hidden rounded-lg bg-[#1a1a22] sm:h-52">
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <svg
+            className="h-10 w-10 text-gray-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+            />
+          </svg>
+          <span className="mt-2 text-xs text-gray-600">No image available</span>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="relative h-40 w-full overflow-hidden rounded-lg bg-[#14141c] sm:h-52">
+    <div className="relative h-40 w-full overflow-hidden rounded-lg bg-[#1a1a22] sm:h-52">
+      {status === 'loading' && (
+        <div className="absolute inset-0 z-10 flex animate-pulse flex-col items-center justify-center bg-[#1a1a22]">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+          <span className="mt-2 text-xs text-gray-500">Loading&hellip;</span>
+        </div>
+      )}
       <Image
         src={imageUrl}
         alt={`Hazard detected — ${severity}`}
         fill
         sizes="(max-width: 640px) 100vw, 50vw"
-        className="object-cover"
-        onError={() => setHasError(true)}
+        className={`object-cover transition-opacity duration-300 ${
+          status === 'loaded' ? 'opacity-100' : 'opacity-0'
+        }`}
+        onLoad={() => setStatus('loaded')}
+        onError={() => setStatus('error')}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       <div className="absolute bottom-2 left-2">

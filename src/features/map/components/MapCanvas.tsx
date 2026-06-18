@@ -150,7 +150,7 @@ export default function MapCanvas({
 
   if (!hasData) {
     return (
-      <div className="flex h-full items-center justify-center rounded-2xl border border-white/[0.06] bg-[#111116]">
+      <div className="flex h-full items-center justify-center">
         <div className="text-center">
           <svg
             className="mx-auto mb-3 h-12 w-12 text-gray-600"
@@ -177,9 +177,9 @@ export default function MapCanvas({
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative z-0 h-full w-full">
       {/* View mode toggle */}
-      <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
+      <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
         <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-[#14141c]/90 shadow-lg shadow-black/30 backdrop-blur-md">
           {VIEW_OPTIONS.map((opt) => (
             <button
@@ -199,7 +199,7 @@ export default function MapCanvas({
 
       <div
         ref={mapRef}
-        className="h-full w-full overflow-hidden rounded-2xl border border-white/[0.06]"
+        className="h-full w-full"
       />
     </div>
   )
