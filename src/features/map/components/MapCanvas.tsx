@@ -6,6 +6,8 @@ import type { Severity } from '@/lib/types'
 import type { RideRoute } from '@/hooks/useRideRoutes'
 import { getRouteColor } from '@/hooks/useRideRoutes'
 
+export type ViewMode = 'routes' | 'potholes' | 'all'
+
 const SEVERITY_COLOR: Record<Severity, string> = {
   Severe: '#ef4444',
   Moderate: '#eab308',
@@ -20,13 +22,23 @@ const SEVERITY_EMOJI: Record<Severity, string> = {
   Unknown: '\u26AA',
 }
 
+const VIEW_OPTIONS: { key: ViewMode; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'routes', label: 'Routes' },
+  { key: 'potholes', label: 'Potholes' },
+]
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default function MapCanvas({
   potholes,
   routes,
+  viewMode,
+  onViewModeChange,
 }: {
   potholes: Pothole[]
   routes: RideRoute[]
+  viewMode: ViewMode
+  onViewModeChange: (mode: ViewMode) => void
 }) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
@@ -56,77 +68,82 @@ export default function MapCanvas({
     }
 
     const map = mapInstanceRef.current
+    const showRoutes = viewMode === 'routes' || viewMode === 'all'
+    const showPotholes = viewMode === 'potholes' || viewMode === 'all'
     const bounds: [number, number][] = []
 
-    // Clear previous layers
     routeLayerRef.current.clearLayers()
     markerLayerRef.current.clearLayers()
 
     const LObj = L
 
     // Draw route polylines
-    routes.forEach((route) => {
-      if (route.points.length < 2) return
+    if (showRoutes) {
+      routes.forEach((route) => {
+        if (route.points.length < 2) return
 
-      const latlngs = route.points.map((p) => [p.lat, p.lng] as [number, number])
-      const color = getRouteColor(route.status)
+        const latlngs = route.points.map((p) => [p.lat, p.lng] as [number, number])
+        const color = getRouteColor(route.status)
 
-      LObj.polyline(latlngs, {
-        color,
-        weight: 3,
-        opacity: 0.7,
-        dashArray: route.status === 'queued' ? '6, 8' : null,
-      }).addTo(routeLayerRef.current)
+        LObj.polyline(latlngs, {
+          color,
+          weight: 3,
+          opacity: 0.7,
+          dashArray: route.status === 'queued' ? '6, 8' : null,
+        }).addTo(routeLayerRef.current)
 
-      bounds.push(latlngs[0], latlngs[latlngs.length - 1])
-    })
+        bounds.push(latlngs[0], latlngs[latlngs.length - 1])
+      })
+    }
 
     // Draw pothole markers
-    const features = potholes
-      .filter(
-        (p) =>
-          p.consolidated_latitude != null && p.consolidated_longitude != null,
-      )
-      .map((p) => ({
-        lat: p.consolidated_latitude!,
-        lng: p.consolidated_longitude!,
-        severity: p.worst_severity,
-        hits: p.total_detection_hits,
-        color: SEVERITY_COLOR[p.worst_severity],
-        emoji: SEVERITY_EMOJI[p.worst_severity],
-      }))
+    if (showPotholes) {
+      const features = potholes
+        .filter(
+          (p) =>
+            p.consolidated_latitude != null && p.consolidated_longitude != null,
+        )
+        .map((p) => ({
+          lat: p.consolidated_latitude!,
+          lng: p.consolidated_longitude!,
+          severity: p.worst_severity,
+          hits: p.total_detection_hits,
+          color: SEVERITY_COLOR[p.worst_severity],
+          emoji: SEVERITY_EMOJI[p.worst_severity],
+        }))
 
-    features.forEach((p: any) => {
-      const marker = LObj.circleMarker([p.lat, p.lng], {
-        radius: 10,
-        color: p.color,
-        fillColor: p.color,
-        fillOpacity: 0.8,
-        weight: 2,
-      }).addTo(markerLayerRef.current)
+      features.forEach((p: any) => {
+        const marker = LObj.circleMarker([p.lat, p.lng], {
+          radius: 10,
+          color: p.color,
+          fillColor: p.color,
+          fillOpacity: 0.8,
+          weight: 2,
+        }).addTo(markerLayerRef.current)
 
-      const label = p.severity === 'Severe' ? '!' : p.hits.toString()
-      marker.bindTooltip(label, {
-        permanent: true,
-        direction: 'center',
-        className: 'hazard-label',
+        const label = p.severity === 'Severe' ? '!' : p.hits.toString()
+        marker.bindTooltip(label, {
+          permanent: true,
+          direction: 'center',
+          className: 'hazard-label',
+        })
+
+        const popup =
+          '<div class="hazard-popup">' +
+          '<strong>' + p.emoji + ' ' + p.severity + '</strong>' +
+          '<span class="hits">This hazard has been reported <b>' +
+          p.hits +
+          ' times</b></span>' +
+          '</div>'
+        marker.bindPopup(popup)
+        bounds.push([p.lat, p.lng])
       })
-
-      const popup =
-        '<div class="hazard-popup">' +
-        '<strong>' + p.emoji + ' ' + p.severity + '</strong>' +
-        '<span class="hits">This hazard has been reported <b>' +
-        p.hits +
-        ' times</b></span>' +
-        '</div>'
-      marker.bindPopup(popup)
-      bounds.push([p.lat, p.lng])
-    })
+    }
 
     if (bounds.length > 0) {
       map.fitBounds(bounds, { padding: [50, 50] })
     }
-  }, [potholes, routes])
+  }, [potholes, routes, viewMode])
 
   const hasData = potholes.length > 0 || routes.length > 0
 
@@ -159,9 +176,30 @@ export default function MapCanvas({
   }
 
   return (
-    <div
-      ref={mapRef}
-      className="h-full w-full overflow-hidden rounded-2xl border border-white/5"
-    />
+    <div className="relative h-full w-full">
+      {/* View mode toggle */}
+      <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
+        <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-[#0d0d24]/90 shadow-lg shadow-black/30 backdrop-blur-md">
+          {VIEW_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => onViewModeChange(opt.key)}
+              className={`px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                viewMode === opt.key
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div
+        ref={mapRef}
+        className="h-full w-full overflow-hidden rounded-2xl border border-white/5"
+      />
+    </div>
   )
 }
