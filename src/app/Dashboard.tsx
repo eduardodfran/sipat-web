@@ -7,13 +7,16 @@ import { AnalyticsBanner } from '@/features/map/components/AnalyticsBanner'
 import MapCanvas from '@/features/map/components/MapCanvas'
 import type { ViewMode } from '@/features/map/components/MapCanvas'
 import { TimelineDrawer } from '@/features/map/components/TimelineDrawer'
+import HazardSidebar from '@/features/map/components/HazardSidebar'
 import { Skeleton } from '@/components/ui/Skeleton'
+import type { Pothole } from '@/lib/types'
 
 export default function Dashboard() {
   const { potholes, allPotholes, stats, loading, error, filter, setFilter } =
     usePotholeData()
   const { routes } = useRideRoutes()
   const [viewMode, setViewMode] = useState<ViewMode>('all')
+  const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null)
 
   if (error) {
     return (
@@ -50,6 +53,12 @@ export default function Dashboard() {
         routes={routes}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        onPotholeSelect={setSelectedPothole}
+      />
+
+      <HazardSidebar
+        pothole={selectedPothole}
+        onClose={() => setSelectedPothole(null)}
       />
 
       {/* Floating analytics overlay */}
