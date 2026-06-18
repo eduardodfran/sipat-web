@@ -1,10 +1,11 @@
+import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 export function Navbar({ children }: { children?: ReactNode }) {
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a1a]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600/15">
             <svg
               className="h-5 w-5 text-blue-400"
@@ -26,8 +27,23 @@ export function Navbar({ children }: { children?: ReactNode }) {
               Road Hazard Intelligence
             </p>
           </div>
-        </div>
-        {children}
+        </Link>
+
+        <nav className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+          >
+            Dashboard
+          </Link>
+          <Link
+            href="/rides"
+            className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+          >
+            Rides
+          </Link>
+          {children}
+        </nav>
       </div>
     </header>
   )
