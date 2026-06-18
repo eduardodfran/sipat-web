@@ -20,7 +20,7 @@ function StatCard({
   color: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#13133a] px-5 py-4">
+    <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#1a1a22] px-5 py-4">
       <div>
         <p className="text-2xl font-bold text-white">{value}</p>
         <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
@@ -67,7 +67,7 @@ function RideRow({
   const isLoading = actionLoading === ride.id
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/5 bg-[#13133a] shadow-lg shadow-black/20 ring-1 ring-white/5">
+    <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a22] shadow-lg shadow-black/20 ring-1 ring-white/[0.04]">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
@@ -120,14 +120,14 @@ function RideRow({
       </div>
 
       {expanded && ride.error_log && (
-        <div className="border-t border-white/5 px-4 py-3">
+        <div className="border-t border-white/[0.06] px-4 py-3">
           <pre className="whitespace-pre-wrap break-words text-xs text-red-400/80">
             {ride.error_log}
           </pre>
         </div>
       )}
 
-      <div className="border-t border-white/5 px-4 py-2">
+      <div className="border-t border-white/[0.06] px-4 py-2">
         <div className="flex flex-col gap-1 text-[11px] text-gray-600">
           <span className="truncate">
             <span className="text-gray-500">Video:</span> {ride.video_bucket_path}
@@ -171,7 +171,7 @@ export default function RideManager() {
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <StatCard label="Total Rides" value={stats.total} color="text-blue-400" />
+        <StatCard label="Total Rides" value={stats.total} color="text-amber-400" />
         <StatCard label="Queued" value={stats.queued} color="text-gray-400" />
         <StatCard label="Processing" value={stats.processing} color="text-amber-400" />
         <StatCard label="Completed" value={stats.completed} color="text-green-400" />
@@ -189,7 +189,7 @@ export default function RideManager() {
 
       {/* Empty state */}
       {!loading && !hasData && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-[#0f0f2a] py-16">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-white/[0.06] bg-[#111116] py-16">
           <svg
             className="mb-3 h-12 w-12 text-gray-600"
             fill="none"

@@ -8,7 +8,7 @@ export default function Error({
   reset: () => void
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a0a1a] px-6">
+    <div className="flex min-h-screen items-center justify-center bg-[#08080c] px-6">
       <div className="w-full max-w-md text-center">
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
           <svg
@@ -31,7 +31,7 @@ export default function Error({
         </p>
         <button
           onClick={reset}
-          className="mt-6 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-500"
+          className="mt-6 rounded-xl bg-amber-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-500"
         >
           Try Again
         </button>

@@ -15,7 +15,7 @@ const SEVERITY_FILTERS: Array<Severity | 'All'> = [
 
 function HazardImagePlaceholder() {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-[#0d0d24]">
+    <div className="flex h-full w-full flex-col items-center justify-center bg-[#14141c]">
       <svg
         className="h-10 w-10 text-gray-600"
         fill="none"
@@ -42,7 +42,7 @@ function HazardImageCard({ imageUrl, severity }: { imageUrl: string; severity: S
   }
 
   return (
-    <div className="relative h-40 w-full overflow-hidden rounded-lg bg-[#0d0d24] sm:h-52">
+    <div className="relative h-40 w-full overflow-hidden rounded-lg bg-[#14141c] sm:h-52">
       <Image
         src={imageUrl}
         alt={`Hazard detected — ${severity}`}
@@ -87,13 +87,13 @@ export function TimelineDrawer({
       {/* Drag handle */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-center border-t border-white/5 bg-[#0d0d24] py-2"
+        className="flex w-full items-center justify-center border-t border-white/[0.06] bg-[#14141c] py-2"
         aria-label={expanded ? 'Collapse panel' : 'Expand panel'}
       >
         <div className="h-1 w-10 rounded-full bg-gray-600" />
       </button>
 
-      <div className="max-h-[60vh] overflow-y-auto bg-[#0d0d24] px-4 pb-6 pt-2 sm:px-6">
+      <div className="max-h-[60vh] overflow-y-auto bg-[#14141c] px-4 pb-6 pt-2 sm:px-6">
         {/* Filters */}
         <div className="mb-4 flex items-center gap-2">
           <span className="text-xs font-medium text-gray-500">Filter:</span>
@@ -103,7 +103,7 @@ export function TimelineDrawer({
               onClick={() => onFilterChange(s)}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                 filter === s
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-amber-600 text-white'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10'
               }`}
             >
@@ -123,7 +123,7 @@ export function TimelineDrawer({
             <button
               key={p.pothole_id}
               onClick={() => setDetailPothole(p)}
-              className="w-full overflow-hidden rounded-xl border border-white/5 bg-[#13133a] shadow-lg shadow-black/20 ring-1 ring-white/5 text-left transition-colors hover:bg-[#18184a] cursor-pointer"
+              className="w-full overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a22] shadow-lg shadow-black/20 ring-1 ring-white/[0.04] text-left transition-colors hover:bg-[#24242e] cursor-pointer"
             >
               {/* Image section */}
               <HazardImageCard

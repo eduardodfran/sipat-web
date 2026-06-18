@@ -54,12 +54,23 @@ export function useRides() {
 
   const deleteRide = useCallback(async (id: string) => {
     setActionLoading(id)
+
+    const ride = rides.find((r) => r.id === id)
+    const bucket = process.env.NEXT_PUBLIC_SUPABASE_GPS_BUCKET ?? 'ride-data'
+    const pathsToDelete: string[] = []
+    if (ride?.gps_bucket_path) pathsToDelete.push(ride.gps_bucket_path)
+    if (ride?.video_bucket_path) pathsToDelete.push(ride.video_bucket_path)
+
+    if (pathsToDelete.length > 0) {
+      await supabase.storage.from(bucket).remove(pathsToDelete)
+    }
+
     const { error } = await supabase.from('rides_metadata').delete().eq('id', id)
     if (!error) {
       setRides((prev) => prev.filter((r) => r.id !== id))
     }
     setActionLoading(null)
-  }, [])
+  }, [rides])
 
   const reprocessRide = useCallback(async (id: string) => {
     setActionLoading(id)

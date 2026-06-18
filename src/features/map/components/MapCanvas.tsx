@@ -149,7 +149,7 @@ export default function MapCanvas({
 
   if (!hasData) {
     return (
-      <div className="flex h-full items-center justify-center rounded-2xl border border-white/5 bg-[#0f0f2a]">
+      <div className="flex h-full items-center justify-center rounded-2xl border border-white/[0.06] bg-[#111116]">
         <div className="text-center">
           <svg
             className="mx-auto mb-3 h-12 w-12 text-gray-600"
@@ -179,14 +179,14 @@ export default function MapCanvas({
     <div className="relative h-full w-full">
       {/* View mode toggle */}
       <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
-        <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-[#0d0d24]/90 shadow-lg shadow-black/30 backdrop-blur-md">
+        <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-[#14141c]/90 shadow-lg shadow-black/30 backdrop-blur-md">
           {VIEW_OPTIONS.map((opt) => (
             <button
               key={opt.key}
               onClick={() => onViewModeChange(opt.key)}
               className={`px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 viewMode === opt.key
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-amber-600 text-white shadow-sm'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -198,7 +198,7 @@ export default function MapCanvas({
 
       <div
         ref={mapRef}
-        className="h-full w-full overflow-hidden rounded-2xl border border-white/5"
+        className="h-full w-full overflow-hidden rounded-2xl border border-white/[0.06]"
       />
     </div>
   )

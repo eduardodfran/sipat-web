@@ -36,8 +36,8 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a1a]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-[#08080c]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
       </div>
     )
   }
@@ -45,13 +45,13 @@ export default function LoginPage() {
   if (user) return null
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a1a] px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#08080c] px-6">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600/15">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-600/15">
             <svg
-              className="h-6 w-6 text-blue-400"
+              className="h-6 w-6 text-amber-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -71,12 +71,12 @@ export default function LoginPage() {
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 flex rounded-lg border border-white/5 bg-[#13133a] p-1">
+        <div className="mb-6 flex rounded-lg border border-white/5 bg-[#1a1a22] p-1">
           <button
             onClick={() => { setMode('login'); clearError() }}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
               mode === 'login'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-amber-600 text-white shadow-sm'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -86,7 +86,7 @@ export default function LoginPage() {
             onClick={() => { setMode('signup'); clearError() }}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
               mode === 'signup'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-amber-600 text-white shadow-sm'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -109,7 +109,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-white/5 bg-[#13133a] px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-blue-600/50 focus:ring-1 focus:ring-blue-600/30"
+              className="w-full rounded-xl border border-white/5 bg-[#1a1a22] px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/30"
               placeholder="you@example.com"
             />
           </div>
@@ -128,7 +128,7 @@ export default function LoginPage() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-white/5 bg-[#13133a] px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-blue-600/50 focus:ring-1 focus:ring-blue-600/30"
+              className="w-full rounded-xl border border-white/5 bg-[#1a1a22] px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/30"
               placeholder="••••••••"
             />
           </div>
@@ -140,7 +140,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
+            className="w-full rounded-xl bg-amber-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-500 disabled:opacity-50"
           >
             {submitting
               ? 'Please wait...'
@@ -159,7 +159,7 @@ export default function LoginPage() {
         )}
 
         <p className="mt-6 text-center text-xs text-gray-600">
-          <Link href="/" className="text-blue-400 hover:text-blue-300">
+          <Link href="/" className="text-amber-400 hover:text-amber-300">
             Back to dashboard
           </Link>
         </p>

@@ -19,7 +19,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       </head>
-      <body className="min-h-screen bg-[#0a0a1a] text-white antialiased">
+      <body className="min-h-screen bg-[#08080c] text-white antialiased">
         <Script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" strategy="beforeInteractive" />
         <AuthWrapper>{children}</AuthWrapper>
       </body>

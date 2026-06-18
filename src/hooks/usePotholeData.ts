@@ -4,13 +4,15 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Pothole, DashboardStats, Severity } from '@/lib/types'
 
-function computeStats(potholes: Pothole[]): DashboardStats {
+function computeStats(potholes: Pothole[], routeCount = 0, gpsPointCount = 0): DashboardStats {
   const stats: DashboardStats = {
     totalPotholes: potholes.length,
     severeCount: 0,
     moderateCount: 0,
     minorCount: 0,
     totalHits: 0,
+    routeCount,
+    gpsPointCount,
   }
 
   for (const p of potholes) {

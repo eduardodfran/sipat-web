@@ -7,15 +7,15 @@ import type { Pothole } from '@/lib/types'
 
 function LoadingSpinner() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-[#0d0d24]">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+    <div className="flex h-full w-full items-center justify-center bg-[#14141c]">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
     </div>
   )
 }
 
 function ImagePlaceholder() {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-[#0d0d24]">
+    <div className="flex h-full w-full flex-col items-center justify-center bg-[#14141c]">
       <svg
         className="h-14 w-14 text-gray-600"
         fill="none"
@@ -44,7 +44,7 @@ function DetailImage({ imageUrl }: { imageUrl: string | null }) {
   }
 
   return (
-    <div className="relative h-64 w-full overflow-hidden rounded-xl bg-[#0d0d24] sm:h-80">
+    <div className="relative h-64 w-full overflow-hidden rounded-xl bg-[#14141c] sm:h-80">
       {status === 'loading' && (
         <div className="absolute inset-0 z-10">
           <LoadingSpinner />
@@ -136,14 +136,14 @@ export default function PotholeDetailSheet({
 
       {/* Sheet */}
       <div
-        className={`relative z-10 flex w-full flex-col overflow-hidden rounded-t-2xl border border-white/5 bg-[#0d0d24] shadow-2xl shadow-black/40 transition-all duration-300 sm:mx-4 sm:max-w-lg sm:rounded-2xl ${
+        className={`relative z-10 flex w-full flex-col overflow-hidden rounded-t-2xl border border-white/[0.06] bg-[#14141c] shadow-2xl shadow-black/40 transition-all duration-300 sm:mx-4 sm:max-w-lg sm:rounded-2xl ${
           visible
             ? 'translate-y-0 opacity-100'
             : 'translate-y-full opacity-0 sm:translate-y-4 sm:scale-95'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
           <Badge severity={pothole.worst_severity} size="md" />
           <button
             onClick={onClose}
@@ -175,7 +175,7 @@ export default function PotholeDetailSheet({
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="rounded-xl border border-white/5 bg-[#13133a] px-4 py-3"
+                className="rounded-xl border border-white/[0.06] bg-[#1a1a22] px-4 py-3"
               >
                 <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
                   {s.label}

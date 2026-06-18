@@ -14,12 +14,12 @@ export function Navbar() {
   const { user, signOut } = useAuth()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a1a]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#08080c]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600/15">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-600/15">
             <svg
-              className="h-5 w-5 text-blue-400"
+              className="h-5 w-5 text-amber-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -56,7 +56,7 @@ export function Navbar() {
           ))}
 
           {user ? (
-            <div className="flex items-center gap-3 border-l border-white/5 pl-4">
+            <div className="flex items-center gap-3 border-l border-white/[0.06] pl-4">
               <span className="hidden text-xs text-gray-500 sm:block">
                 {user.email}
               </span>
@@ -70,7 +70,7 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-500"
+              className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-amber-500"
             >
               Sign In
             </Link>
