@@ -9,6 +9,8 @@ export interface Pothole {
   citizen_first_reported_at: string
   latest_activity_at: string
   image_url: string | null
+  reporter_username: string | null
+  reporter_avatar: string | null
 }
 
 export interface DashboardStats {

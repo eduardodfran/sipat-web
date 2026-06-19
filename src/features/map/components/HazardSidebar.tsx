@@ -108,6 +108,27 @@ export default function HazardSidebar({
           <div className="flex-1 overflow-y-auto px-5 py-4">
             <DetailImage imageUrl={pothole.image_url} />
 
+            {/* Reporter */}
+            {pothole.reporter_username && (
+              <div className="mt-3 flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#1a1a22] px-4 py-3">
+                {pothole.reporter_avatar ? (
+                  <img
+                    src={pothole.reporter_avatar}
+                    alt={pothole.reporter_username}
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-600/20 text-sm font-bold text-amber-400">
+                    {pothole.reporter_username.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">Reported by</p>
+                  <p className="text-sm font-semibold text-white">{pothole.reporter_username}</p>
+                </div>
+              </div>
+            )}
+
             <div className="mt-4 space-y-3">
               {/* Severity + hits row */}
               <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#1a1a22] px-4 py-3">
