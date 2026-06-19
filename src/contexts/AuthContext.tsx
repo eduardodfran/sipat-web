@@ -10,9 +10,14 @@ interface AuthState {
   error: string | null
 }
 
+interface SignUpFields {
+  fullName: string
+  username: string
+}
+
 interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>
+  signUp: (email: string, password: string, fields: SignUpFields) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   clearError: () => void
 }
@@ -53,12 +58,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: null }
   }, [])
 
-  const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password })
+  const signUp = useCallback(async (email: string, password: string, fields: SignUpFields) => {
+    const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) {
       setState((prev) => ({ ...prev, error: error.message }))
       return { error: error.message }
     }
+
+    if (data.user) {
+      await supabase.from('profiles').insert({
+        id: data.user.id,
+        full_name: fields.fullName,
+        username: fields.username,
+      })
+    }
+
     return { error: null }
   }, [])
 

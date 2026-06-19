@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [username, setUsername] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [signedUp, setSignedUp] = useState(false)
 
@@ -24,7 +26,9 @@ export default function LoginPage() {
     clearError()
     setSubmitting(true)
     const result =
-      mode === 'login' ? await signIn(email, password) : await signUp(email, password)
+      mode === 'login'
+        ? await signIn(email, password)
+        : await signUp(email, password, { fullName, username })
     setSubmitting(false)
     if (!result.error && mode === 'login') {
       router.push('/')
@@ -73,7 +77,7 @@ export default function LoginPage() {
         {/* Tabs */}
         <div className="mb-6 flex rounded-lg border border-white/5 bg-[#1a1a22] p-1">
           <button
-            onClick={() => { setMode('login'); clearError() }}
+            onClick={() => { setMode('login'); clearError(); setFullName(''); setUsername('') }}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
               mode === 'login'
                 ? 'bg-amber-600 text-white shadow-sm'
@@ -132,6 +136,45 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
+
+          {mode === 'signup' && (
+            <>
+              <div>
+                <label
+                  htmlFor="fullName"
+                  className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Full Name
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full rounded-xl border border-white/5 bg-[#1a1a22] px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/30"
+                  placeholder="Juan dela Cruz"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="username"
+                  className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Username
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full rounded-xl border border-white/5 bg-[#1a1a22] px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/30"
+                  placeholder="juandelacruz"
+                />
+              </div>
+            </>
+          )}
 
           {error && (
             <p className="text-sm text-red-400">{error}</p>
