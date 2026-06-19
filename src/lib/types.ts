@@ -11,6 +11,14 @@ export interface Pothole {
   image_url: string | null
   reporter_username: string | null
   reporter_avatar: string | null
+  detectors_count: number
+}
+
+export interface Detector {
+  user_id: string
+  username: string | null
+  full_name: string | null
+  detected_at: string
 }
 
 export interface DashboardStats {

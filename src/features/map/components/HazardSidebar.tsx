@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/Badge'
+import { usePotholeDetectors } from '@/hooks/usePotholeDetectors'
 import type { Pothole } from '@/lib/types'
 
 const SEVERITY_LABEL: Record<string, string> = {
@@ -61,6 +62,10 @@ export default function HazardSidebar({
   onClose: () => void
 }) {
   const [visible, setVisible] = useState(false)
+  const { detectors, loading } = usePotholeDetectors(
+    pothole?.consolidated_latitude ?? null,
+    pothole?.consolidated_longitude ?? null,
+  )
 
   useEffect(() => {
     if (pothole) {
@@ -194,6 +199,42 @@ export default function HazardSidebar({
               <p className="text-center font-mono text-xs text-gray-600">
                 Hazard #{pothole.pothole_id}
               </p>
+
+              {/* Detector list */}
+              {loading && (
+                <div className="flex justify-center py-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                </div>
+              )}
+              {!loading && detectors.length > 0 && (
+                <div className="rounded-xl border border-white/[0.06] bg-[#1a1a22] p-3">
+                  <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                    Detected by ({detectors.length})
+                  </p>
+                  <div className="space-y-2">
+                    {detectors.map((d, i) => (
+                      <div key={`${d.user_id}-${i}`} className="flex items-center gap-2.5">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-bold text-amber-400">
+                          {(d.username ?? d.full_name ?? '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-white">
+                            {d.username ?? d.full_name ?? 'Unknown'}
+                          </p>
+                        </div>
+                        <p className="shrink-0 text-[11px] text-gray-500">
+                          {new Date(d.detected_at).toLocaleDateString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

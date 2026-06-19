@@ -55,7 +55,7 @@ export function usePotholeData() {
     const { data, error: dbError } = await supabase
       .from('v_unified_potholes')
       .select(
-        'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar',
+        'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count',
       )
       .order('total_detection_hits', { ascending: false })
 
@@ -76,6 +76,7 @@ export function usePotholeData() {
       image_url: row.image_url ?? null,
       reporter_username: row.reporter_username ?? null,
       reporter_avatar: row.reporter_avatar ?? null,
+      detectors_count: row.detectors_count ?? 0,
     }))
 
     setPotholes(mapped)
