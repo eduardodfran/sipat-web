@@ -230,6 +230,11 @@ export default function HazardSidebar({
                             minute: '2-digit',
                           })}
                         </p>
+                        {i === detectors.length - 1 && (
+                          <span className="rounded-md bg-amber-600/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                            Latest
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>

@@ -28,6 +28,11 @@ export function usePotholeDetectors(lat: number | null, lng: number | null) {
         }
         setDetectors((data ?? []) as Detector[])
       })
+      .catch((err) => {
+        if (cancelled) return
+        setLoading(false)
+        console.error('Detectors RPC exception:', err)
+      })
 
     return () => { cancelled = true }
   }, [lat, lng])
