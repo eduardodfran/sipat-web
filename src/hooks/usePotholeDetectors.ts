@@ -23,7 +23,7 @@ export function usePotholeDetectors(lat: number | null, lng: number | null) {
         if (cancelled) return
         setLoading(false)
         if (error) {
-          console.error('Failed to fetch detectors:', error)
+          console.error('Failed to fetch detectors:', JSON.stringify(error, null, 2))
           return
         }
         setDetectors((data ?? []) as Detector[])
