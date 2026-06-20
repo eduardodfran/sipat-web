@@ -106,7 +106,7 @@ export default function PotholeDetailSheet({
   if (!pothole) return null
 
   const stats = [
-    { label: 'Hits', value: pothole.total_detection_hits },
+    { label: 'Confirmed By', value: pothole.detectors_count },
     {
       label: 'Latitude',
       value: pothole.consolidated_latitude?.toFixed(5) ?? '—',

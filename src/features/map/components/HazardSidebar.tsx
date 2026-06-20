@@ -121,7 +121,7 @@ export default function HazardSidebar({
             <DetailImage imageUrl={pothole.image_url} />
 
             <div className="mt-4 space-y-3">
-              {/* Severity + hits row */}
+              {/* Severity + confirmed row */}
               <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#1a1a22] px-4 py-3">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Severity</p>
@@ -130,8 +130,8 @@ export default function HazardSidebar({
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Detections</p>
-                  <p className="mt-0.5 text-lg font-bold text-white">{pothole.total_detection_hits}</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Confirmed By</p>
+                  <p className="mt-0.5 text-lg font-bold text-white">{pothole.detectors_count}</p>
                 </div>
               </div>
 
