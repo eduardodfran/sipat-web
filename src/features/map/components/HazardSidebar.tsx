@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/Badge'
 import { usePotholeDetectors } from '@/hooks/usePotholeDetectors'
+import { useDetectionComments } from '@/hooks/useDetectionComments'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Pothole } from '@/lib/types'
 
 const SEVERITY_LABEL: Record<string, string> = {
@@ -62,10 +64,15 @@ export default function HazardSidebar({
   onClose: () => void
 }) {
   const [visible, setVisible] = useState(false)
+  const [commentDraft, setCommentDraft] = useState('')
   const { detectors, loading } = usePotholeDetectors(
     pothole?.consolidated_latitude ?? null,
     pothole?.consolidated_longitude ?? null,
   )
+  const { comments, loading: commentsLoading, posting, postComment } = useDetectionComments(
+    pothole?.pothole_id ?? null,
+  )
+  const { user } = useAuth()
 
   useEffect(() => {
     if (pothole) {
@@ -219,6 +226,89 @@ export default function HazardSidebar({
                   </div>
                 </div>
               )}
+
+              {/* Detection comments */}
+              <div className="rounded-xl border border-white/[0.06] bg-[#1a1a22] p-3">
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                  Detection comments ({comments.length})
+                </p>
+
+                {commentsLoading && (
+                  <div className="flex justify-center py-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                  </div>
+                )}
+
+                {!commentsLoading && comments.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {comments.map((c) => (
+                      <div key={c.id} className="flex gap-2">
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-[10px] font-bold text-amber-400">
+                          {(c.username ?? '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xs font-semibold text-white">
+                              {c.username ?? 'Unknown'}
+                            </span>
+                            <span className="text-[10px] text-gray-600">
+                              {new Date(c.created_at).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-300">{c.body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {!commentsLoading && comments.length === 0 && (
+                  <p className="mb-3 text-xs text-gray-600">No comments yet</p>
+                )}
+
+                {user ? (
+                  <div className="flex gap-2">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-bold text-amber-400">
+                      {(user.email ?? '?').charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex flex-1 gap-2">
+                      <input
+                        type="text"
+                        value={commentDraft}
+                        onChange={(e) => setCommentDraft(e.target.value)}
+                        placeholder="Write a comment..."
+                        className="min-w-0 flex-1 rounded-lg border border-white/[0.08] bg-[#12121a] px-3 py-1.5 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-amber-600/40"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault()
+                            if (commentDraft.trim() && !posting) {
+                              postComment(commentDraft)
+                              setCommentDraft('')
+                            }
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (commentDraft.trim() && !posting) {
+                            postComment(commentDraft)
+                            setCommentDraft('')
+                          }
+                        }}
+                        disabled={!commentDraft.trim() || posting}
+                        className="rounded-lg bg-amber-600/20 px-2.5 py-1.5 text-xs font-semibold text-amber-400 transition-colors hover:bg-amber-600/30 disabled:opacity-40"
+                      >
+                        {posting ? '...' : 'Send'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-600">Sign in to comment</p>
+                )}
+              </div>
             </div>
           </div>
         </div>

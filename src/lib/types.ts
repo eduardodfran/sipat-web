@@ -21,6 +21,15 @@ export interface Detector {
   detected_at: string
 }
 
+export interface DetectionComment {
+  id: string
+  body: string
+  created_at: string
+  user_id: string
+  username: string | null
+  avatar_url: string | null
+}
+
 export interface DashboardStats {
   totalPotholes: number
   severeCount: number
