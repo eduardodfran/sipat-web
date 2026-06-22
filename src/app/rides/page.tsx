@@ -16,8 +16,8 @@ export default function RidesPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#08080c]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-[#0c0c14]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-primary border-t-transparent" />
       </div>
     )
   }
@@ -25,7 +25,7 @@ export default function RidesPage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-[#08080c]">
+    <div className="min-h-screen bg-[#0c0c14]">
       <Navbar />
       <main className="mx-auto max-w-7xl px-6 py-6">
         <div className="mb-6">

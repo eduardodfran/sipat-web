@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 
 const NAV_LINKS = [
   { href: '/', label: 'Dashboard' },
+  { href: '/map', label: 'Map' },
   { href: '/rides', label: 'Rides' },
 ]
 
@@ -14,12 +15,12 @@ export function Navbar() {
   const { user, signOut } = useAuth()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#08080c]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-asphalt/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-600/15">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-primary/10">
             <svg
-              className="h-5 w-5 text-amber-400"
+              className="h-5 w-5 text-amber-primary"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -34,7 +35,7 @@ export function Navbar() {
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-tight text-white">Sipat</h1>
-            <p className="text-[11px] font-medium uppercase tracking-widest text-gray-500">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-text-muted">
               Road Hazard Intelligence
             </p>
           </div>
@@ -48,7 +49,7 @@ export function Navbar() {
               className={`text-sm font-medium transition-colors ${
                 pathname === link.href
                   ? 'text-white'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-text-secondary hover:text-white'
               }`}
             >
               {link.label}
@@ -56,13 +57,13 @@ export function Navbar() {
           ))}
 
           {user ? (
-            <div className="flex items-center gap-3 border-l border-white/[0.06] pl-4">
-              <span className="hidden text-xs text-gray-500 sm:block">
+            <div className="flex items-center gap-3 border-l border-white/[0.04] pl-4">
+              <span className="hidden text-xs text-text-muted sm:block">
                 {user.email}
               </span>
               <button
                 onClick={signOut}
-                className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+                className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-white/10 hover:text-white"
               >
                 Sign Out
               </button>
@@ -70,7 +71,7 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-amber-500"
+              className="rounded-lg bg-amber-primary px-3 py-1.5 text-xs font-semibold text-asphalt transition-colors hover:bg-amber-dim"
             >
               Sign In
             </Link>
