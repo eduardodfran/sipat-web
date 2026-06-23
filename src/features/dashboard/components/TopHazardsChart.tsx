@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import type { Pothole } from '@/lib/types'
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -23,8 +23,8 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
 
 export function TopHazardsChart({ potholes }: { potholes: Pothole[] }) {
   const data = potholes
-    .slice(0, 8)
     .sort((a, b) => b.total_detection_hits - a.total_detection_hits)
+    .slice(0, 8)
     .map((p) => ({
       name: `#${p.pothole_id}`,
       hits: p.total_detection_hits,
@@ -61,7 +61,7 @@ export function TopHazardsChart({ potholes }: { potholes: Pothole[] }) {
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--color-surface-hover)' }} />
             <Bar dataKey="hits" radius={[4, 4, 0, 0]} maxBarSize={36}>
               {data.map((entry) => (
-                <rect key={entry.name} fill={entry.fill} />
+                <Cell key={entry.name} fill={entry.fill} />
               ))}
             </Bar>
           </BarChart>
