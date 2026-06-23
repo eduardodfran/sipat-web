@@ -22,7 +22,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
 }
 
 export function TopHazardsChart({ potholes }: { potholes: Pothole[] }) {
-  const data = potholes
+  const data = [...potholes]
     .sort((a, b) => b.total_detection_hits - a.total_detection_hits)
     .slice(0, 8)
     .map((p) => ({
