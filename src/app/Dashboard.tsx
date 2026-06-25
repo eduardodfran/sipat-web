@@ -71,7 +71,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-asphalt p-4">
+      <div className="min-h-[calc(100vh-4rem)] p-4">
         <Skeleton className="h-64" />
         <div className="mt-px grid grid-cols-1 lg:grid-cols-12">
           <div className="lg:col-span-5 border-r border-border">
@@ -89,7 +89,7 @@ export default function Dashboard() {
   const recentHazards = allPotholes.slice(0, 6)
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-asphalt">
+    <div className="min-h-[calc(100vh-4rem)]">
       {/* HEADLINE SECTION — centered full-width */}
       <div className="border-b border-border bg-gradient-to-b from-surface/50 to-transparent">
         <div className="mx-auto max-w-6xl px-6 py-8 text-center lg:px-8">
