@@ -15,12 +15,12 @@ export function Navbar() {
   const { user, signOut } = useAuth()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-asphalt/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-border bg-asphalt/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-primary/10">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-dim">
             <svg
-              className="h-5 w-5 text-amber-primary"
+              className="h-5 w-5 text-cyan-accent"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -48,8 +48,8 @@ export function Navbar() {
               href={link.href}
               className={`text-sm font-medium transition-colors ${
                 pathname === link.href
-                  ? 'text-white'
-                  : 'text-text-secondary hover:text-white'
+                  ? 'text-cyan-accent'
+                  : 'text-text-secondary hover:text-cyan-hover'
               }`}
             >
               {link.label}
@@ -57,7 +57,7 @@ export function Navbar() {
           ))}
 
           {user ? (
-            <div className="flex items-center gap-3 border-l border-white/[0.04] pl-4">
+            <div className="flex items-center gap-3 border-l border-border pl-4">
               <span className="hidden text-xs text-text-muted sm:block">
                 {user.email}
               </span>
@@ -71,7 +71,7 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="rounded-lg bg-amber-primary px-3 py-1.5 text-xs font-semibold text-asphalt transition-colors hover:bg-amber-dim"
+              className="rounded-lg bg-cyan-accent px-3 py-1.5 text-xs font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
             >
               Sign In
             </Link>
