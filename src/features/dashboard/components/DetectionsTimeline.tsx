@@ -39,9 +39,9 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
 
   if (data.length === 0) {
     return (
-      <div className="p-5">
+    <div className="p-5">
         <h3 className="text-sm font-semibold text-text-primary">Detections Over Time</h3>
-        <p className="mt-0.5 text-xs text-text-muted">Daily detection activity</p>
+        <p className="mt-0.5 text-xs text-text-muted">No timeline data yet</p>
         <div className="mt-4 flex h-48 items-center justify-center">
           <p className="text-xs text-text-muted">No timeline data yet</p>
         </div>
@@ -58,8 +58,8 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
           <AreaChart data={data} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="detectionGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#e6a817" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#e6a817" stopOpacity={0} />
+                <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -73,7 +73,7 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
             <Area
               type="monotone"
               dataKey="detections"
-              stroke="#e6a817"
+              stroke="#06b6d4"
               strokeWidth={2}
               fill="url(#detectionGradient)"
             />
