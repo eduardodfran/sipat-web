@@ -92,7 +92,7 @@ export default function Dashboard() {
     <div className="min-h-[calc(100vh-4rem)] bg-asphalt">
       {/* HEADLINE SECTION — centered full-width */}
       <div className="border-b border-border bg-gradient-to-b from-surface/50 to-transparent">
-        <div className="px-6 py-8 text-center">
+        <div className="mx-auto max-w-6xl px-6 py-8 text-center lg:px-8">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Hazard count</p>
           <p className="mt-1 text-[80px] lg:text-[120px] font-black leading-none tracking-tighter text-text-primary drop-shadow-[0_0_30px_rgba(250,250,250,0.1)]">
             {stats.totalPotholes}
@@ -134,8 +134,8 @@ export default function Dashboard() {
       </div>
 
       {/* CONTENT SECTION — 40/60 split */}
-      <div className="p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12">
+      <div className="p-6 lg:px-8">
+        <div className="mx-auto max-w-6xl grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Left 40%: Recent hazards */}
           <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised p-5 lg:col-span-5">
             <div className="mb-4 flex items-end justify-between">
@@ -243,17 +243,19 @@ export default function Dashboard() {
       </div>
 
       {/* CHART SECTION */}
-      <div className="p-4">
-        <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
-          <DetectionsTimeline potholes={allPotholes} />
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="px-6 pb-6 lg:px-8">
+        <div className="mx-auto max-w-6xl space-y-6">
           <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
-            <SeverityBarChart potholes={allPotholes} />
+            <DetectionsTimeline potholes={allPotholes} />
           </div>
-          <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
-            <TopHazardsChart potholes={allPotholes} />
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+              <SeverityBarChart potholes={allPotholes} />
+            </div>
+            <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+              <TopHazardsChart potholes={allPotholes} />
+            </div>
           </div>
         </div>
       </div>
