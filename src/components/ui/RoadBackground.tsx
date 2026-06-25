@@ -1,6 +1,6 @@
 export function RoadBackground() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.15]">
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.08]">
       <svg
         className="h-full w-full"
         viewBox="0 0 1200 800"
