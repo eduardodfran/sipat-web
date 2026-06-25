@@ -26,20 +26,20 @@ function SeverityBar({ label, count, total, color }: { label: string; count: num
 }
 
 function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Pothole) => void }) {
-  const severityColors: Record<string, { dot: string; text: string }> = {
-    Severe: { dot: 'bg-red-hazard', text: 'text-red-400' },
-    Moderate: { dot: 'bg-amber-warn', text: 'text-amber-400' },
-    Minor: { dot: 'bg-green-safe', text: 'text-green-400' },
-    Unknown: { dot: 'bg-gray-500', text: 'text-gray-400' },
+  const severityColors: Record<string, { dot: string; text: string; border: string; bg: string }> = {
+    Severe: { dot: 'bg-red-hazard', text: 'text-red-400', border: 'border-l-red-hazard', bg: 'hover:bg-red-hazard/5' },
+    Moderate: { dot: 'bg-amber-warn', text: 'text-amber-400', border: 'border-l-amber-warn', bg: 'hover:bg-amber-warn/5' },
+    Minor: { dot: 'bg-green-safe', text: 'text-green-400', border: 'border-l-green-safe', bg: 'hover:bg-green-safe/5' },
+    Unknown: { dot: 'bg-gray-500', text: 'text-gray-400', border: 'border-l-gray-500', bg: 'hover:bg-gray-500/5' },
   }
   const s = severityColors[pothole.worst_severity] ?? severityColors.Unknown
 
   return (
     <button
       onClick={() => onSelect(pothole)}
-      className="flex w-full items-center gap-3 rounded-lg py-3 text-left transition-colors hover:bg-surface-hover"
+      className={`flex w-full items-center gap-3 rounded-lg border-l-2 py-3 pl-3 pr-2 text-left transition-all ${s.border} ${s.bg} hover:pl-4`}
     >
-      <div className={`h-2.5 w-2.5 shrink-0 ${s.dot}`} />
+      <div className={`h-2 w-2 shrink-0 rounded-full ${s.dot}`} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold ${s.text}`}>{pothole.worst_severity}</span>
@@ -91,10 +91,10 @@ export default function Dashboard() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-asphalt">
       {/* HEADLINE SECTION — centered full-width */}
-      <div className="border-b border-border bg-surface/30">
+      <div className="border-b border-border bg-gradient-to-b from-surface/50 to-transparent">
         <div className="px-6 py-8 text-center">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Hazard count</p>
-          <p className="mt-1 text-[80px] lg:text-[120px] font-black leading-none tracking-tighter text-text-primary">
+          <p className="mt-1 text-[80px] lg:text-[120px] font-black leading-none tracking-tighter text-text-primary drop-shadow-[0_0_30px_rgba(250,250,250,0.1)]">
             {stats.totalPotholes}
           </p>
           <p className="text-xs text-text-secondary mt-2">
@@ -137,7 +137,7 @@ export default function Dashboard() {
       <div className="p-4">
         <div className="grid grid-cols-1 lg:grid-cols-12">
           {/* Left 40%: Recent hazards */}
-          <div className="rounded-xl border border-border bg-surface p-5 lg:col-span-5">
+          <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised p-5 lg:col-span-5">
             <div className="mb-4 flex items-end justify-between">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Latest</p>
@@ -157,7 +157,12 @@ export default function Dashboard() {
             </div>
 
             {recentHazards.length === 0 ? (
-              <div className="flex flex-col items-center justify-center border border-dashed border-border py-16">
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-white/[0.01] py-16">
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-cyan-dim">
+                  <svg className="h-6 w-6 text-cyan-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                </div>
                 <p className="text-sm font-semibold text-text-secondary">No hazards detected</p>
                 <p className="mt-1 text-xs text-text-muted">Process a ride to start detecting</p>
               </div>
@@ -173,15 +178,15 @@ export default function Dashboard() {
           {/* Right 60%: Quick actions + severity legend */}
           <div className="grid grid-cols-2 gap-4 lg:col-span-7">
               {/* Quick actions */}
-              <div className="rounded-xl border border-border bg-surface p-5">
+              <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised p-5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">Navigate</p>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Link
                     href="/map"
-                    className="group flex items-center gap-3 py-2 text-left transition-colors hover:bg-surface-hover -mx-3 px-3"
+                    className="group flex items-center gap-3 rounded-lg bg-white/[0.02] p-3 text-left transition-all hover:bg-cyan-dim hover:shadow-[0_0_20px_rgba(6,182,212,0.05)]"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-cyan-dim">
-                      <svg className="h-4 w-4 text-cyan-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-dim transition-colors group-hover:bg-cyan-accent/20">
+                      <svg className="h-5 w-5 text-cyan-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503-11.063a18.022 18.022 0 013.968 1.373 18.18 18.18 0 016.115 4.874 18.15 18.15 0 013.093 7.368M6.75 4.5v.75A.75.75 0 016 6H4.5a.75.75 0 01-.75-.75v-.75m0 0h1.5m-1.5 0V3.75A2.25 2.25 0 017.875 1.5h.375m0 0h-.375A2.25 2.25 0 006 3.75v.75m0 0H4.5" />
                       </svg>
                     </div>
@@ -189,17 +194,17 @@ export default function Dashboard() {
                       <p className="text-sm font-semibold text-text-primary">Open Map</p>
                       <p className="text-xs text-text-muted">Full-screen hazard view</p>
                     </div>
-                    <svg className="h-3.5 w-3.5 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-cyan-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
                   </Link>
 
                   <Link
                     href="/rides"
-                    className="group flex items-center gap-3 py-2 text-left transition-colors hover:bg-surface-hover -mx-3 px-3"
+                    className="group flex items-center gap-3 rounded-lg bg-white/[0.02] p-3 text-left transition-all hover:bg-green-safe/5 hover:shadow-[0_0_20px_rgba(34,197,94,0.05)]"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-green-safe/10">
-                      <svg className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-safe/10 transition-colors group-hover:bg-green-safe/20">
+                      <svg className="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H18.75m-7.5-3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                       </svg>
                     </div>
@@ -207,7 +212,7 @@ export default function Dashboard() {
                       <p className="text-sm font-semibold text-text-primary">Ride History</p>
                       <p className="text-xs text-text-muted">View processed rides</p>
                     </div>
-                    <svg className="h-3.5 w-3.5 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
                   </Link>
@@ -215,18 +220,18 @@ export default function Dashboard() {
               </div>
 
               {/* Severity legend */}
-              <div className="rounded-xl border border-border bg-surface p-5">
+              <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised p-5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">Severity Scale</p>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {[
-                    { label: 'Severe', desc: 'Structural damage risk', color: 'bg-red-hazard' },
-                    { label: 'Moderate', desc: 'Vehicle impact possible', color: 'bg-amber-warn' },
-                    { label: 'Minor', desc: 'Surface irregularity', color: 'bg-green-safe' },
+                    { label: 'Severe', desc: 'Structural damage risk', color: 'bg-red-hazard', textColor: 'text-red-400', bgColor: 'bg-red-hazard/10' },
+                    { label: 'Moderate', desc: 'Vehicle impact possible', color: 'bg-amber-warn', textColor: 'text-amber-400', bgColor: 'bg-amber-warn/10' },
+                    { label: 'Minor', desc: 'Surface irregularity', color: 'bg-green-safe', textColor: 'text-green-400', bgColor: 'bg-green-safe/10' },
                   ].map((s) => (
-                    <div key={s.label} className="flex items-center gap-2.5">
-                      <div className={`h-2 w-2 shrink-0 ${s.color}`} />
+                    <div key={s.label} className={`flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:${s.bgColor}`}>
+                      <div className={`h-3 w-3 shrink-0 rounded-full ${s.color}`} />
                       <div>
-                        <span className="text-xs font-semibold text-text-primary">{s.label}</span>
+                        <span className={`text-xs font-semibold ${s.textColor}`}>{s.label}</span>
                         <span className="ml-1.5 text-[10px] text-text-muted">{s.desc}</span>
                       </div>
                     </div>
@@ -237,17 +242,19 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* CHART SECTION — full width */}
-      <div className="border-b border-border">
-        <DetectionsTimeline potholes={allPotholes} />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-border">
-        <div className="border-r border-border">
-          <SeverityBarChart potholes={allPotholes} />
+      {/* CHART SECTION */}
+      <div className="p-4">
+        <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+          <DetectionsTimeline potholes={allPotholes} />
         </div>
-        <div>
-          <TopHazardsChart potholes={allPotholes} />
+
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+            <SeverityBarChart potholes={allPotholes} />
+          </div>
+          <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+            <TopHazardsChart potholes={allPotholes} />
+          </div>
         </div>
       </div>
 
