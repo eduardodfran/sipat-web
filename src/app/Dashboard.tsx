@@ -37,7 +37,7 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
   return (
     <button
       onClick={() => onSelect(pothole)}
-      className="flex w-full items-center gap-3 border-b border-border py-3 text-left transition-colors hover:bg-surface-hover last:border-b-0"
+      className="flex w-full items-center gap-3 rounded-lg py-3 text-left transition-colors hover:bg-surface-hover"
     >
       <div className={`h-2.5 w-2.5 shrink-0 ${s.dot}`} />
       <div className="min-w-0 flex-1">
@@ -134,20 +134,20 @@ export default function Dashboard() {
       </div>
 
       {/* CONTENT SECTION — 40/60 split */}
-      <div className="border-b border-border">
+      <div className="p-4">
         <div className="grid grid-cols-1 lg:grid-cols-12">
           {/* Left 40%: Recent hazards */}
-          <div className="border-r border-border px-6 py-4 lg:col-span-5">
+          <div className="rounded-xl border border-border bg-surface p-5 lg:col-span-5">
             <div className="mb-4 flex items-end justify-between">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Latest</p>
                 <h3 className="mt-1 text-lg font-bold text-text-primary">Recent Hazards</h3>
               </div>
               {allPotholes.length > 6 && (
-                <Link
-                  href="/map"
-                  className="group flex items-center gap-1.5 bg-amber-primary/10 px-3 py-1.5 text-xs font-bold text-amber-primary transition-colors hover:bg-amber-primary/20"
-                >
+                  <Link
+                    href="/map"
+                    className="group flex items-center gap-1.5 bg-cyan-dim px-3 py-1.5 text-xs font-bold text-cyan-accent transition-colors hover:bg-cyan-accent/20"
+                  >
                   View all
                   <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -171,18 +171,17 @@ export default function Dashboard() {
           </div>
 
           {/* Right 60%: Quick actions + severity legend */}
-          <div className="flex flex-col justify-center lg:col-span-7">
-            <div className="grid grid-cols-2 divide-x divide-border">
+          <div className="grid grid-cols-2 gap-4 lg:col-span-7">
               {/* Quick actions */}
-              <div className="px-6 py-4">
+              <div className="rounded-xl border border-border bg-surface p-5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">Navigate</p>
                 <div className="space-y-1">
                   <Link
                     href="/map"
                     className="group flex items-center gap-3 py-2 text-left transition-colors hover:bg-surface-hover -mx-3 px-3"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-blue-steel/10">
-                      <svg className="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-cyan-dim">
+                      <svg className="h-4 w-4 text-cyan-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503-11.063a18.022 18.022 0 013.968 1.373 18.18 18.18 0 016.115 4.874 18.15 18.15 0 013.093 7.368M6.75 4.5v.75A.75.75 0 016 6H4.5a.75.75 0 01-.75-.75v-.75m0 0h1.5m-1.5 0V3.75A2.25 2.25 0 017.875 1.5h.375m0 0h-.375A2.25 2.25 0 006 3.75v.75m0 0H4.5" />
                       </svg>
                     </div>
@@ -216,7 +215,7 @@ export default function Dashboard() {
               </div>
 
               {/* Severity legend */}
-              <div className="px-6 py-4">
+              <div className="rounded-xl border border-border bg-surface p-5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">Severity Scale</p>
                 <div className="space-y-2">
                   {[
@@ -234,7 +233,6 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
