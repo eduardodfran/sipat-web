@@ -10,21 +10,6 @@ import { TopHazardsChart } from '@/features/dashboard/components/TopHazardsChart
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { Pothole } from '@/lib/types'
 
-function SeverityBar({ label, count, total, color }: { label: string; count: number; total: number; color: string }) {
-  const pct = total > 0 ? (count / total) * 100 : 0
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-text-secondary">{label}</span>
-        <span className="text-xs font-bold text-text-primary">{count}</span>
-      </div>
-      <div className="h-1.5 bg-white/[0.04]">
-        <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  )
-}
-
 function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Pothole) => void }) {
   const severityColors: Record<string, { dot: string; text: string; border: string; bg: string }> = {
     Severe: { dot: 'bg-red-hazard', text: 'text-red-400', border: 'border-l-red-hazard', bg: 'hover:bg-red-hazard/5' },
@@ -43,8 +28,10 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold ${s.text}`}>{pothole.worst_severity}</span>
-          <span className="text-[11px] text-text-muted">#{pothole.pothole_id}</span>
         </div>
+        <p className="text-[11px] text-text-muted mt-0.5">
+          {pothole.consolidated_latitude?.toFixed(3)}, {pothole.consolidated_longitude?.toFixed(3)}
+        </p>
       </div>
       <div className="text-right">
         <p className="text-sm font-bold text-text-primary">{pothole.total_detection_hits}</p>
@@ -93,7 +80,7 @@ export default function Dashboard() {
       {/* HEADLINE SECTION — centered full-width */}
       <div className="border-b border-border bg-gradient-to-b from-surface/50 to-transparent">
         <div className="mx-auto max-w-6xl px-6 py-8 text-center lg:px-8">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Hazard count</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Active Hazards</p>
           <p className="mt-1 text-[80px] lg:text-[120px] font-black leading-none tracking-tighter text-text-primary drop-shadow-[0_0_30px_rgba(250,250,250,0.1)]">
             {stats.totalPotholes}
           </p>
@@ -101,35 +88,40 @@ export default function Dashboard() {
             road anomalies detected across all monitored routes
           </p>
 
-          {/* Severity bars horizontal strip */}
-          <div className="flex items-center justify-center gap-6 mt-6">
-            <div className="flex-1 max-w-[200px]">
-              <SeverityBar label="Severe" count={stats.severeCount} total={stats.totalPotholes} color="bg-red-hazard" />
-            </div>
-            <div className="flex-1 max-w-[200px]">
-              <SeverityBar label="Moderate" count={stats.moderateCount} total={stats.totalPotholes} color="bg-amber-warn" />
-            </div>
-            <div className="flex-1 max-w-[200px]">
-              <SeverityBar label="Minor" count={stats.minorCount} total={stats.totalPotholes} color="bg-green-safe" />
-            </div>
+          {/* Severity badges */}
+          <div className="flex items-center justify-center gap-4 mt-5">
+            <span className="flex items-center gap-1.5 text-xs text-text-secondary">
+              <span className="h-2 w-2 rounded-full bg-red-hazard" /> Severe {stats.severeCount}
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-text-secondary">
+              <span className="h-2 w-2 rounded-full bg-amber-warn" /> Moderate {stats.moderateCount}
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-text-secondary">
+              <span className="h-2 w-2 rounded-full bg-green-safe" /> Minor {stats.minorCount}
+            </span>
           </div>
 
-          {/* Stats inline */}
-          <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-border">
-            {[
+          {/* Stats inline — hide zeros */}
+          {(() => {
+            const items = [
               { label: 'Routes', value: stats.routeCount },
-              { label: 'GPS Points', value: stats.gpsPointCount.toLocaleString() },
               { label: 'Avg / Hazard', value: stats.totalPotholes > 0 ? Math.round(stats.totalHits / stats.totalPotholes) : 0 },
-            ].map((s, i) => (
-              <div key={s.label} className="flex items-center gap-2">
-                {i > 0 && <div className="h-4 w-px bg-border" />}
-                <div>
-                  <p className="text-lg font-bold text-text-primary">{s.value}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{s.label}</p>
-                </div>
+            ].filter(s => s.value > 0)
+            if (items.length === 0) return null
+            return (
+              <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-border">
+                {items.map((s, i) => (
+                  <div key={s.label} className="flex items-center gap-2">
+                    {i > 0 && <div className="h-4 w-px bg-border" />}
+                    <div>
+                      <p className="text-lg font-bold text-text-primary">{s.value}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{s.label}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </div>
       </div>
 
@@ -175,9 +167,9 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Right 60%: Quick actions + severity legend */}
-          <div className="grid grid-cols-2 gap-4 lg:col-span-7">
-              {/* Quick actions */}
+          {/* Right 60%: Quick actions */}
+          <div className="lg:col-span-7">
+              {/* Navigate */}
               <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised p-5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">Navigate</p>
                 <div className="space-y-2">
@@ -216,26 +208,6 @@ export default function Dashboard() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
                   </Link>
-                </div>
-              </div>
-
-              {/* Severity legend */}
-              <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised p-5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">Severity Scale</p>
-                <div className="space-y-3">
-                  {[
-                    { label: 'Severe', desc: 'Structural damage risk', color: 'bg-red-hazard', textColor: 'text-red-400', bgColor: 'bg-red-hazard/10' },
-                    { label: 'Moderate', desc: 'Vehicle impact possible', color: 'bg-amber-warn', textColor: 'text-amber-400', bgColor: 'bg-amber-warn/10' },
-                    { label: 'Minor', desc: 'Surface irregularity', color: 'bg-green-safe', textColor: 'text-green-400', bgColor: 'bg-green-safe/10' },
-                  ].map((s) => (
-                    <div key={s.label} className={`flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:${s.bgColor}`}>
-                      <div className={`h-3 w-3 shrink-0 rounded-full ${s.color}`} />
-                      <div>
-                        <span className={`text-xs font-semibold ${s.textColor}`}>{s.label}</span>
-                        <span className="ml-1.5 text-[10px] text-text-muted">{s.desc}</span>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
           </div>

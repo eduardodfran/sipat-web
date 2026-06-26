@@ -39,11 +39,11 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
 
   if (data.length === 0) {
     return (
-    <div className="p-5">
+      <div className="p-5">
         <h3 className="text-sm font-semibold text-text-primary">Detections Over Time</h3>
-        <p className="mt-0.5 text-xs text-text-muted">No timeline data yet</p>
-        <div className="mt-4 flex h-48 items-center justify-center">
-          <p className="text-xs text-text-muted">No timeline data yet</p>
+        <p className="mt-0.5 text-xs text-text-muted">Daily detection activity (last 14 days)</p>
+        <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
+          <p className="text-xs text-text-muted">No detection data yet</p>
         </div>
       </div>
     )

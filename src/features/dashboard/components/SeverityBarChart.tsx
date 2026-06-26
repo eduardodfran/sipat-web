@@ -27,6 +27,19 @@ export function SeverityBarChart({ potholes }: { potholes: Pothole[] }) {
     counts[p.worst_severity]++
   }
 
+  const total = counts.Severe + counts.Moderate + counts.Minor + counts.Unknown
+  if (total === 0) {
+    return (
+      <div className="p-5">
+        <h3 className="text-sm font-semibold text-text-primary">Severity Distribution</h3>
+        <p className="mt-0.5 text-xs text-text-muted">Hazards by severity level</p>
+        <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
+          <p className="text-xs text-text-muted">No hazards detected yet</p>
+        </div>
+      </div>
+    )
+  }
+
   const data = [
     { name: 'Severe', count: counts.Severe, fill: SEVERITY_COLORS.Severe },
     { name: 'Moderate', count: counts.Moderate, fill: SEVERITY_COLORS.Moderate },
