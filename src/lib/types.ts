@@ -1,10 +1,12 @@
 export type Severity = 'Minor' | 'Moderate' | 'Severe' | 'Unknown'
+export type HazardStatus = 'reported' | 'confirmed' | 'fixed'
 
 export interface Pothole {
   pothole_id: number
   consolidated_latitude: number
   consolidated_longitude: number
   worst_severity: Severity
+  status?: HazardStatus
   total_detection_hits: number
   citizen_first_reported_at: string
   latest_activity_at: string

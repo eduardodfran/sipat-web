@@ -6,7 +6,20 @@ import { Badge } from '@/components/ui/Badge'
 import { usePotholeDetectors } from '@/hooks/usePotholeDetectors'
 import { useDetectionComments } from '@/hooks/useDetectionComments'
 import { useAuth } from '@/contexts/AuthContext'
-import type { Pothole } from '@/lib/types'
+import type { Pothole, HazardStatus } from '@/lib/types'
+
+const STATUS_CONFIG: Record<HazardStatus, { label: string; color: string }> = {
+  reported: { label: 'Reported', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  confirmed: { label: 'Confirmed', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+  fixed: { label: 'Fixed', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
+}
+
+function getConfidence(detections: number): { label: string; color: string; percent: number } {
+  if (detections >= 10) return { label: 'High', color: 'text-green-400', percent: 100 }
+  if (detections >= 5) return { label: 'Medium', color: 'text-amber-400', percent: 65 }
+  if (detections >= 2) return { label: 'Low', color: 'text-amber-400', percent: 35 }
+  return { label: 'Unverified', color: 'text-text-muted', percent: 15 }
+}
 
 const SEVERITY_LABEL: Record<string, string> = {
   Severe: 'text-red-400',
@@ -95,6 +108,8 @@ export default function HazardSidebar({
 
   if (!pothole) return null
 
+  const conf = getConfidence(pothole.total_detection_hits)
+
   return (
     <>
       {/* Sidebar */}
@@ -107,7 +122,17 @@ export default function HazardSidebar({
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/[0.04] px-5 py-4">
-            <Badge severity={pothole.worst_severity} size="md" />
+            <div className="flex items-center gap-2">
+              <Badge severity={pothole.worst_severity} size="md" />
+              {(() => {
+                const st = STATUS_CONFIG[pothole.status ?? 'reported']
+                return (
+                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${st.color}`}>
+                    {st.label}
+                  </span>
+                )
+              })()}
+            </div>
             <button
               onClick={onClose}
               className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-text-secondary transition-colors hover:bg-white/10 hover:text-white"
@@ -135,6 +160,16 @@ export default function HazardSidebar({
                 <div className="text-right">
                   <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">Confirmed By</p>
                   <p className="mt-0.5 text-lg font-bold text-white">{pothole.detectors_count}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-border px-4 py-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Confidence</p>
+                  <span className={`text-xs font-semibold ${conf.color}`}>{conf.label}</span>
+                </div>
+                <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full ${conf.percent === 100 ? 'bg-green-500' : conf.percent >= 65 ? 'bg-amber-500' : 'bg-text-muted'}`} style={{ width: `${conf.percent}%` }} />
                 </div>
               </div>
 
@@ -229,6 +264,30 @@ export default function HazardSidebar({
                   </div>
                 </div>
               )}
+
+              {/* Community Verification */}
+              <div className="rounded-xl border border-white/[0.04] bg-surface-raised px-4 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-2">
+                  Is this hazard still here?
+                </p>
+                <div className="flex gap-2">
+                  <button className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-green-500/20 bg-green-500/5 px-3 py-2 text-xs font-semibold text-green-400 transition-colors hover:bg-green-500/10">
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Still here
+                  </button>
+                  <button className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs font-semibold text-red-400 transition-colors hover:bg-red-500/10">
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Fixed
+                  </button>
+                </div>
+                <p className="mt-2 text-center text-[11px] text-text-muted">
+                  {pothole.detectors_count} community verifications
+                </p>
+              </div>
 
               {/* Detection comments */}
               <div className="rounded-xl border border-white/[0.04] bg-surface-raised p-3">

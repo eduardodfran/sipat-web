@@ -17,7 +17,13 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
     Minor: { dot: 'bg-green-safe', text: 'text-green-400', border: 'border-l-green-safe', bg: 'hover:bg-green-safe/5' },
     Unknown: { dot: 'bg-gray-500', text: 'text-gray-400', border: 'border-l-gray-500', bg: 'hover:bg-gray-500/5' },
   }
+  const statusDot: Record<string, string> = {
+    reported: 'bg-blue-400',
+    confirmed: 'bg-amber-400',
+    fixed: 'bg-green-400',
+  }
   const s = severityColors[pothole.worst_severity] ?? severityColors.Unknown
+  const st = pothole.status ?? 'reported'
 
   return (
     <button
@@ -28,6 +34,10 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold ${s.text}`}>{pothole.worst_severity}</span>
+          <span className="flex items-center gap-1 text-[11px] text-text-secondary">
+            <span className={`h-1.5 w-1.5 rounded-full ${statusDot[st] ?? statusDot.reported}`} />
+            {st.charAt(0).toUpperCase() + st.slice(1)}
+          </span>
         </div>
         <p className="text-[11px] text-text-muted mt-0.5">
           {pothole.consolidated_latitude?.toFixed(3)}, {pothole.consolidated_longitude?.toFixed(3)}
