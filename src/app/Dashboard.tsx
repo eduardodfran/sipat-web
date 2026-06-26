@@ -10,6 +10,14 @@ import { TopHazardsChart } from '@/features/dashboard/components/TopHazardsChart
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { Pothole } from '@/lib/types'
 
+function getSafetyGrade(hazardCount: number): { grade: string; color: string; description: string } {
+  if (hazardCount === 0) return { grade: 'A', color: 'text-green-400', description: 'No hazards detected' }
+  if (hazardCount <= 2) return { grade: 'B', color: 'text-green-400', description: 'Low risk' }
+  if (hazardCount <= 5) return { grade: 'C', color: 'text-amber-400', description: 'Moderate risk' }
+  if (hazardCount <= 10) return { grade: 'D', color: 'text-amber-500', description: 'High risk' }
+  return { grade: 'F', color: 'text-red-400', description: 'Critical risk' }
+}
+
 function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Pothole) => void }) {
   const severityColors: Record<string, { dot: string; text: string; border: string; bg: string }> = {
     Severe: { dot: 'bg-red-hazard', text: 'text-red-400', border: 'border-l-red-hazard', bg: 'hover:bg-red-hazard/5' },
@@ -24,6 +32,14 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
   }
   const s = severityColors[pothole.worst_severity] ?? severityColors.Unknown
   const st = pothole.status ?? 'reported'
+
+  const isRecent = (() => {
+    const first = new Date(pothole.citizen_first_reported_at)
+    const latest = new Date(pothole.latest_activity_at)
+    const daysSinceFirst = (Date.now() - first.getTime()) / (1000 * 60 * 60 * 24)
+    const daysSinceLatest = (Date.now() - latest.getTime()) / (1000 * 60 * 60 * 24)
+    return daysSinceLatest <= 2 && daysSinceFirst > 3
+  })()
 
   return (
     <button
@@ -47,6 +63,16 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
         <p className="text-sm font-bold text-text-primary">{pothole.total_detection_hits}</p>
         <p className="text-[10px] text-text-muted">hits</p>
       </div>
+      {isRecent && (
+        <div className="shrink-0">
+          <span className="inline-flex items-center gap-0.5 rounded-full bg-red-hazard/10 px-1.5 py-0.5 text-[9px] font-bold text-red-400">
+            <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+            </svg>
+            ACTIVE
+          </span>
+        </div>
+      )}
     </button>
   )
 }
@@ -54,6 +80,7 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
 export default function Dashboard() {
   const { allPotholes, stats, loading, error } = usePotholeData()
   const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null)
+  const [timeFilter, setTimeFilter] = useState<'all' | 7 | 30 | 90>('all')
 
   if (error) {
     return (
@@ -83,7 +110,22 @@ export default function Dashboard() {
     )
   }
 
-  const recentHazards = allPotholes.slice(0, 6)
+  const filteredHazards = timeFilter === 'all'
+    ? allPotholes
+    : allPotholes.filter(p => {
+        const reported = new Date(p.citizen_first_reported_at)
+        const cutoff = new Date()
+        cutoff.setDate(cutoff.getDate() - timeFilter)
+        return reported >= cutoff
+      })
+  const recentHazards = filteredHazards.slice(0, 6)
+
+  const filteredStats = {
+    total: filteredHazards.length,
+    severe: filteredHazards.filter(p => p.worst_severity === 'Severe').length,
+    moderate: filteredHazards.filter(p => p.worst_severity === 'Moderate').length,
+    minor: filteredHazards.filter(p => p.worst_severity === 'Minor').length,
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
@@ -92,7 +134,7 @@ export default function Dashboard() {
         <div className="mx-auto max-w-6xl px-6 py-8 text-center lg:px-8">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Active Hazards</p>
           <p className="mt-1 text-[80px] lg:text-[120px] font-black leading-none tracking-tighter text-text-primary drop-shadow-[0_0_30px_rgba(250,250,250,0.1)]">
-            {stats.totalPotholes}
+            {filteredStats.total}
           </p>
           <p className="text-xs text-text-secondary mt-2">
             road anomalies detected across all monitored routes
@@ -100,16 +142,28 @@ export default function Dashboard() {
 
           {/* Severity badges */}
           <div className="flex items-center justify-center gap-4 mt-5">
-            <span className="flex items-center gap-1.5 text-xs text-text-secondary">
-              <span className="h-2 w-2 rounded-full bg-red-hazard" /> Severe {stats.severeCount}
+              <span className="flex items-center gap-1.5 text-xs text-text-secondary">
+              <span className="h-2 w-2 rounded-full bg-red-hazard" /> Severe {filteredStats.severe}
             </span>
             <span className="flex items-center gap-1.5 text-xs text-text-secondary">
-              <span className="h-2 w-2 rounded-full bg-amber-warn" /> Moderate {stats.moderateCount}
+              <span className="h-2 w-2 rounded-full bg-amber-warn" /> Moderate {filteredStats.moderate}
             </span>
             <span className="flex items-center gap-1.5 text-xs text-text-secondary">
-              <span className="h-2 w-2 rounded-full bg-green-safe" /> Minor {stats.minorCount}
+              <span className="h-2 w-2 rounded-full bg-green-safe" /> Minor {filteredStats.minor}
             </span>
           </div>
+
+          {/* Safety grade */}
+          {(() => {
+            const safety = getSafetyGrade(stats.totalPotholes)
+            return (
+              <div className="flex items-center justify-center gap-2 mt-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Road Safety</span>
+                <span className={`text-lg font-black ${safety.color}`}>{safety.grade}</span>
+                <span className="text-[10px] text-text-muted">— {safety.description}</span>
+              </div>
+            )
+          })()}
 
           {/* Stats inline — hide zeros */}
           {(() => {
@@ -145,7 +199,22 @@ export default function Dashboard() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Latest</p>
                 <h3 className="mt-1 text-lg font-bold text-text-primary">Recent Hazards</h3>
               </div>
-              {allPotholes.length > 6 && (
+              <div className="flex items-center gap-1">
+                {([7, 30, 90, 'all'] as const).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setTimeFilter(d)}
+                    className={`rounded-md px-2 py-1 text-[10px] font-semibold transition-colors ${
+                      timeFilter === d
+                        ? 'bg-cyan-accent text-asphalt'
+                        : 'text-text-muted hover:text-text-secondary'
+                    }`}
+                  >
+                    {d === 'all' ? 'All' : `${d}d`}
+                  </button>
+                ))}
+              </div>
+              {filteredHazards.length > 6 && (
                   <Link
                     href="/map"
                     className="group flex items-center gap-1.5 bg-cyan-dim px-3 py-1.5 text-xs font-bold text-cyan-accent transition-colors hover:bg-cyan-accent/20"
