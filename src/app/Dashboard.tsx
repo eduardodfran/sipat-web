@@ -7,6 +7,7 @@ import HazardSidebar from '@/features/map/components/HazardSidebar'
 import { SeverityBarChart } from '@/features/dashboard/components/SeverityBarChart'
 import { DetectionsTimeline } from '@/features/dashboard/components/DetectionsTimeline'
 import { TopHazardsChart } from '@/features/dashboard/components/TopHazardsChart'
+import { DetectionSourceChart } from '@/features/dashboard/components/DetectionSourceChart'
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { Pothole } from '@/lib/types'
 
@@ -307,6 +308,10 @@ export default function Dashboard() {
             <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
               <TopHazardsChart potholes={allPotholes} />
             </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+            <DetectionSourceChart potholes={allPotholes} />
           </div>
         </div>
       </div>

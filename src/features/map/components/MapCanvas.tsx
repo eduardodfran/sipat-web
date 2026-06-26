@@ -4,6 +4,13 @@ import { useEffect, useRef } from 'react'
 import type { Pothole, Severity } from '@/lib/types'
 import type { RideRoute } from '@/hooks/useRideRoutes'
 import { getRouteColor } from '@/hooks/useRideRoutes'
+import 'leaflet.markercluster'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+
+declare module 'leaflet' {
+  function heatLayer(latlngs: Array<[number, number, number]>, options?: any): any
+}
 
 export type ViewMode = 'routes' | 'potholes' | 'all'
 
@@ -26,6 +33,7 @@ export default function MapCanvas({
   routes,
   viewMode,
   filter,
+  vizMode = 'markers',
   onViewModeChange,
   onPotholeSelect,
 }: {
@@ -33,13 +41,15 @@ export default function MapCanvas({
   routes: RideRoute[]
   viewMode: ViewMode
   filter: Severity | 'All'
+  vizMode?: 'markers' | 'heatmap'
   onViewModeChange: (mode: ViewMode) => void
   onPotholeSelect?: (pothole: Pothole) => void
 }) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
-  const markerLayerRef = useRef<any>(null)
+  const clusterGroupRef = useRef<any>(null)
   const routeLayerRef = useRef<any>(null)
+  const heatLayerRef = useRef<any>(null)
   const markersRef = useRef<Map<number, { marker: any; severity: string }>>(new Map())
 
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -61,7 +71,21 @@ export default function MapCanvas({
       }).addTo(map)
 
       routeLayerRef.current = L.layerGroup().addTo(map)
-      markerLayerRef.current = L.layerGroup().addTo(map)
+      clusterGroupRef.current = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        iconCreateFunction: (cluster: any) => {
+          const count = cluster.getChildCount()
+          return L.divIcon({
+            html: `<div class="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-accent text-asphalt text-xs font-bold">${count}</div>`,
+            className: 'marker-cluster',
+            iconSize: L.point(40, 40),
+          })
+        },
+      })
+      map.addLayer(clusterGroupRef.current)
       mapInstanceRef.current = map
     }
 
@@ -72,7 +96,7 @@ export default function MapCanvas({
     const newMarkers = new Map<number, { marker: any; severity: string }>()
 
     routeLayerRef.current.clearLayers()
-    markerLayerRef.current.clearLayers()
+    clusterGroupRef.current.clearLayers()
     markersRef.current.clear()
 
     const LObj = L
@@ -97,7 +121,7 @@ export default function MapCanvas({
     }
 
     // Draw all pothole markers (filter visibility handled separately)
-    if (showPotholes) {
+    if (showPotholes && vizMode !== 'heatmap') {
       allPotholes
         .filter(
           (p) =>
@@ -114,7 +138,8 @@ export default function MapCanvas({
               fillOpacity: 0.9,
               weight: 0,
             },
-          ).addTo(markerLayerRef.current)
+          )
+          clusterGroupRef.current.addLayer(marker)
 
           const pid = p.pothole_id
           marker.on('click', () => {
@@ -141,7 +166,7 @@ export default function MapCanvas({
     } else {
       map.setView([14.5547, 121.0509], 13)
     }
-  }, [allPotholes, routes, viewMode])
+  }, [allPotholes, routes, viewMode, vizMode])
 
   // Filter visibility effect — runs only when filter changes (no fitBounds)
   useEffect(() => {
@@ -150,6 +175,51 @@ export default function MapCanvas({
       marker.setStyle({ fillOpacity: match ? 0.9 : 0.08, opacity: match ? 0.9 : 0.08 })
     })
   }, [filter])
+
+  // Heatmap layer effect
+  useEffect(() => {
+    if (!mapInstanceRef.current) return
+    const L = (window as any).L
+    if (!L) return
+
+    const map = mapInstanceRef.current
+
+    // Remove existing heatmap
+    if (heatLayerRef.current) {
+      map.removeLayer(heatLayerRef.current)
+      heatLayerRef.current = null
+    }
+
+    if (vizMode === 'heatmap') {
+      const heatData = allPotholes
+        .filter(
+          (p) =>
+            p.consolidated_latitude != null && p.consolidated_longitude != null,
+        )
+        .map(
+          (p) =>
+            [
+              p.consolidated_latitude,
+              p.consolidated_longitude,
+              Math.min((p.total_detection_hits ?? 1) / 10, 1),
+            ] as [number, number, number],
+        )
+
+      if (heatData.length > 0) {
+        heatLayerRef.current = L.heatLayer(heatData, {
+          radius: 25,
+          blur: 15,
+          maxZoom: 17,
+          max: 1.0,
+          gradient: {
+            0.2: '#22c55e',
+            0.5: '#f59e0b',
+            1.0: '#ef4444',
+          },
+        }).addTo(map)
+      }
+    }
+  }, [allPotholes, vizMode])
 
   const hasData = allPotholes.length > 0 || routes.length > 0
 

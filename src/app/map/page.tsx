@@ -18,6 +18,7 @@ export default function MapPage() {
   const { potholes, allPotholes, filter, setFilter } = usePotholeData()
   const { routes } = useRideRoutes()
   const [viewMode, setViewMode] = useState<ViewMode>('all')
+  const [vizMode, setVizMode] = useState<'markers' | 'heatmap'>('markers')
   const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null)
 
   useEffect(() => {
@@ -49,12 +50,39 @@ export default function MapPage() {
         </Link>
       </div>
 
+      {/* Viz mode toggle */}
+      <div className="absolute right-4 top-4 z-30">
+        <div className="inline-flex overflow-hidden rounded-lg border border-white/[0.06] bg-asphalt/90 shadow-lg shadow-black/30 backdrop-blur-md">
+          <button
+            onClick={() => setVizMode('markers')}
+            className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+              vizMode === 'markers'
+                ? 'bg-cyan-accent text-asphalt shadow-sm'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Markers
+          </button>
+          <button
+            onClick={() => setVizMode('heatmap')}
+            className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+              vizMode === 'heatmap'
+                ? 'bg-cyan-accent text-asphalt shadow-sm'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Heatmap
+          </button>
+        </div>
+      </div>
+
       {/* Map */}
       <MapCanvas
         allPotholes={allPotholes}
         routes={routes}
         viewMode={viewMode}
         filter={filter}
+        vizMode={vizMode}
         onViewModeChange={setViewMode}
         onPotholeSelect={setSelectedPothole}
       />

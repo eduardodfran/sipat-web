@@ -21,6 +21,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-asphalt text-white antialiased">
         <Script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" strategy="beforeInteractive" />
+        <Script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" strategy="beforeInteractive" />
         <AuthWrapper>{children}</AuthWrapper>
       </body>
     </html>
