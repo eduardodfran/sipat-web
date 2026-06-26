@@ -8,6 +8,8 @@ import { SeverityBarChart } from '@/features/dashboard/components/SeverityBarCha
 import { DetectionsTimeline } from '@/features/dashboard/components/DetectionsTimeline'
 import { TopHazardsChart } from '@/features/dashboard/components/TopHazardsChart'
 import { DetectionSourceChart } from '@/features/dashboard/components/DetectionSourceChart'
+import { WorstRoadsChart } from '@/features/dashboard/components/WorstRoadsChart'
+import { TimeOfDayChart } from '@/features/dashboard/components/TimeOfDayChart'
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { Pothole } from '@/lib/types'
 
@@ -111,6 +113,29 @@ export default function Dashboard() {
     )
   }
 
+  const exportCSV = () => {
+    const headers = ['ID', 'Severity', 'Status', 'Latitude', 'Longitude', 'Detections', 'Reported', 'Last Activity']
+    const rows = allPotholes.map(p => [
+      p.pothole_id,
+      p.worst_severity,
+      p.status ?? 'reported',
+      p.consolidated_latitude,
+      p.consolidated_longitude,
+      p.total_detection_hits,
+      p.citizen_first_reported_at,
+      p.latest_activity_at,
+    ])
+    
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `sipat-hazards-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const filteredHazards = timeFilter === 'all'
     ? allPotholes
     : allPotholes.filter(p => {
@@ -165,6 +190,18 @@ export default function Dashboard() {
               </div>
             )
           })()}
+
+          <div className="flex items-center justify-center gap-3 mt-3">
+            <button
+              onClick={exportCSV}
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Export CSV
+            </button>
+          </div>
 
           {/* Stats inline — hide zeros */}
           {(() => {
@@ -312,6 +349,15 @@ export default function Dashboard() {
 
           <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
             <DetectionSourceChart potholes={allPotholes} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+              <WorstRoadsChart potholes={allPotholes} />
+            </div>
+            <div className="rounded-xl border border-border bg-gradient-to-br from-surface to-surface-raised">
+              <TimeOfDayChart potholes={allPotholes} />
+            </div>
           </div>
         </div>
       </div>
