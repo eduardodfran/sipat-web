@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 
 const NAV_LINKS = [
-  { href: '/', label: 'Dashboard' },
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/map', label: 'Map' },
   { href: '/rides', label: 'Rides' },
 ]
@@ -42,49 +42,64 @@ export function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-4">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm font-medium transition-colors ${
-                pathname === link.href
-                  ? 'text-cyan-accent'
-                  : 'text-text-secondary hover:text-cyan-hover'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          <Link
-            href="/map"
-            className="flex items-center gap-1.5 rounded-lg bg-cyan-accent px-3 py-1.5 text-xs font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
-          >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Report Hazard
-          </Link>
-
           {user ? (
-            <div className="flex items-center gap-3 border-l border-border pl-4">
-              <span className="hidden text-xs text-text-muted sm:block">
-                {user.email}
-              </span>
-              <button
-                onClick={signOut}
-                className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-white/10 hover:text-white"
+            <>
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-sm font-medium transition-colors ${
+                    pathname === link.href
+                      ? 'text-cyan-accent'
+                      : 'text-text-secondary hover:text-cyan-hover'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+              <Link
+                href="/map"
+                className="flex items-center gap-1.5 rounded-lg bg-cyan-accent px-3 py-1.5 text-xs font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
               >
-                Sign Out
-              </button>
-            </div>
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Report Hazard
+              </Link>
+
+              <div className="flex items-center gap-3 border-l border-border pl-4">
+                <span className="hidden text-xs text-text-muted sm:block">
+                  {user.email}
+                </span>
+                <button
+                  onClick={signOut}
+                  className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </>
           ) : (
-            <Link
-              href="/login"
-              className="rounded-lg bg-cyan-accent px-3 py-1.5 text-xs font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
-            >
-              Sign In
-            </Link>
+            <>
+              <Link
+                href="/map"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/map'
+                    ? 'text-cyan-accent'
+                    : 'text-text-secondary hover:text-cyan-hover'
+                }`}
+              >
+                Map
+              </Link>
+
+              <Link
+                href="/login"
+                className="rounded-lg bg-cyan-accent px-3 py-1.5 text-xs font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
+              >
+                Sign In
+              </Link>
+            </>
           )}
         </nav>
       </div>

@@ -18,7 +18,7 @@ export default function LoginPage() {
   const [signedUp, setSignedUp] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && user) router.push('/')
+    if (!authLoading && user) router.push('/dashboard')
   }, [user, authLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +31,7 @@ export default function LoginPage() {
         : await signUp(email, password, { fullName, username })
     setSubmitting(false)
     if (!result.error && mode === 'login') {
-      router.push('/')
+      router.push('/dashboard')
     }
     if (!result.error && mode === 'signup') {
       setSignedUp(true)
@@ -203,7 +203,7 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-xs text-gray-600">
           <Link href="/" className="text-amber-400 hover:text-amber-300">
-            Back to dashboard
+            Back to home
           </Link>
         </p>
       </div>

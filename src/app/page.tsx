@@ -1,13 +1,21 @@
 import { Navbar } from '@/components/layout/Navbar'
-import Dashboard from './Dashboard'
+import { Hero } from '@/features/landing/components/Hero'
+import { Features } from '@/features/landing/components/Features'
+import { Stats } from '@/features/landing/components/Stats'
+import { CTABanner } from '@/features/landing/components/CTABanner'
+import { Footer } from '@/features/landing/components/Footer'
 
-export default function HomePage() {
+export default function LandingPage() {
   return (
     <div className="min-h-screen bg-asphalt">
-      <div className="relative z-10">
-        <Navbar />
-        <Dashboard />
-      </div>
+      <Navbar />
+      <main>
+        <Hero />
+        <Features />
+        <Stats />
+        <CTABanner />
+      </main>
+      <Footer />
     </div>
   )
 }

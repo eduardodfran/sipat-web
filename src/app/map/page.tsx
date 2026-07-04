@@ -40,7 +40,7 @@ export default function MapPage() {
       {/* Back button */}
       <div className="absolute left-4 top-4 z-30">
         <Link
-          href="/"
+          href="/dashboard"
           className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-asphalt/90 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-surface"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
