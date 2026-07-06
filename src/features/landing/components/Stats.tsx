@@ -6,14 +6,14 @@ import { supabase } from '@/lib/supabase';
 export function Stats() {
   const [hazards, setHazards] = useState<number | null>(null);
   const [rides, setRides] = useState<number | null>(null);
-  const [potholes, setPotholes] = useState<{ severity: string }[]>([]);
+  const [potholes, setPotholes] = useState<{ worst_severity: string }[]>([]);
 
   useEffect(() => {
     const fetchCounts = async () => {
       const [hazardsRes, ridesRes, potholesRes] = await Promise.all([
         supabase.from('v_unified_potholes').select('*', { count: 'exact', head: true }),
         supabase.from('rides_metadata').select('*', { count: 'exact', head: true }),
-        supabase.from('v_unified_potholes').select('severity'),
+        supabase.from('v_unified_potholes').select('worst_severity'),
       ]);
 
       if (hazardsRes.count != null) setHazards(hazardsRes.count);
@@ -26,20 +26,20 @@ export function Stats() {
 
   const format = (n: number | null) => (n != null ? n.toLocaleString() : '—');
 
-  const severeCount = potholes.filter((p) => p.severity === 'severe').length;
-  const moderateCount = potholes.filter((p) => p.severity === 'moderate').length;
-  const minorCount = potholes.filter((p) => p.severity === 'minor').length;
+  const severeCount = potholes.filter((p) => p.worst_severity === 'Severe').length;
+  const moderateCount = potholes.filter((p) => p.worst_severity === 'Moderate').length;
+  const minorCount = potholes.filter((p) => p.worst_severity === 'Minor').length;
 
   const cells = [
-    { value: format(hazards), label: 'Hazards', trend: '↑ 12%', trendColor: 'text-green-safe' },
-    { value: format(rides), label: 'Rides', trend: '↑ 8%', trendColor: 'text-green-safe' },
+    { value: format(hazards), label: 'Hazards', trend: null, trendColor: null },
+    { value: format(rides), label: 'Rides', trend: null, trendColor: null },
     { value: '12', label: 'Areas', trend: null, trendColor: null },
   ];
 
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-5xl px-6 py-16 lg:px-8">
-        <p className="text-text-muted mb-3 text-xs">Last 30 days</p>
+
         <div className="bg-border flex w-full gap-px">
       {cells.map((cell, i) => (
         <div key={i} className="bg-asphalt flex flex-1 flex-col items-center gap-1 py-6">

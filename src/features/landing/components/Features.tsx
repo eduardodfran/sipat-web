@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 const FEATURES = [
   {
     icon: (
@@ -70,12 +72,12 @@ export function Features() {
                   </li>
                 ))}
               </ul>
-              <a
+              <Link
                 href={feature.href}
                 className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-cyan-accent hover:text-cyan-hover"
               >
                 Learn more <span aria-hidden="true">&rarr;</span>
-              </a>
+              </Link>
             </div>
           ))}
         </div>

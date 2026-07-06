@@ -30,7 +30,7 @@ export function CTABanner() {
                 Sign Up
               </Link>
             </div>
-            <p className="text-xs text-text-muted">Open source • No tracking • Free to use</p>
+            <p className="text-xs text-text-muted">Free to use</p>
             <div className="flex items-center gap-1.5 text-xs text-text-secondary">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />

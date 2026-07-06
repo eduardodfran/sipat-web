@@ -14,8 +14,8 @@ export function Hero() {
   useEffect(() => {
     const fetchHazardCount = async () => {
       const { count } = await supabase
-        .from('hazards')
-        .select('*', { count: 'exact', head: true })
+        .from('v_unified_potholes')
+        .select('pothole_id', { count: 'exact', head: true })
       if (count !== null) setHazardCount(count)
     }
     fetchHazardCount()
@@ -63,9 +63,7 @@ export function Hero() {
               </Link>
             </div>
 
-            <p className="mt-4 text-xs text-text-muted">
-              Join 500+ contributors making roads safer
-            </p>
+
           </div>
 
           <div className="hidden lg:block">
