@@ -1,24 +1,77 @@
 import Link from 'next/link'
 
+const NAV_LINKS = [
+  { href: '/map', label: 'Map' },
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/login', label: 'Sign In' },
+]
+
+const RESOURCE_LINKS = [
+  { href: 'https://github.com/sipat', label: 'GitHub' },
+  { href: '/rides', label: 'Rides' },
+]
+
 export function Footer() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-6 py-10 sm:flex-row sm:justify-between sm:px-8">
-        <div>
-          <span className="text-sm font-bold text-text-primary">Sipat</span>
-          <p className="mt-0.5 text-xs text-text-muted">Road Hazard Intelligence</p>
+    <footer className="border-t border-border bg-surface">
+      <div className="mx-auto max-w-5xl px-6 py-12 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+          <div>
+            <span className="text-sm font-bold text-text-primary">Sipat</span>
+            <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-text-muted">
+              Crowdsourced road hazard detection. Record rides, detect potholes with AI, and help make roads safer for everyone.
+            </p>
+            <div className="mt-3 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-safe" />
+              <span className="text-[10px] text-text-muted">System operational</span>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+              Navigation
+            </p>
+            <ul className="mt-2.5 flex flex-col gap-1.5">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-xs text-text-secondary transition-colors hover:text-cyan-accent"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+              Resources
+            </p>
+            <ul className="mt-2.5 flex flex-col gap-1.5">
+              {RESOURCE_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-xs text-text-secondary transition-colors hover:text-cyan-accent"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <nav className="flex items-center gap-6">
-          <Link href="/map" className="text-xs text-text-muted transition-colors hover:text-text-secondary">
-            Map
-          </Link>
-          <Link href="/dashboard" className="text-xs text-text-muted transition-colors hover:text-text-secondary">
-            Dashboard
-          </Link>
-        </nav>
-
-        <p className="text-xs text-text-muted">&copy; 2026</p>
+        <div className="mt-10 border-t border-border pt-6 sm:flex sm:items-center sm:justify-between">
+          <p className="text-[10px] text-text-muted">
+            &copy; 2026 Sipat. Built with Next.js, Supabase &amp; Leaflet.
+          </p>
+          <div className="mt-2 flex items-center gap-4 sm:mt-0">
+            <span className="text-[10px] text-text-muted">Map data &copy; OpenStreetMap</span>
+          </div>
+        </div>
       </div>
     </footer>
   )
