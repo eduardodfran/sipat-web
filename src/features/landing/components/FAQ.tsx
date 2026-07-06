@@ -28,6 +28,21 @@ const FAQ_ITEMS = [
     answer:
       "Yes. Once you have an account, you can mark hazards as 'Still here' or 'Fixed' and leave comments. This crowdsourced verification keeps the data accurate.",
   },
+  {
+    question: 'Is my data private?',
+    answer:
+      'Yes. Ride recordings are processed on our servers and only hazard detections are stored publicly. Your personal information and raw video files are never shared.',
+  },
+  {
+    question: 'How do I get the app?',
+    answer:
+      'The Sipat mobile app is available for Android. Download it from the Google Play Store or visit sipat.app/download for the APK.',
+  },
+  {
+    question: 'Which areas are covered?',
+    answer:
+      'Currently focused on Metro Manila and surrounding provinces. We\'re expanding to more areas as more contributors join. Check the live map for current coverage.',
+  },
 ]
 
 export function FAQ() {
@@ -80,6 +95,16 @@ export function FAQ() {
             )
           })}
         </div>
+
+        <p className="mt-8 text-sm text-text-secondary">
+          Still have questions?{' '}
+          <a
+            href="mailto:hello@sipat.app"
+            className="text-cyan-accent hover:text-cyan-hover"
+          >
+            Contact us
+          </a>
+        </p>
       </div>
     </section>
   )

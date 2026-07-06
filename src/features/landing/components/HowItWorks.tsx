@@ -72,10 +72,13 @@ export function HowItWorks() {
         <h2 className="mt-3 text-3xl font-black text-text-primary">
           Three steps to safer roads
         </h2>
+        <p className="mt-2 text-sm text-text-secondary">
+          2 min to set up &bull; No coding required
+        </p>
 
         <div className="mt-14 grid gap-px bg-border sm:grid-cols-3">
-          {steps.map((step) => (
-            <div key={step.number} className="bg-asphalt p-6">
+          {steps.map((step, index) => (
+            <div key={step.number} className="relative bg-asphalt p-6">
               <span className="text-4xl font-black text-white/[0.06]">
                 {step.number}
               </span>
@@ -86,9 +89,29 @@ export function HowItWorks() {
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                 {step.description}
               </p>
+              {index < steps.length - 1 && (
+                <span className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 text-lg text-text-muted/30 max-sm:hidden">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </span>
+              )}
             </div>
           ))}
         </div>
+
+        <p className="mt-8 text-center text-sm text-text-muted">
+          Just hit record — our AI handles the rest.
+        </p>
       </div>
     </section>
   );

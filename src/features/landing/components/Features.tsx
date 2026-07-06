@@ -10,6 +10,8 @@ const FEATURES = [
     title: 'Live Hazard Map',
     description:
       'Real-time pothole locations with severity ratings. Interactive map with clusters, heatmaps, and filtering.',
+    capabilities: ['Severity ratings', 'Cluster view', 'Time filtering', 'Heatmap overlay'],
+    href: '/map',
   },
   {
     icon: (
@@ -20,6 +22,8 @@ const FEATURES = [
     title: 'ML Detection',
     description:
       'AI analyzes ride videos to automatically detect road hazards. Just record your ride.',
+    capabilities: ['Frame-by-frame analysis', 'Geotagged results', 'Auto-severity rating'],
+    href: '/login',
   },
   {
     icon: (
@@ -30,6 +34,8 @@ const FEATURES = [
     title: 'Community Reports',
     description:
       'Citizens verify, comment on, and report hazards. Crowdsourced road safety.',
+    capabilities: ['Verify hazards', 'Leave comments', 'Track status changes'],
+    href: '/login',
   },
 ]
 
@@ -57,6 +63,19 @@ export function Features() {
               <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
                 {feature.description}
               </p>
+              <ul className="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                {feature.capabilities.map((cap) => (
+                  <li key={cap} className="text-xs text-text-muted">
+                    {cap}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={feature.href}
+                className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-cyan-accent hover:text-cyan-hover"
+              >
+                Learn more <span aria-hidden="true">&rarr;</span>
+              </a>
             </div>
           ))}
         </div>

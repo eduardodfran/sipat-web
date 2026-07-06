@@ -1,12 +1,25 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { RoadBackground } from '@/components/ui/RoadBackground'
+import { supabase } from '@/lib/supabase'
 import { HeroIllustration } from './HeroIllustration'
 
 export function Hero() {
   const { user } = useAuth()
+  const [hazardCount, setHazardCount] = useState(0)
+
+  useEffect(() => {
+    const fetchHazardCount = async () => {
+      const { count } = await supabase
+        .from('hazards')
+        .select('*', { count: 'exact', head: true })
+      if (count !== null) setHazardCount(count)
+    }
+    fetchHazardCount()
+  }, [])
 
   return (
     <section className="relative border-b border-border">
@@ -30,6 +43,11 @@ export function Hero() {
               Real-time hazard mapping for Philippine roads.
             </p>
 
+            <p className="mb-4 mt-2 text-xs font-medium text-text-secondary">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-accent animate-pulse mr-1.5" />
+              {hazardCount.toLocaleString()} hazards detected across Metro Manila
+            </p>
+
             <div className="mt-8 flex items-center gap-3">
               <Link
                 href="/map"
@@ -44,6 +62,10 @@ export function Hero() {
                 {user ? 'Dashboard' : 'Sign Up'}
               </Link>
             </div>
+
+            <p className="mt-4 text-xs text-text-muted">
+              Join 500+ contributors making roads safer
+            </p>
           </div>
 
           <div className="hidden lg:block">
