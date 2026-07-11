@@ -57,10 +57,10 @@ export function DetectionSourceDonut({ potholes }: { potholes: Pothole[] }) {
             offset += dash
             return el
           })}
-          <text x={size / 2} y={size / 2 - 2} textAnchor="middle" className="fill-text-primary text-[14px] font-black">
+          <text x={size / 2} y={size / 2 - 2} textAnchor="middle" dominantBaseline="central" transform={`rotate(90, ${size / 2}, ${size / 2})`} className="fill-text-primary text-[14px] font-black">
             {total}
           </text>
-          <text x={size / 2} y={size / 2 + 10} textAnchor="middle" className="fill-text-muted text-[7px] font-semibold uppercase tracking-wider">
+          <text x={size / 2} y={size / 2 + 10} textAnchor="middle" dominantBaseline="central" transform={`rotate(90, ${size / 2}, ${size / 2})`} className="fill-text-muted text-[7px] font-semibold uppercase tracking-wider">
             total
           </text>
         </svg>
