@@ -37,7 +37,7 @@ export function TopHazardsChart({ potholes }: { potholes: Pothole[] }) {
       <div className="p-5">
         <h3 className="text-sm font-semibold text-text-primary">Top Hazards by Detections</h3>
         <p className="mt-0.5 text-xs text-text-muted">Most frequently detected hazards</p>
-        <div className="mt-4 flex h-48 items-center justify-center">
+        <div className="mt-2 flex h-24 items-center justify-center">
           <p className="text-xs text-text-muted">No hazards yet</p>
         </div>
       </div>
@@ -45,10 +45,10 @@ export function TopHazardsChart({ potholes }: { potholes: Pothole[] }) {
   }
 
   return (
-    <div className="p-5">
-      <h3 className="text-sm font-semibold text-text-primary">Top Hazards by Detections</h3>
-      <p className="mt-0.5 text-xs text-text-muted">Most frequently detected hazards</p>
-      <div className="mt-4 h-48">
+    <div className="p-3">
+      <h3 className="text-[11px] font-bold text-text-primary">Top Hazards</h3>
+      <p className="text-[9px] text-text-muted">By detections</p>
+      <div className="mt-2 h-32">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
             <XAxis

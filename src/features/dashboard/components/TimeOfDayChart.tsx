@@ -40,7 +40,7 @@ export function TimeOfDayChart({ potholes }: { potholes: Pothole[] }) {
       <div className="p-5">
         <h3 className="text-sm font-semibold text-text-primary">Time of Day</h3>
         <p className="mt-0.5 text-xs text-text-muted">When hazards are reported</p>
-        <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
+        <div className="mt-2 flex h-24 items-center justify-center rounded border border-dashed border-border">
           <p className="text-xs text-text-muted">No data yet</p>
         </div>
       </div>
@@ -48,10 +48,10 @@ export function TimeOfDayChart({ potholes }: { potholes: Pothole[] }) {
   }
 
   return (
-    <div className="p-5">
-      <h3 className="text-sm font-semibold text-text-primary">Time of Day</h3>
-      <p className="mt-0.5 text-xs text-text-muted">When hazards are reported</p>
-      <div className="mt-4 h-48">
+    <div className="p-3">
+      <h3 className="text-[11px] font-bold text-text-primary">Time of Day</h3>
+      <p className="text-[9px] text-text-muted">When reported</p>
+      <div className="mt-2 h-32">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
             <XAxis

@@ -33,7 +33,7 @@ export function SeverityBarChart({ potholes }: { potholes: Pothole[] }) {
       <div className="p-5">
         <h3 className="text-sm font-semibold text-text-primary">Severity Distribution</h3>
         <p className="mt-0.5 text-xs text-text-muted">Hazards by severity level</p>
-        <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
+        <div className="mt-2 flex h-24 items-center justify-center rounded border border-dashed border-border">
           <p className="text-xs text-text-muted">No hazards detected yet</p>
         </div>
       </div>
@@ -48,23 +48,23 @@ export function SeverityBarChart({ potholes }: { potholes: Pothole[] }) {
   ]
 
   return (
-    <div className="p-5">
-      <h3 className="text-sm font-semibold text-text-primary">Severity Distribution</h3>
-      <p className="mt-0.5 text-xs text-text-muted">Hazards by severity level</p>
-      <div className="mt-4 h-48">
+    <div className="p-3">
+      <h3 className="text-[11px] font-bold text-text-primary">Severity</h3>
+      <p className="text-[9px] text-text-muted">Hazards by level</p>
+      <div className="mt-2 h-32">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>
             <XAxis type="number" hide />
             <YAxis
               type="category"
               dataKey="name"
-              width={72}
-              tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+              width={64}
+              tick={{ fontSize: 10, fill: 'var(--color-text-secondary)' }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--color-surface-hover)' }} />
-            <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={28}>
+            <Bar dataKey="count" radius={[0, 3, 3, 0]} maxBarSize={20}>
               {data.map((entry) => (
                 <Cell key={entry.name} fill={entry.fill} />
               ))}

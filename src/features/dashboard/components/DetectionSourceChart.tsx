@@ -12,7 +12,7 @@ export function DetectionSourceChart({ potholes }: { potholes: Pothole[] }) {
       <div className="p-5">
         <h3 className="text-sm font-semibold text-text-primary">Detection Sources</h3>
         <p className="mt-0.5 text-xs text-text-muted">How hazards were identified</p>
-        <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
+        <div className="mt-2 flex h-24 items-center justify-center rounded border border-dashed border-border">
           <p className="text-xs text-text-muted">No data yet</p>
         </div>
       </div>
@@ -23,11 +23,11 @@ export function DetectionSourceChart({ potholes }: { potholes: Pothole[] }) {
   const citizenPct = total > 0 ? (citizenReported / total) * 100 : 0
 
   return (
-    <div className="p-5">
-      <h3 className="text-sm font-semibold text-text-primary">Detection Sources</h3>
-      <p className="mt-0.5 text-xs text-text-muted">How hazards were identified</p>
+    <div className="p-3">
+      <h3 className="text-[11px] font-bold text-text-primary">Detection Sources</h3>
+      <p className="text-[9px] text-text-muted">How identified</p>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-2 space-y-2">
         {/* ML Detection */}
         <div>
           <div className="flex items-center justify-between mb-1">

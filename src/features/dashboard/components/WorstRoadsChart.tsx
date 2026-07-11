@@ -44,7 +44,7 @@ export function WorstRoadsChart({ potholes }: { potholes: Pothole[] }) {
       <div className="p-5">
         <h3 className="text-sm font-semibold text-text-primary">Worst Roads</h3>
         <p className="mt-0.5 text-xs text-text-muted">Most hazardous locations</p>
-        <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
+        <div className="mt-3 flex h-32 items-center justify-center rounded border border-dashed border-border">
           <p className="text-xs text-text-muted">No data yet</p>
         </div>
       </div>
@@ -54,10 +54,10 @@ export function WorstRoadsChart({ potholes }: { potholes: Pothole[] }) {
   const maxHits = ranked[0][1].hits
 
   return (
-    <div className="p-5">
-      <h3 className="text-sm font-semibold text-text-primary">Worst Roads</h3>
-      <p className="mt-0.5 text-xs text-text-muted">Most hazardous locations by detection hits</p>
-      <div className="mt-4 space-y-2">
+    <div className="p-4">
+      <h3 className="text-xs font-bold text-text-primary">Worst Roads</h3>
+      <p className="text-[10px] text-text-muted">By detection hits</p>
+      <div className="mt-3 space-y-1.5">
         {ranked.map(([key, data], i) => (
           <div key={key} className="flex items-center gap-3">
             <span className="w-5 text-right text-[10px] font-bold text-text-muted">{i + 1}</span>
