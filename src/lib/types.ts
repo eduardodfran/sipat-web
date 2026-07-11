@@ -14,6 +14,14 @@ export interface Pothole {
   reporter_username: string | null
   reporter_avatar: string | null
   detectors_count: number
+  street: string | null
+  barangay: string | null
+  city: string | null
+  province: string | null
+  region: string | null
+  country: string | null
+  formatted_address: string | null
+  address_geocoded_at: string | null
 }
 
 export interface Detector {

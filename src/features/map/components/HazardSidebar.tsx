@@ -7,6 +7,7 @@ import { usePotholeDetectors } from '@/hooks/usePotholeDetectors'
 import { useDetectionComments } from '@/hooks/useDetectionComments'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Pothole, HazardStatus } from '@/lib/types'
+import { fullAddress } from '@/lib/address'
 
 const STATUS_CONFIG: Record<HazardStatus, { label: string; color: string }> = {
   reported: { label: 'Reported', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
@@ -173,21 +174,24 @@ export default function HazardSidebar({
                 </div>
               </div>
 
-              {/* Coordinates grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-white/[0.04] bg-surface-raised px-4 py-3">
-                  <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">Latitude</p>
-                  <p className="mt-1 font-mono text-sm text-white">
-                    {pothole.consolidated_latitude?.toFixed(5) ?? '—'}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-white/[0.04] bg-surface-raised px-4 py-3">
-                  <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">Longitude</p>
-                  <p className="mt-1 font-mono text-sm text-white">
-                    {pothole.consolidated_longitude?.toFixed(5) ?? '—'}
-                  </p>
-                </div>
-              </div>
+              {/* Address */}
+              {(() => {
+                const addr = fullAddress(pothole)
+                if (addr.length === 0) return null
+                return (
+                  <div className="rounded-xl border border-white/[0.04] bg-surface-raised px-4 py-3">
+                    <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">Location</p>
+                    <div className="mt-1 space-y-0.5">
+                      {addr.map((line) => (
+                        <p key={line} className="text-sm text-white">{line}</p>
+                      ))}
+                    </div>
+                    <p className="mt-1.5 font-mono text-[10px] text-text-muted">
+                      {pothole.consolidated_latitude?.toFixed(5)}, {pothole.consolidated_longitude?.toFixed(5)}
+                    </p>
+                  </div>
+                )
+              })()}
 
               {/* Activity dates */}
               <div className="rounded-xl border border-white/[0.04] bg-surface-raised px-4 py-3">

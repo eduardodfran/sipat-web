@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/Badge'
+import { fullAddress } from '@/lib/address'
 import type { Pothole } from '@/lib/types'
 
 function ImageSkeleton() {
@@ -105,16 +106,15 @@ export default function PotholeDetailSheet({
 
   if (!pothole) return null
 
+  const addr = fullAddress(pothole)
   const stats = [
     { label: 'Confirmed By', value: pothole.detectors_count },
-    {
-      label: 'Latitude',
-      value: pothole.consolidated_latitude?.toFixed(5) ?? '—',
-    },
-    {
-      label: 'Longitude',
-      value: pothole.consolidated_longitude?.toFixed(5) ?? '—',
-    },
+    ...(addr.length > 0
+      ? [{ label: 'Location', value: addr.join(', ') }]
+      : [
+          { label: 'Latitude', value: pothole.consolidated_latitude?.toFixed(5) ?? '—' },
+          { label: 'Longitude', value: pothole.consolidated_longitude?.toFixed(5) ?? '—' },
+        ]),
     {
       label: 'Last activity',
       value: pothole.latest_activity_at

@@ -55,7 +55,7 @@ export function usePotholeData() {
     const { data, error: dbError } = await supabase
       .from('v_unified_potholes')
       .select(
-        'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count',
+        'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count, street, barangay, city, province, region, country, formatted_address, address_geocoded_at',
       )
       .order('total_detection_hits', { ascending: false })
 
@@ -77,6 +77,14 @@ export function usePotholeData() {
       reporter_username: row.reporter_username ?? null,
       reporter_avatar: row.reporter_avatar ?? null,
       detectors_count: row.detectors_count ?? 0,
+      street: row.street ?? null,
+      barangay: row.barangay ?? null,
+      city: row.city ?? null,
+      province: row.province ?? null,
+      region: row.region ?? null,
+      country: row.country ?? null,
+      formatted_address: row.formatted_address ?? null,
+      address_geocoded_at: row.address_geocoded_at ?? null,
     }))
 
     setPotholes(mapped)

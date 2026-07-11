@@ -11,6 +11,7 @@ import { DetectionSourceDonut } from '@/features/dashboard/components/DetectionS
 import { WorstRoadsChart } from '@/features/dashboard/components/WorstRoadsChart'
 import { TimeOfDayArc } from '@/features/dashboard/components/TimeOfDayArc'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { shortAddress } from '@/lib/address'
 import type { Pothole } from '@/lib/types'
 
 function getSafetyGrade(hazardCount: number): { grade: string; color: string; description: string } {
@@ -40,7 +41,7 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
         <div className="flex items-center gap-1.5">
           <span className={`text-[11px] font-semibold ${s.text}`}>{pothole.worst_severity}</span>
           <span className="text-[10px] text-text-muted truncate">
-            {pothole.consolidated_latitude?.toFixed(2)}, {pothole.consolidated_longitude?.toFixed(2)}
+            {shortAddress(pothole)}
           </span>
         </div>
       </div>
