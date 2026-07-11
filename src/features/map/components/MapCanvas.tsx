@@ -1,16 +1,20 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import type { Pothole, Severity } from '@/lib/types'
-import type { RideRoute } from '@/hooks/useRideRoutes'
-import { getRouteColor } from '@/hooks/useRideRoutes'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import 'leaflet.heat'
 
 declare module 'leaflet' {
   function heatLayer(latlngs: Array<[number, number, number]>, options?: any): any
 }
+
+import type { Pothole, Severity } from '@/lib/types'
+import type { RideRoute } from '@/hooks/useRideRoutes'
+import { getRouteColor } from '@/hooks/useRideRoutes'
 
 export type ViewMode = 'routes' | 'potholes' | 'all'
 
@@ -56,9 +60,6 @@ export default function MapCanvas({
   // Draw data effect — runs when the underlying data/view changes (not filter)
   useEffect(() => {
     if (!mapRef.current) return
-
-    const L = (window as any).L
-    if (!L) return
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapRef.current, { zoomControl: false, preferCanvas: true })
@@ -113,7 +114,7 @@ export default function MapCanvas({
           color,
           weight: 3,
           opacity: 0.7,
-          dashArray: route.status === 'queued' ? '6, 8' : null,
+          dashArray: route.status === 'queued' ? '6, 8' : undefined,
         }).addTo(routeLayerRef.current)
 
         bounds.push(latlngs[0], latlngs[latlngs.length - 1])
@@ -179,8 +180,6 @@ export default function MapCanvas({
   // Heatmap layer effect
   useEffect(() => {
     if (!mapInstanceRef.current) return
-    const L = (window as any).L
-    if (!L) return
 
     const map = mapInstanceRef.current
 

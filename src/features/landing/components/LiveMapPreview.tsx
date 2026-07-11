@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapContainer, TileLayer, CircleMarker } from 'react-leaflet'
-import { supabase } from '@/lib/supabase'
+import { useLandingData } from '@/features/landing/hooks/useLandingData'
+import 'leaflet/dist/leaflet.css'
 import Link from 'next/link'
 
 type Severity = 'Severe' | 'Moderate' | 'Minor' | 'Unknown'
@@ -14,26 +14,61 @@ const SEVERITY_COLOR: Record<Severity, string> = {
   Unknown: '#71717a',
 }
 
-interface PotholeRow {
-  consolidated_latitude: number | null
-  consolidated_longitude: number | null
-  worst_severity: Severity
+function MapInner({ potholes }: { potholes: { consolidated_latitude: number | null; consolidated_longitude: number | null; worst_severity: Severity }[] }) {
+  const [L, setL] = useState<typeof import('leaflet') | null>(null)
+
+  useEffect(() => {
+    import('leaflet').then((leaflet) => {
+      setL(leaflet)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!L) return
+
+    const container = document.getElementById('sipat-preview-map')
+    if (!container || container.children.length > 0) return
+
+    const map = L.map(container, {
+      center: [14.5547, 121.0509],
+      zoom: 12,
+      scrollWheelZoom: false,
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+      keyboard: false,
+      boxZoom: false,
+      closePopupOnClick: false,
+    })
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+    }).addTo(map)
+
+    potholes
+      .filter((p) => p.consolidated_latitude != null && p.consolidated_longitude != null)
+      .forEach((p) => {
+        L.circleMarker([p.consolidated_latitude!, p.consolidated_longitude!], {
+          radius: 6,
+          color: SEVERITY_COLOR[p.worst_severity] ?? SEVERITY_COLOR.Unknown,
+          fillColor: SEVERITY_COLOR[p.worst_severity] ?? SEVERITY_COLOR.Unknown,
+          fillOpacity: 0.85,
+          weight: 0,
+        }).addTo(map)
+      })
+
+    return () => {
+      map.remove()
+    }
+  }, [L, potholes])
+
+  return <div id="sipat-preview-map" className="h-full w-full" />
 }
 
 export function LiveMapPreview() {
-  const [potholes, setPotholes] = useState<PotholeRow[]>([])
-
-  useEffect(() => {
-    const fetchPotholes = async () => {
-      const { data } = await supabase
-        .from('v_unified_potholes')
-        .select('consolidated_latitude, consolidated_longitude, worst_severity')
-
-      if (data) setPotholes(data as PotholeRow[])
-    }
-
-    fetchPotholes()
-  }, [])
+  const data = useLandingData()
 
   return (
     <section className="border-b border-border">
@@ -48,44 +83,7 @@ export function LiveMapPreview() {
         </div>
 
         <div className="relative h-72 overflow-hidden rounded-xl border border-border sm:h-80">
-          <MapContainer
-            center={[14.5547, 121.0509]}
-            zoom={12}
-            scrollWheelZoom={false}
-            zoomControl={false}
-            attributionControl={false}
-            dragging={false}
-            doubleClickZoom={false}
-            touchZoom={false}
-            keyboard={false}
-            boxZoom={false}
-            closePopupOnClick={false}
-            style={{ height: '100%', width: '100%' }}
-          >
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              maxZoom={19}
-            />
-            {potholes
-              .filter(
-                (p) =>
-                  p.consolidated_latitude != null &&
-                  p.consolidated_longitude != null,
-              )
-              .map((p, i) => (
-                <CircleMarker
-                  key={i}
-                  center={[p.consolidated_latitude!, p.consolidated_longitude!]}
-                  radius={6}
-                  pathOptions={{
-                    color: SEVERITY_COLOR[p.worst_severity] ?? SEVERITY_COLOR.Unknown,
-                    fillColor: SEVERITY_COLOR[p.worst_severity] ?? SEVERITY_COLOR.Unknown,
-                    fillOpacity: 0.85,
-                    weight: 0,
-                  }}
-                />
-              ))}
-          </MapContainer>
+          <MapInner potholes={data.markers} />
 
           <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 backdrop-blur-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-green-safe animate-pulse" />
@@ -100,7 +98,7 @@ export function LiveMapPreview() {
           </Link>
         </div>
 
-        <p className="text-text-secondary mt-3 text-xs">{potholes.length} hazards plotted</p>
+        <p className="text-text-secondary mt-3 text-xs">{data.markers.length} hazards plotted</p>
         <div className="mt-3 flex items-center gap-4">
           {[
             { label: 'Severe', color: 'bg-red-500' },

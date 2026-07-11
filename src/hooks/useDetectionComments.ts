@@ -18,9 +18,9 @@ export function useDetectionComments(potholeId: number | null) {
     let cancelled = false
     setLoading(true)
 
-    supabase
-      .rpc('get_detection_comments', { p_pothole_id: potholeId })
-      .then(({ data, error }) => {
+    ;(async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_detection_comments', { p_pothole_id: potholeId })
         if (cancelled) return
         setLoading(false)
         if (error) {
@@ -28,12 +28,12 @@ export function useDetectionComments(potholeId: number | null) {
           return
         }
         setComments((data ?? []) as DetectionComment[])
-      })
-      .catch((err) => {
+      } catch (err) {
         if (cancelled) return
         setLoading(false)
         console.error('Comments RPC exception:', err)
-      })
+      }
+    })()
 
     return () => { cancelled = true }
   }, [potholeId])

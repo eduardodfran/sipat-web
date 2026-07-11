@@ -17,9 +17,9 @@ export function usePotholeDetectors(lat: number | null, lng: number | null) {
     let cancelled = false
     setLoading(true)
 
-    supabase
-      .rpc('get_pothole_detectors', { p_lat: lat, p_lng: lng })
-      .then(({ data, error }) => {
+    ;(async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_pothole_detectors', { p_lat: lat, p_lng: lng })
         if (cancelled) return
         setLoading(false)
         if (error) {
@@ -27,12 +27,12 @@ export function usePotholeDetectors(lat: number | null, lng: number | null) {
           return
         }
         setDetectors((data ?? []) as Detector[])
-      })
-      .catch((err) => {
+      } catch (err) {
         if (cancelled) return
         setLoading(false)
         console.error('Detectors RPC exception:', err)
-      })
+      }
+    })()
 
     return () => { cancelled = true }
   }, [lat, lng])

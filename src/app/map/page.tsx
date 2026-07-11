@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { usePotholeData } from '@/hooks/usePotholeData'
 import { useRideRoutes } from '@/hooks/useRideRoutes'
-import MapCanvas from '@/features/map/components/MapCanvas'
 import type { ViewMode } from '@/features/map/components/MapCanvas'
 import { TimelineDrawer } from '@/features/map/components/TimelineDrawer'
 import HazardSidebar from '@/features/map/components/HazardSidebar'
 import type { Pothole } from '@/lib/types'
+
+const MapCanvas = dynamic(() => import('@/features/map/components/MapCanvas'), { ssr: false })
 
 export default function MapPage() {
   const router = useRouter()

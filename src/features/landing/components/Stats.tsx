@@ -1,40 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useLandingData } from '@/features/landing/hooks/useLandingData'
 
 export function Stats() {
-  const [hazards, setHazards] = useState<number | null>(null);
-  const [rides, setRides] = useState<number | null>(null);
-  const [potholes, setPotholes] = useState<{ worst_severity: string }[]>([]);
+  const data = useLandingData()
 
-  useEffect(() => {
-    const fetchCounts = async () => {
-      const [hazardsRes, ridesRes, potholesRes] = await Promise.all([
-        supabase.from('v_unified_potholes').select('*', { count: 'exact', head: true }),
-        supabase.from('rides_metadata').select('*', { count: 'exact', head: true }),
-        supabase.from('v_unified_potholes').select('worst_severity'),
-      ]);
-
-      if (hazardsRes.count != null) setHazards(hazardsRes.count);
-      if (ridesRes.count != null) setRides(ridesRes.count);
-      if (potholesRes.data) setPotholes(potholesRes.data);
-    };
-
-    fetchCounts();
-  }, []);
-
-  const format = (n: number | null) => (n != null ? n.toLocaleString() : '—');
-
-  const severeCount = potholes.filter((p) => p.worst_severity === 'Severe').length;
-  const moderateCount = potholes.filter((p) => p.worst_severity === 'Moderate').length;
-  const minorCount = potholes.filter((p) => p.worst_severity === 'Minor').length;
+  const format = (n: number | null) => (n != null ? n.toLocaleString() : '—')
 
   const cells = [
-    { value: format(hazards), label: 'Hazards', trend: null, trendColor: null },
-    { value: format(rides), label: 'Rides', trend: null, trendColor: null },
+    { value: format(data.potholeCount), label: 'Hazards', trend: null, trendColor: null },
+    { value: format(data.ridesCount), label: 'Rides', trend: null, trendColor: null },
     { value: '12', label: 'Areas', trend: null, trendColor: null },
-  ];
+  ]
 
   return (
     <section className="border-b border-border">
@@ -61,10 +38,10 @@ export function Stats() {
         </div>
         <div className="bg-asphalt mt-px flex items-center gap-2 border-t border-border px-6 py-3">
           <span className="text-text-muted text-xs">
-            Severe: {severeCount} • Moderate: {moderateCount} • Minor: {minorCount}
+            Severe: {data.severeCount} • Moderate: {data.moderateCount} • Minor: {data.minorCount}
           </span>
         </div>
       </div>
     </section>
-  );
+  )
 }
