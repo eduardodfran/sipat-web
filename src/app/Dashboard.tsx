@@ -10,6 +10,11 @@ import { TopHazardsList } from '@/features/dashboard/components/TopHazardsList'
 import { DetectionSourceDonut } from '@/features/dashboard/components/DetectionSourceDonut'
 import { WorstRoadsChart } from '@/features/dashboard/components/WorstRoadsChart'
 import { TimeOfDayArc } from '@/features/dashboard/components/TimeOfDayArc'
+import { HazardsByCity } from '@/features/dashboard/components/HazardsByCity'
+import { HazardsByProvince } from '@/features/dashboard/components/HazardsByProvince'
+import { SeverityByCity } from '@/features/dashboard/components/SeverityByCity'
+import { TopBarangays } from '@/features/dashboard/components/TopBarangays'
+import { TopStreets } from '@/features/dashboard/components/TopStreets'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { shortAddress } from '@/lib/address'
 import type { Pothole } from '@/lib/types'
@@ -283,6 +288,43 @@ export default function Dashboard() {
                 </svg>
                 Ride History
               </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ADDRESS ANALYTICS SECTION */}
+      <div className="mt-4">
+        <div className="mb-3 flex items-center gap-2">
+          <div className="h-px flex-1 bg-border" />
+          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Address Analytics</p>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+          {/* Left: City bar + Severity by City */}
+          <div className="space-y-3 lg:col-span-4">
+            <div className="rounded-lg border border-border bg-surface">
+              <HazardsByCity potholes={allPotholes} />
+            </div>
+            <div className="rounded-lg border border-border bg-surface">
+              <SeverityByCity potholes={allPotholes} />
+            </div>
+          </div>
+
+          {/* Center: Province donut + Top Barangays */}
+          <div className="space-y-3 lg:col-span-4">
+            <div className="rounded-lg border border-border bg-surface">
+              <HazardsByProvince potholes={allPotholes} />
+            </div>
+            <div className="rounded-lg border border-border bg-surface">
+              <TopBarangays potholes={allPotholes} />
+            </div>
+          </div>
+
+          {/* Right: Top Streets */}
+          <div className="space-y-3 lg:col-span-4">
+            <div className="rounded-lg border border-border bg-surface">
+              <TopStreets potholes={allPotholes} />
             </div>
           </div>
         </div>
