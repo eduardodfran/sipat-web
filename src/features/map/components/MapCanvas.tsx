@@ -12,10 +12,12 @@ declare module 'leaflet' {
   function heatLayer(latlngs: Array<[number, number, number]>, options?: any): any
 }
 
-import type { Pothole, Severity } from '@/lib/types'
+import type { Pothole, Severity, Detector, DetectionComment } from '@/lib/types'
 import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
 import type { RideRoute } from '@/hooks/useRideRoutes'
 import { getRouteColor } from '@/hooks/useRideRoutes'
+import { supabase } from '@/lib/supabase'
+import { fullAddress } from '@/lib/address'
 import CommunityPhotoMarker from './CommunityPhotoMarker'
 
 export type ViewMode = 'routes' | 'potholes' | 'all'
@@ -33,6 +35,123 @@ const VIEW_OPTIONS: { key: ViewMode; label: string }[] = [
   { key: 'potholes', label: 'Potholes' },
 ]
 
+function getConfidence(detections: number): { label: string; color: string; percent: number } {
+  if (detections >= 10) return { label: 'High', color: '#22c55e', percent: 100 }
+  if (detections >= 5) return { label: 'Medium', color: '#f59e0b', percent: 65 }
+  if (detections >= 2) return { label: 'Low', color: '#f59e0b', percent: 35 }
+  return { label: 'Unverified', color: '#71717a', percent: 15 }
+}
+
+function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: DetectionComment[]): string {
+  const severityColor = SEVERITY_COLOR[p.worst_severity] ?? '#6b7280'
+
+  const statusColors: Record<string, string> = {
+    reported: '#3b82f6',
+    confirmed: '#f59e0b',
+    fixed: '#22c55e',
+  }
+  const statusLabels: Record<string, string> = {
+    reported: 'Reported',
+    confirmed: 'Confirmed',
+    fixed: 'Fixed',
+  }
+
+  const addrLines = fullAddress(p)
+  const conf = getConfidence(p.total_detection_hits)
+
+  let html = `<div style="min-width:220px;font-family:system-ui,sans-serif;">`
+
+  if (p.image_url) {
+    html += `<img src="${p.image_url}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px;" />`
+  }
+
+  html += `<div style="display:flex;gap:6px;margin-bottom:10px;">`
+  html += `<span style="padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;color:${severityColor};background:${severityColor}15;">${p.worst_severity}</span>`
+  html += `<span style="padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;color:${statusColors[p.status ?? 'reported']};background:${(statusColors[p.status ?? 'reported'])}15;">${statusLabels[p.status ?? 'reported']}</span>`
+  html += `</div>`
+
+  html += `<div style="font-size:12px;color:#a1a1aa;margin-bottom:8px;">`
+  html += `Confirmed by <span style="color:#e4e4e7;font-weight:600;">${p.detectors_count}</span> detector${p.detectors_count !== 1 ? 's' : ''}`
+  html += `</div>`
+
+  // Confidence bar
+  html += `<div style="margin-bottom:10px;">`
+  html += `<div style="display:flex;justify-content:space-between;margin-bottom:4px;">`
+  html += `<span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Confidence</span>`
+  html += `<span style="font-size:11px;font-weight:600;color:${conf.color};">${conf.label}</span>`
+  html += `</div>`
+  html += `<div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">`
+  html += `<div style="height:100%;border-radius:2px;background:${conf.color};width:${conf.percent}%;"></div>`
+  html += `</div></div>`
+
+  if (addrLines.length > 0) {
+    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
+    for (const line of addrLines) {
+      html += `<div style="font-size:12px;color:#e4e4e7;line-height:1.5;">${line}</div>`
+    }
+    html += `</div>`
+  } else {
+    html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;">${p.consolidated_latitude?.toFixed(4)}, ${p.consolidated_longitude?.toFixed(4)}</div>`
+  }
+
+  // Dates
+  html += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">`
+  html += `<div><span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">First reported</span><br/><span style="font-size:12px;color:#e4e4e7;">${p.citizen_first_reported_at ? new Date(p.citizen_first_reported_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span></div>`
+  html += `<div style="text-align:right;"><span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">Last activity</span><br/><span style="font-size:12px;color:#e4e4e7;">${p.latest_activity_at ? new Date(p.latest_activity_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span></div>`
+  html += `</div>`
+
+  // Detectors
+  if (detectors && detectors.length > 0) {
+    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
+    html += `<div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;">Detected by (${detectors.length})</div>`
+    const showDetectors = detectors.slice(0, 5)
+    for (const d of showDetectors) {
+      const initial = (d.username ?? d.full_name ?? '?').charAt(0).toUpperCase()
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`
+      html += `<div style="width:24px;height:24px;border-radius:12px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#e6a817;flex-shrink:0;">${initial}</div>`
+      html += `<span style="font-size:12px;color:#e4e4e7;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.username ?? d.full_name ?? 'Unknown'}</span>`
+      html += `<span style="font-size:10px;color:#71717a;flex-shrink:0;">${new Date(d.detected_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>`
+      html += `</div>`
+    }
+    if (detectors.length > 5) {
+      html += `<div style="font-size:11px;color:#71717a;text-align:center;padding-top:4px;">and ${detectors.length - 5} more</div>`
+    }
+    html += `</div>`
+  } else if (detectors) {
+    html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;padding:4px 0;">No detector data</div>`
+  } else {
+    // Loading placeholder
+    html += `<div id="detectors-loading" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading detectors...</div>`
+  }
+
+  // Comments
+  if (comments && comments.length > 0) {
+    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
+    html += `<div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;">Detection comments (${comments.length})</div>`
+    const showComments = comments.slice(0, 3)
+    for (const c of showComments) {
+      const initial = (c.username ?? '?').charAt(0).toUpperCase()
+      html += `<div style="display:flex;gap:6px;padding:4px 0;">`
+      html += `<div style="width:22px;height:22px;border-radius:11px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#e6a817;flex-shrink:0;margin-top:1px;">${initial}</div>`
+      html += `<div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:600;color:#e4e4e7;">${c.username ?? 'Unknown'}</div><div style="font-size:11px;color:#a1a1aa;margin-top:1px;">${c.body}</div></div>`
+      html += `</div>`
+    }
+    if (comments.length > 3) {
+      html += `<div style="font-size:11px;color:#71717a;text-align:center;padding-top:4px;">View all ${comments.length} comments</div>`
+    }
+    html += `</div>`
+  } else if (comments) {
+    html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;padding:4px 0;">No comments yet</div>`
+  } else {
+    html += `<div id="comments-loading" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading comments...</div>`
+  }
+
+  html += `<div style="font-size:10px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;text-align:center;">Hazard #${p.pothole_id}</div>`
+
+  html += `</div>`
+  return html
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default function MapCanvas({
   allPotholes,
@@ -41,7 +160,6 @@ export default function MapCanvas({
   filter,
   vizMode = 'markers',
   onViewModeChange,
-  onPotholeSelect,
   communityPhotos,
 }: {
   allPotholes: Pothole[]
@@ -50,7 +168,6 @@ export default function MapCanvas({
   filter: Severity | 'All'
   vizMode?: 'markers' | 'heatmap'
   onViewModeChange: (mode: ViewMode) => void
-  onPotholeSelect?: (pothole: Pothole) => void
   communityPhotos?: CommunityPhoto[]
 }) {
   const mapRef = useRef<HTMLDivElement>(null)
@@ -149,12 +266,30 @@ export default function MapCanvas({
           clusterGroupRef.current.addLayer(marker)
 
           const pid = p.pothole_id
-          marker.on('click', () => {
-            onPotholeSelect?.(allPotholes.find((ph) => ph.pothole_id === pid)!)
+          const lat = p.consolidated_latitude!
+          const lng = p.consolidated_longitude!
+
+          marker.bindPopup(buildPotholePopupHtml(p), {
+            maxWidth: 300,
+            className: 'pothole-popup',
+          })
+
+          marker.on('popupopen', async () => {
+            const popup = marker.getPopup()
+            if (!popup) return
+
+            const [detectorsRes, commentsRes] = await Promise.all([
+              supabase.rpc('get_pothole_detectors', { p_lat: lat, p_lng: lng }),
+              supabase.rpc('get_detection_comments', { p_pothole_id: pid }),
+            ])
+
+            const detectors = (detectorsRes.data ?? []) as Detector[]
+            const comments = (commentsRes.data ?? []) as DetectionComment[]
+            popup.setContent(buildPotholePopupHtml(p, detectors, comments))
           })
 
           newMarkers.set(pid, { marker, severity: p.worst_severity })
-          bounds.push([p.consolidated_latitude!, p.consolidated_longitude!])
+          bounds.push([lat, lng])
         })
     }
 

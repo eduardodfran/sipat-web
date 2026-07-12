@@ -9,8 +9,6 @@ import { usePotholeData } from '@/hooks/usePotholeData'
 import { useRideRoutes } from '@/hooks/useRideRoutes'
 import type { ViewMode } from '@/features/map/components/MapCanvas'
 import { TimelineDrawer } from '@/features/map/components/TimelineDrawer'
-import HazardSidebar from '@/features/map/components/HazardSidebar'
-import type { Pothole } from '@/lib/types'
 
 const MapCanvas = dynamic(() => import('@/features/map/components/MapCanvas'), { ssr: false })
 
@@ -21,7 +19,6 @@ export default function MapPage() {
   const { routes } = useRideRoutes()
   const [viewMode, setViewMode] = useState<ViewMode>('all')
   const [vizMode, setVizMode] = useState<'markers' | 'heatmap'>('markers')
-  const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login')
@@ -86,7 +83,6 @@ export default function MapPage() {
         filter={filter}
         vizMode={vizMode}
         onViewModeChange={setViewMode}
-        onPotholeSelect={setSelectedPothole}
       />
 
       {/* Timeline filter drawer */}
@@ -95,13 +91,6 @@ export default function MapPage() {
         allCount={allPotholes.length}
         filter={filter}
         onFilterChange={setFilter}
-      />
-
-      {/* Hazard sidebar */}
-      <HazardSidebar
-        pothole={selectedPothole}
-        onClose={() => setSelectedPothole(null)}
-        top={0}
       />
     </div>
   )
