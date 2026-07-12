@@ -42,7 +42,7 @@ function getConfidence(detections: number): { label: string; color: string; perc
   return { label: 'Unverified', color: '#71717a', percent: 15 }
 }
 
-function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: DetectionComment[]): string {
+function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: DetectionComment[], showInteractions?: boolean): string {
   const severityColor = SEVERITY_COLOR[p.worst_severity] ?? '#6b7280'
 
   const statusColors: Record<string, string> = {
@@ -58,8 +58,9 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
 
   const addrLines = fullAddress(p)
   const conf = getConfidence(p.total_detection_hits)
+  const pid = p.pothole_id
 
-  let html = `<div style="min-width:220px;font-family:system-ui,sans-serif;">`
+  let html = `<div id="pothole-popup-${pid}" style="min-width:220px;font-family:system-ui,sans-serif;">`
 
   if (p.image_url) {
     html += `<img src="${p.image_url}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px;" />`
@@ -74,7 +75,6 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
   html += `Confirmed by <span style="color:#e4e4e7;font-weight:600;">${p.detectors_count}</span> detector${p.detectors_count !== 1 ? 's' : ''}`
   html += `</div>`
 
-  // Confidence bar
   html += `<div style="margin-bottom:10px;">`
   html += `<div style="display:flex;justify-content:space-between;margin-bottom:4px;">`
   html += `<span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Confidence</span>`
@@ -94,7 +94,6 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
     html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;">${p.consolidated_latitude?.toFixed(4)}, ${p.consolidated_longitude?.toFixed(4)}</div>`
   }
 
-  // Dates
   html += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">`
   html += `<div><span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">First reported</span><br/><span style="font-size:12px;color:#e4e4e7;">${p.citizen_first_reported_at ? new Date(p.citizen_first_reported_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span></div>`
   html += `<div style="text-align:right;"><span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">Last activity</span><br/><span style="font-size:12px;color:#e4e4e7;">${p.latest_activity_at ? new Date(p.latest_activity_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span></div>`
@@ -120,8 +119,7 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
   } else if (detectors) {
     html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;padding:4px 0;">No detector data</div>`
   } else {
-    // Loading placeholder
-    html += `<div id="detectors-loading" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading detectors...</div>`
+    html += `<div id="detectors-loading-${pid}" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading detectors...</div>`
   }
 
   // Comments
@@ -143,10 +141,32 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
   } else if (comments) {
     html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;padding:4px 0;">No comments yet</div>`
   } else {
-    html += `<div id="comments-loading" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading comments...</div>`
+    html += `<div id="comments-loading-${pid}" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading comments...</div>`
   }
 
-  html += `<div style="font-size:10px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;text-align:center;">Hazard #${p.pothole_id}</div>`
+  // Interactive: verification buttons + comment form
+  if (showInteractions) {
+    const verifyCount = comments ? comments.filter((c) => c.body.includes('✅')).length : 0
+
+    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
+    html += `<div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;">Is this hazard still here?</div>`
+    html += `<div style="display:flex;gap:6px;margin-bottom:4px;">`
+    html += `<button id="verify-stillhere-${pid}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 8px;border-radius:6px;border:1px solid rgba(34,197,94,0.2);background:rgba(34,197,94,0.05);color:#22c55e;font-size:11px;font-weight:600;cursor:pointer;">Still here</button>`
+    html += `<button id="verify-fixed-${pid}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 8px;border-radius:6px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);color:#ef4444;font-size:11px;font-weight:600;cursor:pointer;">Fixed</button>`
+    html += `</div>`
+    html += `<div style="font-size:10px;color:#71717a;text-align:center;">${verifyCount} community verification${verifyCount !== 1 ? 's' : ''}</div>`
+    html += `</div>`
+
+    // Comment form
+    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
+    html += `<div style="display:flex;gap:6px;margin-bottom:4px;">`
+    html += `<input id="comment-input-${pid}" type="text" placeholder="Write a comment..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#0c0c14;color:#e4e4e7;font-size:12px;outline:none;min-width:0;" />`
+    html += `<button id="comment-send-${pid}" style="padding:6px 12px;border-radius:6px;background:rgba(230,168,23,0.15);color:#e6a817;font-size:11px;font-weight:700;border:none;cursor:pointer;">Send</button>`
+    html += `</div>`
+    html += `</div>`
+  }
+
+  html += `<div style="font-size:10px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;text-align:center;">Hazard #${pid}</div>`
 
   html += `</div>`
   return html
@@ -276,16 +296,63 @@ export default function MapCanvas({
 
           marker.on('popupopen', async () => {
             const popup = marker.getPopup()
-            if (!popup) return
 
-            const [detectorsRes, commentsRes] = await Promise.all([
-              supabase.rpc('get_pothole_detectors', { p_lat: lat, p_lng: lng }),
-              supabase.rpc('get_detection_comments', { p_pothole_id: pid }),
-            ])
+            async function loadAndRender() {
+              const myPopup = marker.getPopup() ?? popup
+              if (!myPopup) return
 
-            const detectors = (detectorsRes.data ?? []) as Detector[]
-            const comments = (commentsRes.data ?? []) as DetectionComment[]
-            popup.setContent(buildPotholePopupHtml(p, detectors, comments))
+              const [detectorsRes, commentsRes] = await Promise.all([
+                supabase.rpc('get_pothole_detectors', { p_lat: lat, p_lng: lng }),
+                supabase.rpc('get_detection_comments', { p_pothole_id: pid }),
+              ])
+
+              const detectors = (detectorsRes.data ?? []) as Detector[]
+              const comments = (commentsRes.data ?? []) as DetectionComment[]
+              const html = buildPotholePopupHtml(p, detectors, comments, true)
+              myPopup.setContent(html)
+
+              // Attach interactive event handlers after content renders
+              setTimeout(() => {
+                const el = (popup as any).getElement?.() ?? document.getElementById(`pothole-popup-${pid}`)
+                if (!el) return
+
+                const stillHereBtn = document.getElementById(`verify-stillhere-${pid}`)
+                const fixedBtn = document.getElementById(`verify-fixed-${pid}`)
+                const commentInput = document.getElementById(`comment-input-${pid}`) as HTMLInputElement | null
+                const commentSend = document.getElementById(`comment-send-${pid}`)
+
+                const doVerify = async (body: string) => {
+                  await supabase.rpc('create_detection_comment', { p_pothole_id: pid, p_body: body })
+                  loadAndRender()
+                }
+
+                if (stillHereBtn) {
+                  stillHereBtn.onclick = () => doVerify('✅ Still here')
+                }
+                if (fixedBtn) {
+                  fixedBtn.onclick = () => doVerify('✅ Fixed')
+                }
+                if (commentSend && commentInput) {
+                  const sendComment = () => {
+                    const text = commentInput.value.trim()
+                    if (!text) return
+                    commentSend.textContent = '...'
+                    commentInput.disabled = true
+                    supabase.rpc('create_detection_comment', { p_pothole_id: pid, p_body: text })
+                      .then(() => {
+                        commentInput.value = ''
+                        loadAndRender()
+                      })
+                  }
+                  commentSend.onclick = sendComment
+                  commentInput.onkeydown = (e: KeyboardEvent) => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendComment() }
+                  }
+                }
+              }, 0)
+            }
+
+            loadAndRender()
           })
 
           newMarkers.set(pid, { marker, severity: p.worst_severity })
