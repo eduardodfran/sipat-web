@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster'
@@ -13,8 +13,10 @@ declare module 'leaflet' {
 }
 
 import type { Pothole, Severity } from '@/lib/types'
+import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
 import type { RideRoute } from '@/hooks/useRideRoutes'
 import { getRouteColor } from '@/hooks/useRideRoutes'
+import CommunityPhotoMarker from './CommunityPhotoMarker'
 
 export type ViewMode = 'routes' | 'potholes' | 'all'
 
@@ -40,6 +42,7 @@ export default function MapCanvas({
   vizMode = 'markers',
   onViewModeChange,
   onPotholeSelect,
+  communityPhotos,
 }: {
   allPotholes: Pothole[]
   routes: RideRoute[]
@@ -48,9 +51,11 @@ export default function MapCanvas({
   vizMode?: 'markers' | 'heatmap'
   onViewModeChange: (mode: ViewMode) => void
   onPotholeSelect?: (pothole: Pothole) => void
+  communityPhotos?: CommunityPhoto[]
 }) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
+  const [mapReady, setMapReady] = useState(false)
   const clusterGroupRef = useRef<any>(null)
   const routeLayerRef = useRef<any>(null)
   const heatLayerRef = useRef<any>(null)
@@ -88,6 +93,7 @@ export default function MapCanvas({
       })
       map.addLayer(clusterGroupRef.current)
       mapInstanceRef.current = map
+      setMapReady(true)
     }
 
     const map = mapInstanceRef.current
@@ -275,6 +281,12 @@ export default function MapCanvas({
         ref={mapRef}
         className="h-full w-full"
       />
+      {mapReady && mapInstanceRef.current && communityPhotos && communityPhotos.length > 0 && (
+        <CommunityPhotoMarker
+          photos={communityPhotos}
+          map={mapInstanceRef.current}
+        />
+      )}
     </div>
   )
 }
