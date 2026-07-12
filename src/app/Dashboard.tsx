@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePotholeData } from '@/hooks/usePotholeData'
 import HazardSidebar from '@/features/map/components/HazardSidebar'
@@ -17,7 +17,9 @@ import { TopBarangays } from '@/features/dashboard/components/TopBarangays'
 import { TopStreets } from '@/features/dashboard/components/TopStreets'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { shortAddress } from '@/lib/address'
+import { supabase } from '@/lib/supabase'
 import type { Pothole } from '@/lib/types'
+import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
 
 function getSafetyGrade(hazardCount: number): { grade: string; color: string; description: string } {
   if (hazardCount === 0) return { grade: 'A', color: 'text-green-400', description: 'No hazards' }
@@ -59,6 +61,17 @@ export default function Dashboard() {
   const { allPotholes, stats, loading, error } = usePotholeData()
   const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null)
   const [timeFilter, setTimeFilter] = useState<'all' | 7 | 30 | 90>('all')
+  const [communityPhotos, setCommunityPhotos] = useState<CommunityPhoto[]>([])
+
+  useEffect(() => {
+    supabase
+      .from('community_photos')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setCommunityPhotos((data ?? []) as CommunityPhoto[])
+      })
+  }, [])
 
   if (error) {
     return (
@@ -149,7 +162,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPI CARDS */}
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
         <div className="rounded-lg border border-border bg-surface p-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Total</p>
           <p className="mt-1 text-3xl font-black text-text-primary">{filteredStats.total}</p>
@@ -181,6 +194,11 @@ export default function Dashboard() {
             {stats.totalPotholes > 0 ? Math.round(stats.totalHits / stats.totalPotholes) : 0}
           </p>
           <p className="text-[10px] text-text-muted">detections</p>
+        </div>
+        <div className="rounded-lg border border-border bg-surface p-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Community Reports</p>
+          <p className="mt-1 text-3xl font-black text-cyan-400">{communityPhotos.length}</p>
+          <p className="text-[10px] text-text-muted">photos submitted</p>
         </div>
       </div>
 
