@@ -49,3 +49,5 @@ export interface DashboardStats {
   routeCount: number
   gpsPointCount: number
 }
+
+export type { CommunityPhoto, DetectionStatus } from './communityPhotoTypes'
