@@ -41,6 +41,7 @@ export function useRides() {
       .from('rides_metadata')
       .select('*')
       .order('created_at', { ascending: false })
+      .limit(100)
 
     if (!error && data) {
       setRides(data as Ride[])

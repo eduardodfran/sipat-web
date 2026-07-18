@@ -55,7 +55,7 @@ export function useLandingData() {
       const [potholesRes, ridesRes, markersRes] = await Promise.all([
         supabase.from('v_unified_potholes').select('*', { count: 'exact', head: true }),
         supabase.from('rides_metadata').select('*', { count: 'exact', head: true }),
-        supabase.from('v_unified_potholes').select('consolidated_latitude, consolidated_longitude, worst_severity'),
+        supabase.from('v_unified_potholes').select('consolidated_latitude, consolidated_longitude, worst_severity').limit(500),
       ])
 
       if (cancelled) return

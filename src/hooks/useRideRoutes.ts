@@ -35,6 +35,7 @@ export function useRideRoutes() {
       .from('rides_metadata')
       .select('id, gps_bucket_path, status')
       .not('gps_bucket_path', 'is', null)
+      .limit(50)
 
     if (error || !rides) {
       setLoading(false)

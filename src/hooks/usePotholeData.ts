@@ -58,6 +58,7 @@ export function usePotholeData() {
         'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count, street, barangay, city, province, region, country, formatted_address, address_geocoded_at',
       )
       .order('total_detection_hits', { ascending: false })
+      .limit(500)
 
     if (dbError) {
       setError(dbError.message)
