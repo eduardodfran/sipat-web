@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useMemo } from 'react'
+import { useServerData } from '@/hooks/useServerData'
 
 type Severity = 'Severe' | 'Moderate' | 'Minor' | 'Unknown'
 
@@ -20,9 +20,6 @@ interface LandingData {
   markers: PotholeMarker[]
 }
 
-let cached: { data: LandingData; expiry: number } | null = null
-const TTL = 30_000
-
 function computeSeverity(markers: PotholeMarker[]) {
   let severe = 0, moderate = 0, minor = 0
   for (const m of markers) {
@@ -33,51 +30,34 @@ function computeSeverity(markers: PotholeMarker[]) {
   return { severeCount: severe, moderateCount: moderate, minorCount: minor }
 }
 
-export function useLandingData() {
-  const [data, setData] = useState<LandingData>({
-    potholeCount: null,
-    ridesCount: null,
-    severeCount: 0,
-    moderateCount: 0,
-    minorCount: 0,
-    markers: [],
+export function useLandingData(): LandingData {
+  const { count: potholeCount } = useServerData({
+    table: 'v_unified_potholes',
+    columns: '*',
+    count: 'exact',
+    head: true,
   })
 
-  useEffect(() => {
-    let cancelled = false
+  const { count: ridesCount } = useServerData({
+    table: 'rides_metadata',
+    columns: '*',
+    count: 'exact',
+    head: true,
+  })
 
-    const fetch = async () => {
-      if (cached && Date.now() < cached.expiry) {
-        if (!cancelled) setData(cached.data)
-        return
-      }
+  const { data: markersData } = useServerData<Record<string, unknown>[]>({
+    table: 'v_unified_potholes',
+    columns: 'consolidated_latitude, consolidated_longitude, worst_severity',
+    limit: 500,
+  })
 
-      const [potholesRes, ridesRes, markersRes] = await Promise.all([
-        supabase.from('v_unified_potholes').select('*', { count: 'exact', head: true }),
-        supabase.from('rides_metadata').select('*', { count: 'exact', head: true }),
-        supabase.from('v_unified_potholes').select('consolidated_latitude, consolidated_longitude, worst_severity').limit(500),
-      ])
+  const markers = useMemo(() => (markersData ?? []) as unknown as PotholeMarker[], [markersData])
+  const severityCounts = useMemo(() => computeSeverity(markers), [markers])
 
-      if (cancelled) return
-
-      const markers = (markersRes.data ?? []) as PotholeMarker[]
-      const { severeCount, moderateCount, minorCount } = computeSeverity(markers)
-      const result: LandingData = {
-        potholeCount: potholesRes.count ?? null,
-        ridesCount: ridesRes.count ?? null,
-        severeCount,
-        moderateCount,
-        minorCount,
-        markers,
-      }
-
-      cached = { data: result, expiry: Date.now() + TTL }
-      setData(result)
-    }
-
-    fetch()
-    return () => { cancelled = true }
-  }, [])
-
-  return data
+  return {
+    potholeCount,
+    ridesCount,
+    ...severityCounts,
+    markers,
+  }
 }

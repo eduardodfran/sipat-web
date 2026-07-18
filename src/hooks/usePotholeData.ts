@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useMemo } from 'react'
+import { useServerData } from './useServerData'
 import type { Pothole, DashboardStats, Severity } from '@/lib/types'
 
 function computeStats(potholes: Pothole[], routeCount = 0, gpsPointCount = 0): DashboardStats {
@@ -33,81 +33,58 @@ function computeStats(potholes: Pothole[], routeCount = 0, gpsPointCount = 0): D
   return stats
 }
 
+const QUERY_PARAMS = {
+  table: 'v_unified_potholes',
+  columns:
+    'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count, street, barangay, city, province, region, country, formatted_address, address_geocoded_at',
+  order: { column: 'total_detection_hits', ascending: false } as const,
+  limit: 500,
+} as const
+
+function mapRow(row: Record<string, unknown>): Pothole {
+  return {
+    pothole_id: row.pothole_id as number,
+    consolidated_latitude: row.consolidated_latitude as number,
+    consolidated_longitude: row.consolidated_longitude as number,
+    worst_severity: (row.worst_severity as Severity) ?? 'Unknown',
+    total_detection_hits: (row.total_detection_hits as number) ?? 0,
+    citizen_first_reported_at: (row.citizen_first_reported_at as string) ?? '',
+    latest_activity_at: (row.latest_activity_at as string) ?? '',
+    image_url: (row.image_url as string | null) ?? null,
+    reporter_username: (row.reporter_username as string | null) ?? null,
+    reporter_avatar: (row.reporter_avatar as string | null) ?? null,
+    detectors_count: (row.detectors_count as number) ?? 0,
+    street: (row.street as string | null) ?? null,
+    barangay: (row.barangay as string | null) ?? null,
+    city: (row.city as string | null) ?? null,
+    province: (row.province as string | null) ?? null,
+    region: (row.region as string | null) ?? null,
+    country: (row.country as string | null) ?? null,
+    formatted_address: (row.formatted_address as string | null) ?? null,
+    address_geocoded_at: (row.address_geocoded_at as string | null) ?? null,
+  }
+}
+
 export function usePotholeData() {
-  const [potholes, setPotholes] = useState<Pothole[]>([])
-  const [stats, setStats] = useState<DashboardStats>({
-    totalPotholes: 0,
-    severeCount: 0,
-    moderateCount: 0,
-    minorCount: 0,
-    totalHits: 0,
-    routeCount: 0,
-    gpsPointCount: 0,
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Severity | 'All'>('All')
+  const { data, loading, error, refetch } = useServerData<Record<string, unknown>[]>(QUERY_PARAMS)
 
-  const fetchData = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const allPotholes = useMemo(() => (data ?? []).map(mapRow), [data])
+  const stats = useMemo(() => computeStats(allPotholes), [allPotholes])
 
-    const { data, error: dbError } = await supabase
-      .from('v_unified_potholes')
-      .select(
-        'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count, street, barangay, city, province, region, country, formatted_address, address_geocoded_at',
-      )
-      .order('total_detection_hits', { ascending: false })
-      .limit(500)
-
-    if (dbError) {
-      setError(dbError.message)
-      setLoading(false)
-      return
-    }
-
-    const mapped: Pothole[] = (data ?? []).map((row) => ({
-      pothole_id: row.pothole_id,
-      consolidated_latitude: row.consolidated_latitude,
-      consolidated_longitude: row.consolidated_longitude,
-      worst_severity: (row.worst_severity as Severity) ?? 'Unknown',
-      total_detection_hits: row.total_detection_hits ?? 0,
-      citizen_first_reported_at: row.citizen_first_reported_at ?? '',
-      latest_activity_at: row.latest_activity_at ?? '',
-      image_url: row.image_url ?? null,
-      reporter_username: row.reporter_username ?? null,
-      reporter_avatar: row.reporter_avatar ?? null,
-      detectors_count: row.detectors_count ?? 0,
-      street: row.street ?? null,
-      barangay: row.barangay ?? null,
-      city: row.city ?? null,
-      province: row.province ?? null,
-      region: row.region ?? null,
-      country: row.country ?? null,
-      formatted_address: row.formatted_address ?? null,
-      address_geocoded_at: row.address_geocoded_at ?? null,
-    }))
-
-    setPotholes(mapped)
-    setStats(computeStats(mapped))
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
-
-  const filtered =
-    filter === 'All' ? potholes : potholes.filter((p) => p.worst_severity === filter)
+  const filtered = useMemo(
+    () => (filter === 'All' ? allPotholes : allPotholes.filter((p) => p.worst_severity === filter)),
+    [filter, allPotholes],
+  )
 
   return {
     potholes: filtered,
-    allPotholes: potholes,
+    allPotholes,
     stats,
     loading,
     error,
     filter,
     setFilter,
-    refetch: fetchData,
+    refetch,
   }
 }

@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useServerData } from './useServerData'
 
 export type RideStatus = 'queued' | 'processing' | 'completed' | 'failed'
 
@@ -30,28 +31,23 @@ export const STATUS_STYLES: Record<RideStatus, string> = {
   failed: 'bg-red-500/15 text-red-400 ring-1 ring-red-500/30',
 }
 
+const QUERY_PARAMS = {
+  table: 'rides_metadata',
+  columns: '*',
+  order: { column: 'created_at', ascending: false } as const,
+  limit: 100,
+} as const
+
 export function useRides() {
-  const [rides, setRides] = useState<Ride[]>([])
-  const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const { data, loading, refetch } = useServerData<Record<string, unknown>[]>(QUERY_PARAMS)
 
-  const fetchRides = useCallback(async () => {
-    setLoading(true)
-    const { data, error } = await supabase
-      .from('rides_metadata')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100)
+  const serverRides = useMemo(() => (data ?? []) as unknown as Ride[], [data])
+  const [rides, setRides] = useState<Ride[]>([])
 
-    if (!error && data) {
-      setRides(data as Ride[])
-    }
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    fetchRides()
-  }, [fetchRides])
+  if (rides.length === 0 && serverRides.length > 0) {
+    setRides(serverRides)
+  }
 
   const deleteRide = useCallback(async (id: string) => {
     setActionLoading(id)
@@ -91,5 +87,5 @@ export function useRides() {
     setActionLoading(null)
   }, [])
 
-  return { rides, loading, actionLoading, refetch: fetchRides, deleteRide, reprocessRide }
+  return { rides, loading, actionLoading, refetch, deleteRide, reprocessRide }
 }
