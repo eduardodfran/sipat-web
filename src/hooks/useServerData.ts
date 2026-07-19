@@ -27,9 +27,11 @@ function cacheKey(params: ProxyParams): string {
 
 function readCache<T>(key: string): { data: T | null; count: number | null } | null {
   const entry = ttlCache.get(key)
-  if (entry && Date.now() < entry.expiry) {
+  if (!entry) return null
+  if (Date.now() < entry.expiry) {
     return { data: entry.data as T, count: entry.count }
   }
+  ttlCache.delete(key)
   return null
 }
 

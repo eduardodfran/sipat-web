@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       { data, count: resultCount },
       {
         headers: {
-          'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+          'Cache-Control': 'private, max-age=60, stale-while-revalidate=300',
         },
       },
     )
