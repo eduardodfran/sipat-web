@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useServerData } from './useServerData'
+import { useServerData, type ProxyParams } from './useServerData'
 import type { Pothole, DashboardStats, Severity } from '@/lib/types'
 
 function computeStats(potholes: Pothole[], routeCount = 0, gpsPointCount = 0): DashboardStats {
@@ -33,13 +33,14 @@ function computeStats(potholes: Pothole[], routeCount = 0, gpsPointCount = 0): D
   return stats
 }
 
-const QUERY_PARAMS = {
+const QUERY_PARAMS: ProxyParams = {
   table: 'v_unified_potholes',
   columns:
     'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count, street, barangay, city, province, region, country, formatted_address, address_geocoded_at',
-  order: { column: 'total_detection_hits', ascending: false } as const,
+  order: { column: 'total_detection_hits', ascending: false },
   limit: 500,
-} as const
+  filters: [{ column: 'caption', operator: 'not.like', value: '[HIDDEN]%' }],
+}
 
 function mapRow(row: Record<string, unknown>): Pothole {
   return {

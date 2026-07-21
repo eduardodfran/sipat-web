@@ -5,6 +5,7 @@ import L from 'leaflet'
 import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
 import type { DetectionComment } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
+import { buildVoteReportHtml, initPopupInteractions } from './PopupInteractions'
 
 const STATUS_STYLE: Record<string, { color: string; icon: string; label: string }> = {
   pending: { color: '#6b7280', icon: '?', label: 'Analyzing...' },
@@ -104,6 +105,8 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
     html += `<button id="photo-comment-send-${pid}" style="padding:6px 12px;border-radius:6px;background:rgba(230,168,23,0.15);color:#e6a817;font-size:11px;font-weight:700;border:none;cursor:pointer;">Send</button>`
     html += `</div>`
     html += `</div>`
+
+    html += buildVoteReportHtml('photo', pid)
   }
 
   html += `<div style="font-size:11px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;">`
@@ -201,6 +204,8 @@ export default function CommunityPhotoMarker({ photos, map, onSelect }: Props) {
                 }
               }
             }
+
+            initPopupInteractions('photo', pid, supabase)
           }, 0)
         }
 

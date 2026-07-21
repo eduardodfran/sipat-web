@@ -19,6 +19,7 @@ import { getRouteColor } from '@/hooks/useRideRoutes'
 import { supabase } from '@/lib/supabase'
 import { fullAddress } from '@/lib/address'
 import CommunityPhotoMarker from './CommunityPhotoMarker'
+import { buildVoteReportHtml, initPopupInteractions } from './PopupInteractions'
 
 export type ViewMode = 'routes' | 'potholes' | 'all'
 
@@ -164,6 +165,8 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
     html += `<button id="comment-send-${pid}" style="padding:6px 12px;border-radius:6px;background:rgba(230,168,23,0.15);color:#e6a817;font-size:11px;font-weight:700;border:none;cursor:pointer;">Send</button>`
     html += `</div>`
     html += `</div>`
+
+    html += buildVoteReportHtml('pothole', pid)
   }
 
   html += `<div style="font-size:10px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;text-align:center;">Hazard #${pid}</div>`
@@ -349,6 +352,8 @@ export default function MapCanvas({
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendComment() }
                   }
                 }
+
+                initPopupInteractions('pothole', pid, supabase)
               }, 0)
             }
 
