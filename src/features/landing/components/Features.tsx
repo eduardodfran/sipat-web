@@ -60,15 +60,15 @@ export function Features() {
 
         <div className="mt-12 grid grid-cols-1 gap-px bg-border sm:grid-cols-3">
           {FEATURES.map((feature, i) => (
-            <FadeIn key={feature.title} delay={i * 100}>
-              <div className="feature-card bg-asphalt p-6 relative">
+            <FadeIn key={feature.title} delay={i * 100} className="h-full">
+              <div className="feature-card bg-asphalt p-6 relative h-full flex flex-col">
                 {/* Colored top accent */}
                 <div className={`absolute top-0 left-0 right-0 h-0.5 ${feature.accentColor}`} />
                 <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-surface text-cyan-accent">
                   {feature.icon}
                 </div>
                 <h3 className="text-sm font-bold text-text-primary">{feature.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
+                <p className="mt-1.5 text-sm leading-relaxed text-text-secondary flex-1">
                   {feature.description}
                 </p>
                 <ul className="mt-3 flex flex-wrap gap-x-2 gap-y-1">
