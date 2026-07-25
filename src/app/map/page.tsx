@@ -7,10 +7,45 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { usePotholeData } from '@/hooks/usePotholeData'
 import { useRideRoutes } from '@/hooks/useRideRoutes'
+import { useServerData, type ProxyParams } from '@/hooks/useServerData'
 import type { ViewMode } from '@/features/map/components/MapCanvas'
+import type { CommunityPhoto, DetectionStatus } from '@/lib/communityPhotoTypes'
 import { TimelineDrawer } from '@/features/map/components/TimelineDrawer'
 
 const MapCanvas = dynamic(() => import('@/features/map/components/MapCanvas'), { ssr: false })
+
+const PHOTO_PARAMS: ProxyParams = {
+  table: 'community_photos',
+  columns: '*',
+  order: { column: 'created_at', ascending: false },
+  limit: 200,
+}
+
+function mapPhoto(row: Record<string, unknown>): CommunityPhoto {
+  return {
+    id: row.id as number,
+    user_id: row.user_id as string,
+    image_url: row.image_url as string,
+    latitude: row.latitude as number,
+    longitude: row.longitude as number,
+    street: (row.street as string | null) ?? null,
+    barangay: (row.barangay as string | null) ?? null,
+    city: (row.city as string | null) ?? null,
+    province: (row.province as string | null) ?? null,
+    region: (row.region as string | null) ?? null,
+    country: (row.country as string | null) ?? null,
+    formatted_address: (row.formatted_address as string | null) ?? null,
+    address_geocoded_at: (row.address_geocoded_at as string | null) ?? null,
+    detection_status: (row.detection_status as DetectionStatus) ?? 'pending',
+    worst_severity: (row.worst_severity as string | null) ?? null,
+    confidence: (row.confidence as number | null) ?? null,
+    class_name: (row.class_name as string | null) ?? null,
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+    reporter_username: (row.reporter_username as string | null) ?? null,
+    reporter_avatar: (row.reporter_avatar as string | null) ?? null,
+  }
+}
 
 export default function MapPage() {
   const router = useRouter()
@@ -19,6 +54,12 @@ export default function MapPage() {
   const { routes } = useRideRoutes()
   const [viewMode, setViewMode] = useState<ViewMode>('all')
   const [vizMode, setVizMode] = useState<'markers' | 'heatmap'>('markers')
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'hazard' | 'community'>('all')
+  const { data: communityPhotos } = useServerData<Record<string, unknown>[]>(PHOTO_PARAMS)
+
+  useEffect(() => {
+    if (sourceFilter === 'community') setVizMode('markers')
+  }, [sourceFilter])
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login')
@@ -49,30 +90,49 @@ export default function MapPage() {
         </Link>
       </div>
 
-      {/* Viz mode toggle */}
-      <div className="absolute right-4 top-4 z-30">
+      {/* Top-right controls */}
+      <div className="absolute right-4 top-4 z-30 flex gap-2">
+        {/* Source filter */}
         <div className="inline-flex overflow-hidden rounded-lg border border-white/[0.06] bg-asphalt/90 shadow-lg shadow-black/30 backdrop-blur-md">
-          <button
-            onClick={() => setVizMode('markers')}
-            className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
-              vizMode === 'markers'
-                ? 'bg-cyan-accent text-asphalt shadow-sm'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Markers
-          </button>
-          <button
-            onClick={() => setVizMode('heatmap')}
-            className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
-              vizMode === 'heatmap'
-                ? 'bg-cyan-accent text-asphalt shadow-sm'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Heatmap
-          </button>
+          {(['all', 'hazard', 'community'] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setSourceFilter(s)}
+              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+                sourceFilter === s
+                  ? 'bg-cyan-accent text-asphalt shadow-sm'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {s === 'all' ? 'All' : s === 'hazard' ? 'Video' : 'Photo'}
+            </button>
+          ))}
         </div>
+        {/* Viz mode toggle — only for hazard data */}
+        {sourceFilter !== 'community' && (
+          <div className="inline-flex overflow-hidden rounded-lg border border-white/[0.06] bg-asphalt/90 shadow-lg shadow-black/30 backdrop-blur-md">
+            <button
+              onClick={() => setVizMode('markers')}
+              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+                vizMode === 'markers'
+                  ? 'bg-cyan-accent text-asphalt shadow-sm'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Markers
+            </button>
+            <button
+              onClick={() => setVizMode('heatmap')}
+              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+                vizMode === 'heatmap'
+                  ? 'bg-cyan-accent text-asphalt shadow-sm'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Heatmap
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Map */}
@@ -83,15 +143,19 @@ export default function MapPage() {
         filter={filter}
         vizMode={vizMode}
         onViewModeChange={setViewMode}
+        communityPhotos={sourceFilter === 'hazard' ? [] : (communityPhotos ?? []).map(mapPhoto)}
+        showPotholeMarkers={sourceFilter !== 'community'}
       />
 
       {/* Timeline filter drawer */}
-      <TimelineDrawer
-        potholes={potholes}
-        allCount={allPotholes.length}
-        filter={filter}
-        onFilterChange={setFilter}
-      />
+      {sourceFilter !== 'community' && (
+        <TimelineDrawer
+          potholes={potholes}
+          allCount={allPotholes.length}
+          filter={filter}
+          onFilterChange={setFilter}
+        />
+      )}
     </div>
   )
 }

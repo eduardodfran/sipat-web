@@ -41,18 +41,18 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
   return (
     <button
       onClick={() => onSelect(pothole)}
-      className={`flex w-full items-center gap-2 border-l-2 py-1.5 pl-2 pr-1.5 text-left transition-all hover:bg-white/[0.03] ${s.border}`}
+      className={`flex w-full items-center gap-3 border-l-2 py-2.5 pl-3 pr-2.5 text-left transition-all hover:bg-white/[0.03] ${s.border}`}
     >
-      <div className={`h-1.5 w-1.5 shrink-0 rounded-full ${s.dot}`} />
+      <div className={`h-2 w-2 shrink-0 rounded-full ${s.dot}`} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className={`text-[11px] font-semibold ${s.text}`}>{pothole.worst_severity}</span>
-          <span className="text-[10px] text-text-muted truncate">
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-semibold ${s.text}`}>{pothole.worst_severity}</span>
+          <span className="text-xs text-text-muted truncate">
             {shortAddress(pothole)}
           </span>
         </div>
       </div>
-      <span className="text-[11px] font-bold text-text-primary">{pothole.total_detection_hits}</span>
+      <span className="text-sm font-bold text-text-primary">{pothole.total_detection_hits}</span>
     </button>
   )
 }
@@ -86,12 +86,12 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] p-3">
-        <Skeleton className="h-16" />
-        <div className="mt-2 grid grid-cols-2 gap-2 lg:grid-cols-4">
-          <Skeleton className="h-20" /><Skeleton className="h-20" /><Skeleton className="h-20" /><Skeleton className="h-20" />
+      <div className="min-h-[calc(100vh-4rem)] p-6">
+        <Skeleton className="h-20" />
+        <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Skeleton className="h-28" /><Skeleton className="h-28" /><Skeleton className="h-28" /><Skeleton className="h-28" />
         </div>
-        <Skeleton className="mt-2 h-64" />
+        <Skeleton className="mt-4 h-96" />
       </div>
     )
   }
@@ -137,24 +137,24 @@ export default function Dashboard() {
   const safety = getSafetyGrade(stats.totalPotholes)
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] px-4 pb-4 pt-4">
+    <div className="min-h-[calc(100vh-4rem)] px-6 pb-6 pt-6">
       {/* HEADER BAR */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-base font-bold text-text-primary">Dashboard</h1>
-          <span className="text-[11px] text-text-muted">•</span>
-          <span className="text-[11px] text-text-muted">Road Hazard Overview</span>
+          <h1 className="text-xl font-bold text-text-primary">Dashboard</h1>
+          <span className="text-sm text-text-muted">•</span>
+          <span className="text-sm text-text-muted">Road Hazard Overview</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/map" className="rounded-md border border-border bg-surface px-3 py-1.5 text-[11px] font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary">
+        <div className="flex items-center gap-3">
+          <Link href="/map" className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary">
             Map
           </Link>
-          <Link href="/rides" className="rounded-md border border-border bg-surface px-3 py-1.5 text-[11px] font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary">
+          <Link href="/rides" className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary">
             Rides
           </Link>
           <button
             onClick={exportCSV}
-            className="rounded-md border border-border bg-surface px-3 py-1.5 text-[11px] font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
           >
             Export
           </button>
@@ -162,63 +162,63 @@ export default function Dashboard() {
       </div>
 
       {/* KPI CARDS */}
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Total</p>
-          <p className="mt-1 text-3xl font-black text-text-primary">{filteredStats.total}</p>
-          <p className="text-[10px] text-text-muted">hazards detected</p>
+      <div className="mb-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-7">
+        <div className="rounded-xl border border-border bg-surface p-6">
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Total</p>
+          <p className="mt-3 text-5xl font-black text-text-primary">{filteredStats.total}</p>
+          <p className="mt-2 text-sm text-text-muted">hazards detected</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Severe</p>
-          <p className="mt-1 text-3xl font-black text-red-400">{filteredStats.severe}</p>
-          <p className="text-[10px] text-text-muted">critical hazards</p>
+        <div className="rounded-xl border border-border bg-surface p-6">
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Severe</p>
+          <p className="mt-3 text-5xl font-black text-red-400">{filteredStats.severe}</p>
+          <p className="mt-2 text-sm text-text-muted">critical hazards</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Moderate</p>
-          <p className="mt-1 text-3xl font-black text-amber-400">{filteredStats.moderate}</p>
-          <p className="text-[10px] text-text-muted">warnings</p>
+        <div className="rounded-xl border border-border bg-surface p-6">
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Moderate</p>
+          <p className="mt-3 text-5xl font-black text-amber-400">{filteredStats.moderate}</p>
+          <p className="mt-2 text-sm text-text-muted">warnings</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Minor</p>
-          <p className="mt-1 text-3xl font-black text-green-400">{filteredStats.minor}</p>
-          <p className="text-[10px] text-text-muted">low severity</p>
+        <div className="rounded-xl border border-border bg-surface p-6">
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Minor</p>
+          <p className="mt-3 text-5xl font-black text-green-400">{filteredStats.minor}</p>
+          <p className="mt-2 text-sm text-text-muted">low severity</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Routes</p>
-          <p className="mt-1 text-3xl font-black text-text-primary">{stats.routeCount}</p>
-          <p className="text-[10px] text-text-muted">monitored</p>
+        <div className="rounded-xl border border-border bg-surface p-6">
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Routes</p>
+          <p className="mt-3 text-5xl font-black text-text-primary">{stats.routeCount}</p>
+          <p className="mt-2 text-sm text-text-muted">monitored</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Avg / Hazard</p>
-          <p className="mt-1 text-3xl font-black text-text-primary">
+        <div className="rounded-xl border border-border bg-surface p-6">
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Avg / Hazard</p>
+          <p className="mt-3 text-5xl font-black text-text-primary">
             {stats.totalPotholes > 0 ? Math.round(stats.totalHits / stats.totalPotholes) : 0}
           </p>
-          <p className="text-[10px] text-text-muted">detections</p>
+          <p className="mt-2 text-sm text-text-muted">detections</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Community Reports</p>
-          <p className="mt-1 text-3xl font-black text-cyan-400">{communityPhotos.length}</p>
-          <p className="text-[10px] text-text-muted">photos submitted</p>
+        <div className="rounded-xl border border-border bg-surface p-6">
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Community</p>
+          <p className="mt-3 text-5xl font-black text-cyan-400">{communityPhotos.length}</p>
+          <p className="mt-2 text-sm text-text-muted">photos submitted</p>
         </div>
       </div>
 
       {/* MAIN CONTENT: 3-column bento grid */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* LEFT: Hazards list + Detection Sources */}
-        <div className="space-y-3 lg:col-span-3">
+        <div className="space-y-6 lg:col-span-3">
           {/* Hazards list */}
-          <div className="rounded-lg border border-border bg-surface">
-            <div className="flex items-center justify-between border-b border-border px-2.5 py-1.5">
+          <div className="rounded-xl border border-border bg-surface">
+            <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
               <div>
-                <p className="text-[10px] font-bold text-text-primary">Recent Hazards</p>
-                <p className="text-[9px] text-text-muted">{filteredHazards.length} total</p>
+                <p className="text-sm font-bold text-text-primary">Recent Hazards</p>
+                <p className="text-xs text-text-muted">{filteredHazards.length} total</p>
               </div>
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-1">
                 {([7, 30, 'all'] as const).map((d) => (
                   <button
                     key={d}
                     onClick={() => setTimeFilter(d)}
-                    className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition-colors ${
+                    className={`rounded px-2 py-1 text-xs font-semibold transition-colors ${
                       timeFilter === d
                         ? 'bg-cyan-accent text-asphalt'
                         : 'text-text-muted hover:text-text-secondary'
@@ -229,10 +229,10 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-            <div className="max-h-[280px] divide-y divide-border/50 overflow-y-auto">
+            <div className="max-h-[480px] divide-y divide-border/50 overflow-y-auto">
               {filteredHazards.length === 0 ? (
-                <div className="p-4 text-center">
-                  <p className="text-[10px] text-text-muted">No hazards detected</p>
+                <div className="p-6 text-center">
+                  <p className="text-sm text-text-muted">No hazards detected</p>
                 </div>
               ) : (
                 filteredHazards.slice(0, 20).map((p) => (
@@ -243,51 +243,49 @@ export default function Dashboard() {
           </div>
 
           {/* Detection Sources */}
-          <div className="rounded-lg border border-border bg-surface">
+          <div className="rounded-xl border border-border bg-surface">
             <DetectionSourceDonut potholes={allPotholes} />
           </div>
         </div>
 
         {/* CENTER: Timeline + Severity + Top Hazards */}
-        <div className="space-y-3 lg:col-span-5">
-          <div className="rounded-lg border border-border bg-surface">
+        <div className="space-y-6 lg:col-span-5">
+          <div className="rounded-xl border border-border bg-surface">
             <DetectionsTimeline potholes={allPotholes} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-border bg-surface">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="rounded-xl border border-border bg-surface">
               <SeverityDonutChart potholes={allPotholes} />
             </div>
-            <div className="rounded-lg border border-border bg-surface">
+            <div className="rounded-xl border border-border bg-surface">
               <TopHazardsList potholes={allPotholes} />
             </div>
           </div>
-          <div className="rounded-lg border border-border bg-surface">
+          <div className="rounded-xl border border-border bg-surface">
             <WorstRoadsChart potholes={allPotholes} />
           </div>
         </div>
 
         {/* RIGHT: Time of Day + Safety + Quick Links */}
-        <div className="space-y-3 lg:col-span-4">
-          <div className="rounded-lg border border-border bg-surface">
+        <div className="space-y-6 lg:col-span-4">
+          <div className="rounded-xl border border-border bg-surface">
             <TimeOfDayArc potholes={allPotholes} />
           </div>
-
-          {/* Safety grade card */}
-          <div className="rounded-lg border border-border bg-surface p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Road Safety</p>
-            <div className="mt-2 flex items-baseline gap-3">
-              <span className={`text-5xl font-black ${safety.color}`}>{safety.grade}</span>
+          <div className="rounded-xl border border-border bg-surface p-6">
+            <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Road Safety</p>
+            <div className="mt-4 flex items-baseline gap-5">
+              <span className={`text-7xl font-black ${safety.color}`}>{safety.grade}</span>
               <div>
-                <p className="text-xs font-semibold text-text-primary">{safety.description}</p>
-                <p className="text-[9px] text-text-muted">based on {stats.totalPotholes} hazard{stats.totalPotholes !== 1 ? 's' : ''}</p>
+                <p className="text-base font-semibold text-text-primary">{safety.description}</p>
+                <p className="text-sm text-text-muted">based on {stats.totalPotholes} hazard{stats.totalPotholes !== 1 ? 's' : ''}</p>
               </div>
             </div>
           </div>
 
           {/* Quick links */}
-          <div className="rounded-lg border border-border bg-surface p-3">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Quick Actions</p>
-            <div className="space-y-1.5">
+          <div className="rounded-xl border border-border bg-surface p-5">
+            <p className="mb-4 text-sm font-bold uppercase tracking-widest text-text-muted">Quick Actions</p>
+            <div className="space-y-3">
               <Link
                 href="/map"
                 className="flex items-center gap-2 rounded-md bg-white/[0.02] px-2.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:bg-cyan-dim hover:text-cyan-accent"
@@ -312,36 +310,36 @@ export default function Dashboard() {
       </div>
 
       {/* ADDRESS ANALYTICS SECTION */}
-      <div className="mt-4">
-        <div className="mb-3 flex items-center gap-2">
+      <div className="mt-8">
+        <div className="mb-5 flex items-center gap-2">
           <div className="h-px flex-1 bg-border" />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Address Analytics</p>
+          <p className="text-sm font-bold uppercase tracking-widest text-text-muted">Address Analytics</p>
           <div className="h-px flex-1 bg-border" />
         </div>
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Left: City bar + Severity by City */}
-          <div className="space-y-3 lg:col-span-4">
-            <div className="rounded-lg border border-border bg-surface">
+          <div className="space-y-6 lg:col-span-4">
+            <div className="rounded-xl border border-border bg-surface">
               <HazardsByCity potholes={allPotholes} />
             </div>
-            <div className="rounded-lg border border-border bg-surface">
+            <div className="rounded-xl border border-border bg-surface">
               <SeverityByCity potholes={allPotholes} />
             </div>
           </div>
 
           {/* Center: Province donut + Top Barangays */}
-          <div className="space-y-3 lg:col-span-4">
-            <div className="rounded-lg border border-border bg-surface">
+          <div className="space-y-6 lg:col-span-4">
+            <div className="rounded-xl border border-border bg-surface">
               <HazardsByProvince potholes={allPotholes} />
             </div>
-            <div className="rounded-lg border border-border bg-surface">
+            <div className="rounded-xl border border-border bg-surface">
               <TopBarangays potholes={allPotholes} />
             </div>
           </div>
 
           {/* Right: Top Streets */}
-          <div className="space-y-3 lg:col-span-4">
-            <div className="rounded-lg border border-border bg-surface">
+          <div className="space-y-6 lg:col-span-4">
+            <div className="rounded-xl border border-border bg-surface">
               <TopStreets potholes={allPotholes} />
             </div>
           </div>

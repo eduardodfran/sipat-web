@@ -61,7 +61,7 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
   const conf = getConfidence(p.total_detection_hits)
   const pid = p.pothole_id
 
-  let html = `<div id="pothole-popup-${pid}" style="min-width:220px;font-family:system-ui,sans-serif;">`
+  let html = `<div id="pothole-popup-${pid}" style="min-width:220px;font-family:system-ui,sans-serif;background:#0c0c14;border-radius:12px;padding:14px;">`
 
   if (p.image_url) {
     html += `<img src="${p.image_url}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px;" />`
@@ -184,6 +184,7 @@ export default function MapCanvas({
   vizMode = 'markers',
   onViewModeChange,
   communityPhotos,
+  showPotholeMarkers = true,
 }: {
   allPotholes: Pothole[]
   routes: RideRoute[]
@@ -192,6 +193,7 @@ export default function MapCanvas({
   vizMode?: 'markers' | 'heatmap'
   onViewModeChange: (mode: ViewMode) => void
   communityPhotos?: CommunityPhoto[]
+  showPotholeMarkers?: boolean
 }) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
@@ -238,7 +240,7 @@ export default function MapCanvas({
 
     const map = mapInstanceRef.current
     const showRoutes = viewMode === 'routes' || viewMode === 'all'
-    const showPotholes = viewMode === 'potholes' || viewMode === 'all'
+    const showPotholes = showPotholeMarkers && (viewMode === 'potholes' || viewMode === 'all')
     const bounds: [number, number][] = []
     const newMarkers = new Map<number, { marker: any; severity: string }>()
 
@@ -402,7 +404,7 @@ export default function MapCanvas({
       heatLayerRef.current = null
     }
 
-    if (vizMode === 'heatmap') {
+    if (vizMode === 'heatmap' && showPotholeMarkers) {
       const heatData = allPotholes
         .filter(
           (p) =>
@@ -431,9 +433,9 @@ export default function MapCanvas({
         }).addTo(map)
       }
     }
-  }, [allPotholes, vizMode])
+  }, [allPotholes, vizMode, showPotholeMarkers])
 
-  const hasData = allPotholes.length > 0 || routes.length > 0
+  const hasData = (showPotholeMarkers && allPotholes.length > 0) || routes.length > 0 || (communityPhotos && communityPhotos.length > 0)
 
   if (!hasData) {
     return (
@@ -456,7 +458,7 @@ export default function MapCanvas({
             No hazard data to display
           </p>
           <p className="mt-1 text-xs text-gray-600">
-            Process a ride to see map markers
+            {showPotholeMarkers ? 'Process a ride to see map markers' : 'No community photos yet'}
           </p>
         </div>
       </div>
@@ -465,24 +467,26 @@ export default function MapCanvas({
 
   return (
     <div className="relative z-0 h-full w-full">
-      {/* View mode toggle */}
-      <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
-        <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-[#14141c]/90 shadow-lg shadow-black/30 backdrop-blur-md">
-          {VIEW_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => onViewModeChange(opt.key)}
-              className={`px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                viewMode === opt.key
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+      {/* View mode toggle — only when pothole markers are shown */}
+      {showPotholeMarkers && (
+        <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
+          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-[#14141c]/90 shadow-lg shadow-black/30 backdrop-blur-md">
+            {VIEW_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => onViewModeChange(opt.key)}
+                className={`px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                  viewMode === opt.key
+                    ? 'bg-amber-600 text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div
         ref={mapRef}

@@ -49,8 +49,7 @@ body {
 }
 
 /* Leaflet popup overrides */
-.leaflet-popup-content-wrapper,
-.leaflet-popup-content-wrapper * {
+.leaflet-popup-content-wrapper {
   background: transparent !important;
   box-shadow: none !important;
 }

@@ -31,7 +31,7 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
   const severityColor = SEVERITY_COLOR[p.worst_severity ?? ''] ?? '#6b7280'
   const pid = p.id
 
-  let html = `<div id="photo-popup-${pid}" style="min-width:220px;font-family:system-ui,sans-serif;">`
+  let html = `<div id="photo-popup-${pid}" style="min-width:220px;font-family:system-ui,sans-serif;background:#0c0c14;border-radius:12px;padding:14px;">`
 
   html += `<img src="${p.image_url}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px;" />`
 
