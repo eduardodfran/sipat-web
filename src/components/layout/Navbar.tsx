@@ -87,9 +87,9 @@ export function Navbar() {
                     </svg>
                   )}
                 </button>
-                <span className="hidden text-xs text-text-muted sm:block">
+                <Link href="/profile" className="hidden text-xs text-text-muted transition-colors hover:text-text-primary sm:block">
                   {user.email}
-                </span>
+                </Link>
                 <button
                   onClick={signOut}
                   className="rounded-lg bg-surface-hover px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
