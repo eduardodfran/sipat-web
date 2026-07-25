@@ -153,9 +153,9 @@ function RideRow({
   )
 }
 
-export default function RideManager() {
+export default function RideManager({ userId }: { userId?: string | null } = {}) {
   const { rides, loading, actionLoading, refetch, deleteRide, reprocessRide } =
-    useRides()
+    useRides(userId)
 
   const stats = {
     total: rides.length,

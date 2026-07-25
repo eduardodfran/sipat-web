@@ -31,16 +31,23 @@ export const STATUS_STYLES: Record<RideStatus, string> = {
   failed: 'bg-red-500/15 text-red-400 ring-1 ring-red-500/30',
 }
 
-const QUERY_PARAMS = {
-  table: 'rides_metadata',
-  columns: '*',
-  order: { column: 'created_at', ascending: false } as const,
-  limit: 100,
-} as const
+function buildQueryParams(userId?: string | null) {
+  const base = {
+    table: 'rides_metadata',
+    columns: '*',
+    order: { column: 'created_at', ascending: false } as const,
+    limit: 100,
+  }
+  if (userId) {
+    return { ...base, filters: [{ column: 'user_id', operator: 'eq', value: userId }] }
+  }
+  return base
+}
 
-export function useRides() {
+export function useRides(userId?: string | null) {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const { data, loading, refetch } = useServerData<Record<string, unknown>[]>(QUERY_PARAMS)
+  const queryParams = useMemo(() => buildQueryParams(userId), [userId])
+  const { data, loading, refetch } = useServerData<Record<string, unknown>[]>(queryParams)
 
   const serverRides = useMemo(() => (data ?? []) as unknown as Ride[], [data])
   const [rides, setRides] = useState<Ride[]>([])
