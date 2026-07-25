@@ -239,12 +239,12 @@ body {
 /* ===== Landing page polish ===== */
 
 /* Fade-in on scroll */
-.light .fade-in {
+.fade-in {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
-.light .fade-in.visible {
+.fade-in.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -261,10 +261,10 @@ body {
 }
 
 /* Feature card hover lift */
-.light .feature-card {
+.feature-card {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.light .feature-card:hover {
+.feature-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
@@ -283,7 +283,7 @@ body {
 }
 
 /* Live pulse for map badge */
-.light .pulse-dot {
+.pulse-dot {
   animation: livePulse 2s ease-in-out infinite;
 }
 @keyframes livePulse {
@@ -292,7 +292,7 @@ body {
 }
 
 /* Animated counter */
-.light .stat-value {
+.stat-value {
   font-variant-numeric: tabular-nums;
 }
 
