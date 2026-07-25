@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { FadeIn } from '@/components/ui/FadeIn'
 
 const FEATURES = [
   {
@@ -14,6 +15,7 @@ const FEATURES = [
       'Real-time pothole locations with severity ratings. Interactive map with clusters, heatmaps, and filtering.',
     capabilities: ['Severity ratings', 'Cluster view', 'Time filtering', 'Heatmap overlay'],
     href: '/map',
+    accentColor: 'bg-cyan-accent',
   },
   {
     icon: (
@@ -23,9 +25,10 @@ const FEATURES = [
     ),
     title: 'ML Detection',
     description:
-      'AI analyzes ride videos to automatically detect road hazards. Just record your ride.',
-    capabilities: ['Frame-by-frame analysis', 'Geotagged results', 'Auto-severity rating'],
+      'YOLOv8 analyzes ride videos frame-by-frame to automatically detect potholes and road anomalies. Each detection is geotagged and severity-rated.',
+    capabilities: ['Auto-segment recording', 'Frame-by-frame YOLO analysis', 'Auto-upload & processing'],
     href: '/login',
+    accentColor: 'bg-green-safe',
   },
   {
     icon: (
@@ -35,9 +38,10 @@ const FEATURES = [
     ),
     title: 'Community Reports',
     description:
-      'Citizens verify, comment on, and report hazards. Crowdsourced road safety.',
-    capabilities: ['Verify hazards', 'Leave comments', 'Track status changes'],
+      'Citizens submit photos, verify hazards, and track status changes. Crowdsourced road safety for the Philippines.',
+    capabilities: ['Photo submissions', 'Verify hazards', 'Track status changes'],
     href: '/login',
+    accentColor: 'bg-amber-warn',
   },
 ]
 
@@ -45,40 +49,43 @@ export function Features() {
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-5xl px-6 py-20 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-cyan-accent">
-          What Sipat does
-        </p>
-        <h2 className="mt-3 text-3xl font-black tracking-tight text-text-primary sm:text-4xl">
-          Detect. Map. Prevent.
-        </h2>
+        <FadeIn>
+          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-accent">
+            What Sipat does
+          </p>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-text-primary sm:text-4xl">
+            Detect. Map. Prevent.
+          </h2>
+        </FadeIn>
 
         <div className="mt-12 grid grid-cols-1 gap-px bg-border sm:grid-cols-3">
-          {FEATURES.map((feature) => (
-            <div
-              key={feature.title}
-              className="bg-asphalt p-6 transition-colors hover:bg-surface"
-            >
-              <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-surface text-cyan-accent">
-                {feature.icon}
+          {FEATURES.map((feature, i) => (
+            <FadeIn key={feature.title} delay={i * 100}>
+              <div className="feature-card bg-asphalt p-6 relative">
+                {/* Colored top accent */}
+                <div className={`absolute top-0 left-0 right-0 h-0.5 ${feature.accentColor}`} />
+                <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-surface text-cyan-accent">
+                  {feature.icon}
+                </div>
+                <h3 className="text-sm font-bold text-text-primary">{feature.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
+                  {feature.description}
+                </p>
+                <ul className="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                  {feature.capabilities.map((cap) => (
+                    <li key={cap} className="text-xs text-text-muted">
+                      {cap}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={feature.href}
+                  className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-cyan-accent hover:text-cyan-hover"
+                >
+                  Learn more <span aria-hidden="true">&rarr;</span>
+                </Link>
               </div>
-              <h3 className="text-sm font-bold text-text-primary">{feature.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
-                {feature.description}
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-x-2 gap-y-1">
-                {feature.capabilities.map((cap) => (
-                  <li key={cap} className="text-xs text-text-muted">
-                    {cap}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={feature.href}
-                className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-cyan-accent hover:text-cyan-hover"
-              >
-                Learn more <span aria-hidden="true">&rarr;</span>
-              </Link>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </div>

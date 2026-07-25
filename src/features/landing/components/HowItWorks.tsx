@@ -1,9 +1,11 @@
+import { FadeIn } from '@/components/ui/FadeIn'
+
 const steps = [
   {
     number: "01",
     title: "Record your ride",
     description:
-      "Use the Sipat mobile app to record your commute. Video and GPS data are captured automatically.",
+      "Open the Sipat app and hit record. The app auto-segments your ride into 5-minute chunks, capturing video and GPS data.",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -18,12 +20,13 @@ const steps = [
         <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
       </svg>
     ),
+    barColor: 'bg-cyan-accent',
   },
   {
     number: "02",
     title: "AI detects hazards",
     description:
-      "Our ML pipeline analyzes ride footage to identify potholes, cracks, and road anomalies.",
+      "Each segment is uploaded and processed by our YOLOv8 ML pipeline. Potholes and road anomalies are detected, geotagged, and severity-rated.",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -39,12 +42,13 @@ const steps = [
         <path d="M5 17l.5 1.5L7 19l-1.5.5L5 21l-.5-1.5L3 19l1.5-.5z" />
       </svg>
     ),
+    barColor: 'bg-green-safe',
   },
   {
     number: "03",
     title: "Hazards appear on map",
     description:
-      "Detected hazards are plotted on the live map with severity ratings. Community members can verify and report.",
+      "Detections are plotted on the live hazard map with severity ratings. Community members can submit photos and verify reported hazards.",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -59,6 +63,7 @@ const steps = [
         <circle cx="12" cy="9" r="2.5" />
       </svg>
     ),
+    barColor: 'bg-amber-warn',
   },
 ];
 
@@ -66,52 +71,46 @@ export function HowItWorks() {
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-5xl px-6 py-20 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-cyan-accent">
-          How it works
-        </p>
-        <h2 className="mt-3 text-3xl font-black text-text-primary">
-          Three steps to safer roads
-        </h2>
-        <p className="mt-2 text-sm text-text-secondary">
-          2 min to set up &bull; No coding required
-        </p>
+        <FadeIn>
+          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-accent">
+            How it works
+          </p>
+          <h2 className="mt-3 text-3xl font-black text-text-primary">
+            Three steps to safer roads
+          </h2>
+          <p className="mt-2 text-sm text-text-secondary">
+            2 min to set up &bull; No coding required
+          </p>
+        </FadeIn>
 
-        <div className="mt-14 grid gap-px bg-border sm:grid-cols-3">
+        <div className="mt-14 grid gap-4 sm:grid-cols-3">
           {steps.map((step, index) => (
-            <div key={step.number} className="relative bg-asphalt p-6">
-              <span className="text-4xl font-black text-white/[0.06]">
-                {step.number}
-              </span>
-              <div className="mt-4 text-cyan-accent">{step.icon}</div>
-              <h3 className="mt-4 text-lg font-bold text-text-primary">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                {step.description}
-              </p>
-              {index < steps.length - 1 && (
-                <span className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 text-lg text-text-muted/30 max-sm:hidden">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="M13 6l6 6-6 6" />
-                  </svg>
-                </span>
-              )}
-            </div>
+            <FadeIn key={step.number} delay={index * 120}>
+              <div className="bg-surface rounded-xl overflow-hidden border border-border">
+                {/* Colored header bar */}
+                <div className={`${step.barColor} px-5 py-3 flex items-center justify-between`}>
+                  <span className="text-sm font-bold text-white/90">Step {step.number}</span>
+                  <span className="text-white/60">{step.icon}</span>
+                </div>
+                {/* Content */}
+                <div className="p-5">
+                  <h3 className="text-base font-bold text-text-primary">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-text-muted">
-          Just hit record — our AI handles the rest.
-        </p>
+        <FadeIn delay={400}>
+          <p className="mt-8 text-center text-sm text-text-muted">
+            Just hit record — our AI handles the rest.
+          </p>
+        </FadeIn>
       </div>
     </section>
   );

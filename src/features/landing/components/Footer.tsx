@@ -13,7 +13,9 @@ const RESOURCE_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-surface">
+    <footer className="border-t border-border bg-surface relative">
+      {/* Cyan accent line at top */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-accent/40 to-transparent" />
       <div className="mx-auto max-w-5xl px-6 py-12 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div>
@@ -66,7 +68,7 @@ export function Footer() {
 
         <div className="mt-10 border-t border-border pt-6 sm:flex sm:items-center sm:justify-between">
           <p className="text-[10px] text-text-muted">
-            &copy; 2026 Sipat. Built with Next.js, Supabase &amp; Leaflet.
+            &copy; 2026 Sipat. Built with React Native, Next.js, FastAPI, YOLOv8, Supabase &amp; Azure.
           </p>
           <div className="mt-2 flex items-center gap-4 sm:mt-0">
             <span className="text-[10px] text-text-muted">Map data &copy; OpenStreetMap</span>
