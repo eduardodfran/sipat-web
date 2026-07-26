@@ -169,6 +169,8 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
     html += buildVoteReportHtml('pothole', pid)
   }
 
+  html += `<a href="/feed/pothole/${pid}" target="_blank" style="display:block;padding:8px;background:#0c0c14;border-radius:8px;margin-bottom:8px;text-align:center;font-size:12px;font-weight:600;color:#06b6d4;text-decoration:none;border:1px solid rgba(6,182,212,0.2);transition:background 0.15s;" onmouseover="this.style.background='rgba(6,182,212,0.08)'" onmouseout="this.style.background='#0c0c14'">Open in Feed →</a>`
+
   html += `<div style="font-size:10px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;text-align:center;">Hazard #${pid}</div>`
 
   html += `</div>`
@@ -176,6 +178,11 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const TILE_URL: Record<string, string> = {
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  light: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+}
+
 export default function MapCanvas({
   allPotholes,
   routes,
@@ -185,6 +192,7 @@ export default function MapCanvas({
   onViewModeChange,
   communityPhotos,
   showPotholeMarkers = true,
+  theme = 'dark',
 }: {
   allPotholes: Pothole[]
   routes: RideRoute[]
@@ -194,6 +202,7 @@ export default function MapCanvas({
   onViewModeChange: (mode: ViewMode) => void
   communityPhotos?: CommunityPhoto[]
   showPotholeMarkers?: boolean
+  theme?: 'light' | 'dark'
 }) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
@@ -201,6 +210,7 @@ export default function MapCanvas({
   const clusterGroupRef = useRef<any>(null)
   const routeLayerRef = useRef<any>(null)
   const heatLayerRef = useRef<any>(null)
+  const tileLayerRef = useRef<any>(null)
   const markersRef = useRef<Map<number, { marker: any; severity: string }>>(new Map())
 
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -211,12 +221,14 @@ export default function MapCanvas({
     if (!mapInstanceRef.current) {
       const map = L.map(mapRef.current, { zoomControl: false, preferCanvas: true })
       L.control.zoom({ position: 'bottomright' }).addTo(map)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      const tile = L.tileLayer(TILE_URL[theme], {
         maxZoom: 19,
-        attribution: '© OpenStreetMap',
+        attribution: '© CartoDB © OpenStreetMap',
         updateWhenIdle: true,
         keepBuffer: 4,
+        opacity: theme === 'dark' ? 0.9 : 1,
       }).addTo(map)
+      tileLayerRef.current = tile
 
       routeLayerRef.current = L.layerGroup().addTo(map)
       clusterGroupRef.current = L.markerClusterGroup({
@@ -392,6 +404,22 @@ export default function MapCanvas({
     })
   }, [filter])
 
+  // Theme tile swap
+  useEffect(() => {
+    if (!mapInstanceRef.current || !tileLayerRef.current) return
+    const map = mapInstanceRef.current
+    const newUrl = TILE_URL[theme]
+    map.removeLayer(tileLayerRef.current)
+    const tile = L.tileLayer(newUrl, {
+      maxZoom: 19,
+      attribution: '© CartoDB © OpenStreetMap',
+      updateWhenIdle: true,
+      keepBuffer: 4,
+      opacity: theme === 'dark' ? 0.9 : 1,
+    }).addTo(map)
+    tileLayerRef.current = tile
+  }, [theme])
+
   // Heatmap layer effect
   useEffect(() => {
     if (!mapInstanceRef.current) return
@@ -404,20 +432,28 @@ export default function MapCanvas({
       heatLayerRef.current = null
     }
 
-    if (vizMode === 'heatmap' && showPotholeMarkers) {
-      const heatData = allPotholes
-        .filter(
-          (p) =>
-            p.consolidated_latitude != null && p.consolidated_longitude != null,
-        )
-        .map(
-          (p) =>
-            [
-              p.consolidated_latitude,
-              p.consolidated_longitude,
-              Math.min((p.total_detection_hits ?? 1) / 10, 1),
-            ] as [number, number, number],
-        )
+    if (vizMode === 'heatmap') {
+      const heatData: [number, number, number][] = []
+
+      if (showPotholeMarkers) {
+        allPotholes
+          .filter(
+            (p) =>
+              p.consolidated_latitude != null && p.consolidated_longitude != null,
+          )
+          .forEach(
+            (p) =>
+              heatData.push([
+                p.consolidated_latitude,
+                p.consolidated_longitude,
+                Math.min((p.total_detection_hits ?? 1) / 10, 1),
+              ]),
+          )
+      }
+
+      communityPhotos?.forEach((p) => {
+        heatData.push([p.latitude, p.longitude, 0.5])
+      })
 
       if (heatData.length > 0) {
         heatLayerRef.current = L.heatLayer(heatData, {
@@ -433,7 +469,7 @@ export default function MapCanvas({
         }).addTo(map)
       }
     }
-  }, [allPotholes, vizMode, showPotholeMarkers])
+  }, [allPotholes, vizMode, showPotholeMarkers, communityPhotos])
 
   const hasData = (showPotholeMarkers && allPotholes.length > 0) || routes.length > 0 || (communityPhotos && communityPhotos.length > 0)
 
@@ -454,10 +490,10 @@ export default function MapCanvas({
               d="M9 6.75V15m6-6v8.25m.503-11.063a18.022 18.022 0 013.968 1.373 18.18 18.18 0 016.115 4.874 18.15 18.15 0 013.093 7.368M6.75 4.5v.75A.75.75 0 016 6H4.5a.75.75 0 01-.75-.75v-.75m0 0h1.5m-1.5 0V3.75A2.25 2.25 0 017.875 1.5h.375m0 0h-.375A2.25 2.25 0 006 3.75v.75m0 0H4.5"
             />
           </svg>
-          <p className="text-sm font-medium text-gray-500">
+          <p className="text-sm font-medium text-text-muted">
             No hazard data to display
           </p>
-          <p className="mt-1 text-xs text-gray-600">
+          <p className="mt-1 text-xs text-text-muted/60">
             {showPotholeMarkers ? 'Process a ride to see map markers' : 'No community photos yet'}
           </p>
         </div>
@@ -470,15 +506,15 @@ export default function MapCanvas({
       {/* View mode toggle — only when pothole markers are shown */}
       {showPotholeMarkers && (
         <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
-          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-[#14141c]/90 shadow-lg shadow-black/30 backdrop-blur-md">
+          <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 shadow-lg shadow-black/30 backdrop-blur-md">
             {VIEW_OPTIONS.map((opt) => (
               <button
                 key={opt.key}
                 onClick={() => onViewModeChange(opt.key)}
                 className={`px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                   viewMode === opt.key
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-cyan-accent text-asphalt shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 {opt.label}
@@ -492,7 +528,7 @@ export default function MapCanvas({
         ref={mapRef}
         className="h-full w-full"
       />
-      {mapReady && mapInstanceRef.current && communityPhotos && communityPhotos.length > 0 && (
+      {mapReady && mapInstanceRef.current && communityPhotos && communityPhotos.length > 0 && vizMode !== 'heatmap' && (
         <CommunityPhotoMarker
           photos={communityPhotos}
           map={mapInstanceRef.current}

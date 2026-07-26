@@ -65,7 +65,7 @@ export function ReportButton({
         disabled={loading}
         className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
           reported
-            ? 'text-red-400 hover:text-red-300'
+            ? 'text-red-hazard hover:text-red-hazard/80'
             : 'text-text-muted hover:bg-surface-hover hover:text-text-secondary'
         }`}
       >

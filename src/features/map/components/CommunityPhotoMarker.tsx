@@ -109,6 +109,8 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
     html += buildVoteReportHtml('photo', pid)
   }
 
+  html += `<a href="/feed/photo/${pid}" target="_blank" style="display:block;padding:8px;background:#0c0c14;border-radius:8px;margin-bottom:8px;text-align:center;font-size:12px;font-weight:600;color:#06b6d4;text-decoration:none;border:1px solid rgba(6,182,212,0.2);transition:background 0.15s;" onmouseover="this.style.background='rgba(6,182,212,0.08)'" onmouseout="this.style.background='#0c0c14'">Open in Feed →</a>`
+
   html += `<div style="font-size:11px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;">`
   html += `by <span style="color:#a1a1aa;">${p.reporter_username ?? 'Anonymous'}</span> · ${new Date(p.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
   html += `</div></div>`

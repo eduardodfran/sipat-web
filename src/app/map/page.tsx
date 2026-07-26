@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import { usePotholeData } from '@/hooks/usePotholeData'
 import { useRideRoutes } from '@/hooks/useRideRoutes'
 import { useServerData, type ProxyParams } from '@/hooks/useServerData'
@@ -50,6 +51,7 @@ function mapPhoto(row: Record<string, unknown>): CommunityPhoto {
 export default function MapPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
+  const { theme, toggle } = useTheme()
   const { potholes, allPotholes, filter, setFilter } = usePotholeData()
   const { routes } = useRideRoutes()
   const [viewMode, setViewMode] = useState<ViewMode>('all')
@@ -68,7 +70,7 @@ export default function MapPage() {
   if (authLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-asphalt">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-primary border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-accent border-t-transparent" />
       </div>
     )
   }
@@ -81,7 +83,7 @@ export default function MapPage() {
       <div className="absolute left-4 top-4 z-30">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-asphalt/90 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-surface"
+          className="flex items-center gap-2 rounded-xl border border-border bg-surface/90 px-4 py-2.5 text-sm font-semibold text-text-primary backdrop-blur-md transition-colors hover:bg-surface-hover"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -92,8 +94,24 @@ export default function MapPage() {
 
       {/* Top-right controls */}
       <div className="absolute right-4 top-4 z-30 flex gap-2">
+        {/* Theme toggle */}
+        <button
+          onClick={toggle}
+          className="flex items-center justify-center rounded-lg border border-border bg-surface/90 p-1.5 text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary"
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+            </svg>
+          ) : (
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+          )}
+        </button>
         {/* Source filter */}
-        <div className="inline-flex overflow-hidden rounded-lg border border-white/[0.06] bg-asphalt/90 shadow-lg shadow-black/30 backdrop-blur-md">
+        <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 shadow-lg shadow-black/30 backdrop-blur-md">
           {(['all', 'hazard', 'community'] as const).map((s) => (
             <button
               key={s}
@@ -101,22 +119,21 @@ export default function MapPage() {
               className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
                 sourceFilter === s
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-text-muted hover:text-text-primary'
               }`}
             >
               {s === 'all' ? 'All' : s === 'hazard' ? 'Video' : 'Photo'}
             </button>
           ))}
         </div>
-        {/* Viz mode toggle — only for hazard data */}
-        {sourceFilter !== 'community' && (
-          <div className="inline-flex overflow-hidden rounded-lg border border-white/[0.06] bg-asphalt/90 shadow-lg shadow-black/30 backdrop-blur-md">
+        {/* Viz mode toggle */}
+        <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 shadow-lg shadow-black/30 backdrop-blur-md">
             <button
               onClick={() => setVizMode('markers')}
               className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
                 vizMode === 'markers'
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-text-muted hover:text-text-primary'
               }`}
             >
               Markers
@@ -126,13 +143,12 @@ export default function MapPage() {
               className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
                 vizMode === 'heatmap'
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-text-muted hover:text-text-primary'
               }`}
             >
               Heatmap
             </button>
           </div>
-        )}
       </div>
 
       {/* Map */}
@@ -145,6 +161,7 @@ export default function MapPage() {
         onViewModeChange={setViewMode}
         communityPhotos={sourceFilter === 'hazard' ? [] : (communityPhotos ?? []).map(mapPhoto)}
         showPotholeMarkers={sourceFilter !== 'community'}
+        theme={theme}
       />
 
       {/* Timeline filter drawer */}

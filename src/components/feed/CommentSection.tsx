@@ -34,7 +34,7 @@ function CommentItem({ comment }: { comment: { body: string; created_at: string;
           <span className="text-[11px] font-semibold text-text-primary">{comment.username ?? 'Anonymous'}</span>
           <span className="text-[10px] text-text-muted">{formatTime(comment.created_at)}</span>
         </div>
-        <p className={`mt-0.5 text-[12px] leading-relaxed ${isVerify ? 'text-green-400' : 'text-text-secondary'}`}>
+        <p className={`mt-0.5 text-[12px] leading-relaxed ${isVerify ? 'text-green-safe' : 'text-text-secondary'}`}>
           {comment.body}
         </p>
       </div>

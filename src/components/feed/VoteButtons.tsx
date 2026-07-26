@@ -68,8 +68,8 @@ export function VoteButtons({
         disabled={loading}
         className={`rounded-md p-1 transition-colors ${
           votes.userVote === 1
-            ? 'bg-green-500/20 text-green-400'
-            : 'text-text-muted hover:bg-surface-hover hover:text-green-400'
+            ? 'bg-green-safe/20 text-green-safe'
+            : 'text-text-muted hover:bg-surface-hover hover:text-green-safe'
         }`}
         aria-label="Upvote"
       >
@@ -79,7 +79,7 @@ export function VoteButtons({
       </button>
       <span
         className={`min-w-[1.5rem] text-center text-xs font-semibold ${
-          score > 0 ? 'text-green-400' : score < 0 ? 'text-red-400' : 'text-text-muted'
+          score > 0 ? 'text-green-safe' : score < 0 ? 'text-red-hazard' : 'text-text-muted'
         }`}
       >
         {score}
@@ -89,8 +89,8 @@ export function VoteButtons({
         disabled={loading}
         className={`rounded-md p-1 transition-colors ${
           votes.userVote === -1
-            ? 'bg-red-500/20 text-red-400'
-            : 'text-text-muted hover:bg-surface-hover hover:text-red-400'
+            ? 'bg-red-hazard/20 text-red-hazard'
+            : 'text-text-muted hover:bg-surface-hover hover:text-red-hazard'
         }`}
         aria-label="Downvote"
       >

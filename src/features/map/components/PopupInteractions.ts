@@ -15,6 +15,10 @@ export function buildVoteReportHtml(contentType: 'photo' | 'pothole', contentId:
   </div>`
 }
 
+const VOTE_ACTIVE_UP = 'background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.3);color:#22c55e;'
+const VOTE_ACTIVE_DOWN = 'background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:#ef4444;'
+const VOTE_INACTIVE = 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.06);color:#6b7280;'
+
 export function initPopupInteractions(
   contentType: 'photo' | 'pothole',
   contentId: string | number,
@@ -28,6 +32,17 @@ export function initPopupInteractions(
 
   if (!voteUp && !voteDown && !reportBtn) return
 
+  let userVote: 0 | 1 | -1 = 0
+
+  const applyVoteStyle = () => {
+    if (voteUp) {
+      voteUp.style.cssText = userVote === 1 ? VOTE_ACTIVE_UP : VOTE_INACTIVE
+    }
+    if (voteDown) {
+      voteDown.style.cssText = userVote === -1 ? VOTE_ACTIVE_DOWN : VOTE_INACTIVE
+    }
+  }
+
   const updateScore = (upvotes: number, downvotes: number) => {
     if (voteScore) {
       const net = upvotes - downvotes
@@ -37,14 +52,17 @@ export function initPopupInteractions(
   }
 
   const doVote = async (value: 1 | -1) => {
-    const { data } = await supabase.rpc('vote_content', {
-      p_content_type: contentType,
-      p_content_id: id,
-      p_vote_value: value,
-    })
+    const sameVote = userVote === value
+    const rpc = sameVote ? 'unvote_content' : 'vote_content'
+    const params = sameVote
+      ? { p_content_type: contentType, p_content_id: id }
+      : { p_content_type: contentType, p_content_id: id, p_vote_value: value }
+    const { data } = await supabase.rpc(rpc, params)
     if (data) {
       const row = Array.isArray(data) ? data[0] : data
       updateScore(row?.upvotes ?? 0, row?.downvotes ?? 0)
+      userVote = sameVote ? 0 : value
+      applyVoteStyle()
     }
   }
 
@@ -92,6 +110,8 @@ export function initPopupInteractions(
     if (data) {
       const row = Array.isArray(data) ? data[0] : data
       updateScore(row?.upvotes ?? 0, row?.downvotes ?? 0)
+      userVote = (row?.user_vote ?? 0) as 0 | 1 | -1
+      applyVoteStyle()
     }
   })
 }

@@ -367,10 +367,8 @@ function PotholeView({ id }: { id: string }) {
             </div>
 
             {/* Action bar */}
-            <div className="flex items-center gap-4 rounded-2xl border border-border bg-gradient-to-r from-surface via-surface to-cyan-dim/20 px-5 py-3">
+            <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-3">
               <VoteButtons contentType="pothole" contentId={String(pothole.pothole_id)} />
-              <div className="h-5 w-px bg-border" />
-              <CommentSection potholeId={pothole.pothole_id} commentCount={0} />
               <div className="h-5 w-px bg-border" />
               <ReportButton contentType="pothole" contentId={String(pothole.pothole_id)} />
             </div>
@@ -480,10 +478,8 @@ function PhotoView({ id }: { id: string }) {
             </div>
 
             {/* Action bar */}
-            <div className="flex items-center gap-4 rounded-2xl border border-border bg-gradient-to-r from-surface via-surface to-cyan-dim/20 px-5 py-3">
+            <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-3">
               <VoteButtons contentType="photo" contentId={String(photo.id)} />
-              <div className="h-5 w-px bg-border" />
-              <CommentSection photoId={photo.id} commentCount={0} />
               <div className="h-5 w-px bg-border" />
               <ReportButton contentType="photo" contentId={String(photo.id)} />
             </div>

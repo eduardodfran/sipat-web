@@ -42,24 +42,24 @@ export default function VerifyButtons({ potholeId, photoId }: VerifyButtonsProps
       <button
         onClick={() => postVerify('✅ Still here')}
         disabled={posting !== null}
-        className="flex items-center gap-1 rounded-lg border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-400 transition-colors hover:bg-green-500/20 disabled:opacity-50"
+        className="flex items-center gap-1 rounded-lg border border-green-safe/20 bg-green-safe/10 px-2.5 py-1 text-[11px] font-semibold text-green-safe transition-colors hover:bg-green-safe/20 disabled:opacity-50"
       >
         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
         Still here
-        {stillHereCount > 0 && <span className="text-green-400/70">{stillHereCount}</span>}
+        {stillHereCount > 0 && <span className="text-green-safe/70">{stillHereCount}</span>}
       </button>
       <button
         onClick={() => postVerify('✅ Fixed')}
         disabled={posting !== null}
-        className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+        className="flex items-center gap-1 rounded-lg border border-red-hazard/20 bg-red-hazard/10 px-2.5 py-1 text-[11px] font-semibold text-red-hazard transition-colors hover:bg-red-hazard/20 disabled:opacity-50"
       >
         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
         Fixed
-        {fixedCount > 0 && <span className="text-red-400/70">{fixedCount}</span>}
+        {fixedCount > 0 && <span className="text-red-hazard/70">{fixedCount}</span>}
       </button>
     </div>
   )
