@@ -290,11 +290,13 @@ function PotholeView({ id }: { id: string }) {
           <div className="space-y-5">
             {/* Reporter */}
             <div className="flex items-center gap-3">
-              <Avatar name={pothole.reporter_username} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-text-primary truncate">{pothole.reporter_username ?? 'Auto-detected'}</p>
-                <p className="text-[11px] text-text-muted">{formatTime(pothole.citizen_first_reported_at || pothole.latest_activity_at)}</p>
-              </div>
+              <Link href={`/profile/${pothole.reporter_username ?? ''}`} className="flex items-center gap-3 flex-1 min-w-0 rounded-xl p-2 -m-2 transition-colors hover:bg-surface-hover">
+                <Avatar name={pothole.reporter_username} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-text-primary truncate hover:underline">{pothole.reporter_username ?? 'Auto-detected'}</p>
+                  <p className="text-[11px] text-text-muted">{formatTime(pothole.citizen_first_reported_at || pothole.latest_activity_at)}</p>
+                </div>
+              </Link>
               <Badge severity={pothole.worst_severity} size="md" />
             </div>
 
@@ -433,13 +435,16 @@ function PhotoView({ id }: { id: string }) {
           {/* Right column — details */}
           <div className="space-y-5">
             {/* Reporter */}
-            <div className="flex items-center gap-3">
+            <Link href={`/profile/${photo.user_id}`} className="flex items-center gap-3 rounded-xl p-2 -m-2 transition-colors hover:bg-surface-hover">
               <Avatar name={photo.reporter_username} />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-text-primary truncate">{photo.reporter_username ?? 'Anonymous'}</p>
+                <p className="text-sm font-semibold text-text-primary truncate hover:underline">{photo.reporter_username ?? 'Anonymous'}</p>
                 <p className="text-[11px] text-text-muted">{formatTime(photo.created_at)}</p>
               </div>
-            </div>
+              <svg className="h-4 w-4 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </Link>
 
             {/* Detection + severity */}
             <div className="flex items-center gap-2">

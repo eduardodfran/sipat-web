@@ -45,133 +45,104 @@ function getConfidence(detections: number): { label: string; color: string; perc
 
 function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: DetectionComment[], showInteractions?: boolean): string {
   const severityColor = SEVERITY_COLOR[p.worst_severity] ?? '#6b7280'
-
-  const statusColors: Record<string, string> = {
-    reported: '#3b82f6',
-    confirmed: '#f59e0b',
-    fixed: '#22c55e',
-  }
-  const statusLabels: Record<string, string> = {
-    reported: 'Reported',
-    confirmed: 'Confirmed',
-    fixed: 'Fixed',
-  }
-
+  const statusColors: Record<string, string> = { reported: '#3b82f6', confirmed: '#f59e0b', fixed: '#22c55e' }
+  const statusLabels: Record<string, string> = { reported: 'Reported', confirmed: 'Confirmed', fixed: 'Fixed' }
   const addrLines = fullAddress(p)
   const conf = getConfidence(p.total_detection_hits)
   const pid = p.pothole_id
+  const status = p.status ?? 'reported'
 
-  let html = `<div id="pothole-popup-${pid}" style="min-width:220px;font-family:system-ui,sans-serif;background:#0c0c14;border-radius:12px;padding:14px;">`
+  let html = `<div id="pothole-popup-${pid}" style="min-width:240px;max-width:300px;font-family:system-ui,sans-serif;background:#0c0c14;border-radius:10px;padding:10px;">`
 
+  // Image — smaller
   if (p.image_url) {
-    html += `<img src="${p.image_url}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px;" />`
+    html += `<img src="${p.image_url}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
   }
 
-  html += `<div style="display:flex;gap:6px;margin-bottom:10px;">`
-  html += `<span style="padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;color:${severityColor};background:${severityColor}15;">${p.worst_severity}</span>`
-  html += `<span style="padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;color:${statusColors[p.status ?? 'reported']};background:${(statusColors[p.status ?? 'reported'])}15;">${statusLabels[p.status ?? 'reported']}</span>`
+  // Row: badges + detectors + date
+  html += `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">`
+  html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;color:${severityColor};background:${severityColor}15;">${p.worst_severity}</span>`
+  html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;color:${statusColors[status]};background:${statusColors[status]}15;">${statusLabels[status]}</span>`
+  html += `<span style="font-size:10px;color:#71717a;">${p.detectors_count} det</span>`
+  html += `<span style="font-size:10px;color:#52525b;margin-left:auto;">${p.latest_activity_at ? new Date(p.latest_activity_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—'}</span>`
   html += `</div>`
 
-  html += `<div style="font-size:12px;color:#a1a1aa;margin-bottom:8px;">`
-  html += `Confirmed by <span style="color:#e4e4e7;font-weight:600;">${p.detectors_count}</span> detector${p.detectors_count !== 1 ? 's' : ''}`
-  html += `</div>`
-
-  html += `<div style="margin-bottom:10px;">`
-  html += `<div style="display:flex;justify-content:space-between;margin-bottom:4px;">`
-  html += `<span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Confidence</span>`
-  html += `<span style="font-size:11px;font-weight:600;color:${conf.color};">${conf.label}</span>`
-  html += `</div>`
-  html += `<div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">`
-  html += `<div style="height:100%;border-radius:2px;background:${conf.color};width:${conf.percent}%;"></div>`
-  html += `</div></div>`
-
+  // Address — no background box
   if (addrLines.length > 0) {
-    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
-    for (const line of addrLines) {
-      html += `<div style="font-size:12px;color:#e4e4e7;line-height:1.5;">${line}</div>`
-    }
-    html += `</div>`
+    html += `<div style="font-size:11px;color:#a1a1aa;margin-bottom:6px;line-height:1.4;">${addrLines.join(', ')}</div>`
   } else {
-    html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;">${p.consolidated_latitude?.toFixed(4)}, ${p.consolidated_longitude?.toFixed(4)}</div>`
+    html += `<div style="font-size:10px;color:#52525b;margin-bottom:6px;">${p.consolidated_latitude?.toFixed(4)}, ${p.consolidated_longitude?.toFixed(4)}</div>`
   }
 
-  html += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">`
-  html += `<div><span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">First reported</span><br/><span style="font-size:12px;color:#e4e4e7;">${p.citizen_first_reported_at ? new Date(p.citizen_first_reported_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span></div>`
-  html += `<div style="text-align:right;"><span style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">Last activity</span><br/><span style="font-size:12px;color:#e4e4e7;">${p.latest_activity_at ? new Date(p.latest_activity_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span></div>`
+  // Confidence bar — compact
+  html += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">`
+  html += `<div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">`
+  html += `<div style="height:100%;border-radius:2px;background:${conf.color};width:${conf.percent}%;"></div>`
+  html += `</div>`
+  html += `<span style="font-size:9px;font-weight:600;color:${conf.color};flex-shrink:0;">${conf.label}</span>`
   html += `</div>`
 
-  // Detectors
+  // Detectors — max 3, scrollable
   if (detectors && detectors.length > 0) {
-    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
-    html += `<div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;">Detected by (${detectors.length})</div>`
-    const showDetectors = detectors.slice(0, 5)
-    for (const d of showDetectors) {
+    const show = detectors.slice(0, 3)
+    html += `<div style="max-height:80px;overflow-y:auto;margin-bottom:6px;">`
+    html += `<div style="font-size:9px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:3px;">Detected by (${detectors.length})</div>`
+    for (const d of show) {
       const initial = (d.username ?? d.full_name ?? '?').charAt(0).toUpperCase()
-      html += `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">`
-      html += `<div style="width:24px;height:24px;border-radius:12px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#e6a817;flex-shrink:0;">${initial}</div>`
-      html += `<span style="font-size:12px;color:#e4e4e7;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.username ?? d.full_name ?? 'Unknown'}</span>`
-      html += `<span style="font-size:10px;color:#71717a;flex-shrink:0;">${new Date(d.detected_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>`
+      html += `<div style="display:flex;align-items:center;gap:6px;padding:2px 0;">`
+      html += `<div style="width:18px;height:18px;border-radius:9px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#e6a817;flex-shrink:0;">${initial}</div>`
+      html += `<span style="font-size:11px;color:#e4e4e7;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.username ?? d.full_name ?? 'Unknown'}</span>`
+      html += `<span style="font-size:9px;color:#52525b;flex-shrink:0;">${new Date(d.detected_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>`
       html += `</div>`
     }
-    if (detectors.length > 5) {
-      html += `<div style="font-size:11px;color:#71717a;text-align:center;padding-top:4px;">and ${detectors.length - 5} more</div>`
-    }
+    if (detectors.length > 3) html += `<div style="font-size:10px;color:#71717a;text-align:center;">+${detectors.length - 3} more</div>`
     html += `</div>`
   } else if (detectors) {
-    html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;padding:4px 0;">No detector data</div>`
-  } else {
-    html += `<div id="detectors-loading-${pid}" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading detectors...</div>`
+    html += `<div style="font-size:10px;color:#52525b;margin-bottom:6px;">No detector data</div>`
   }
 
-  // Comments
+  // Comments — max 2, scrollable
   if (comments && comments.length > 0) {
-    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
-    html += `<div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;">Detection comments (${comments.length})</div>`
-    const showComments = comments.slice(0, 3)
-    for (const c of showComments) {
-      const initial = (c.username ?? '?').charAt(0).toUpperCase()
-      html += `<div style="display:flex;gap:6px;padding:4px 0;">`
-      html += `<div style="width:22px;height:22px;border-radius:11px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#e6a817;flex-shrink:0;margin-top:1px;">${initial}</div>`
-      html += `<div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:600;color:#e4e4e7;">${c.username ?? 'Unknown'}</div><div style="font-size:11px;color:#a1a1aa;margin-top:1px;">${c.body}</div></div>`
+    const show = comments.slice(0, 2)
+    html += `<div style="max-height:70px;overflow-y:auto;margin-bottom:6px;">`
+    html += `<div style="font-size:9px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:3px;">Comments (${comments.length})</div>`
+    for (const c of show) {
+      html += `<div style="display:flex;gap:5px;padding:2px 0;">`
+      html += `<div style="width:16px;height:16px;border-radius:8px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#e6a817;flex-shrink:0;">${(c.username ?? '?')[0].toUpperCase()}</div>`
+      html += `<div style="flex:1;min-width:0;"><span style="font-size:10px;font-weight:600;color:#e4e4e7;">${c.username ?? 'Unknown'}</span> <span style="font-size:10px;color:#a1a1aa;">${c.body}</span></div>`
       html += `</div>`
     }
-    if (comments.length > 3) {
-      html += `<div style="font-size:11px;color:#71717a;text-align:center;padding-top:4px;">View all ${comments.length} comments</div>`
-    }
+    if (comments.length > 2) html += `<div style="font-size:10px;color:#71717a;text-align:center;">+${comments.length - 2} more</div>`
     html += `</div>`
   } else if (comments) {
-    html += `<div style="font-size:11px;color:#6b7280;margin-bottom:8px;padding:4px 0;">No comments yet</div>`
-  } else {
-    html += `<div id="comments-loading-${pid}" style="font-size:11px;color:#6b7280;padding:8px 0;text-align:center;">Loading comments...</div>`
+    html += `<div style="font-size:10px;color:#52525b;margin-bottom:6px;">No comments yet</div>`
   }
 
-  // Interactive: verification buttons + comment form
+  // Interactive section
   if (showInteractions) {
     const verifyCount = comments ? comments.filter((c) => c.body.includes('✅')).length : 0
 
-    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
-    html += `<div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;">Is this hazard still here?</div>`
-    html += `<div style="display:flex;gap:6px;margin-bottom:4px;">`
-    html += `<button id="verify-stillhere-${pid}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 8px;border-radius:6px;border:1px solid rgba(34,197,94,0.2);background:rgba(34,197,94,0.05);color:#22c55e;font-size:11px;font-weight:600;cursor:pointer;">Still here</button>`
-    html += `<button id="verify-fixed-${pid}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 8px;border-radius:6px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);color:#ef4444;font-size:11px;font-weight:600;cursor:pointer;">Fixed</button>`
-    html += `</div>`
-    html += `<div style="font-size:10px;color:#71717a;text-align:center;">${verifyCount} community verification${verifyCount !== 1 ? 's' : ''}</div>`
-    html += `</div>`
-
-    // Comment form
-    html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;">`
-    html += `<div style="display:flex;gap:6px;margin-bottom:4px;">`
-    html += `<input id="comment-input-${pid}" type="text" placeholder="Write a comment..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#0c0c14;color:#e4e4e7;font-size:12px;outline:none;min-width:0;" />`
-    html += `<button id="comment-send-${pid}" style="padding:6px 12px;border-radius:6px;background:rgba(230,168,23,0.15);color:#e6a817;font-size:11px;font-weight:700;border:none;cursor:pointer;">Send</button>`
-    html += `</div>`
+    // Verify + comment input in one row
+    html += `<div style="display:flex;gap:4px;margin-bottom:6px;align-items:center;">`
+    html += `<button id="verify-stillhere-${pid}" style="padding:4px 6px;border-radius:4px;border:1px solid rgba(34,197,94,0.2);background:rgba(34,197,94,0.05);color:#22c55e;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;">✓ Here</button>`
+    html += `<button id="verify-fixed-${pid}" style="padding:4px 6px;border-radius:4px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);color:#ef4444;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;">✗ Fixed</button>`
+    html += `<input id="comment-input-${pid}" type="text" placeholder="Comment..." style="flex:1;padding:4px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.06);background:#0c0c14;color:#e4e4e7;font-size:11px;outline:none;min-width:0;" />`
+    html += `<button id="comment-send-${pid}" style="padding:4px 8px;border-radius:4px;background:rgba(230,168,23,0.15);color:#e6a817;font-size:10px;font-weight:700;border:none;cursor:pointer;">Send</button>`
     html += `</div>`
 
+    if (verifyCount > 0) {
+      html += `<div style="font-size:9px;color:#71717a;text-align:center;margin-bottom:6px;">${verifyCount} verification${verifyCount !== 1 ? 's' : ''}</div>`
+    }
+
+    // Vote + Report in one row
     html += buildVoteReportHtml('pothole', pid)
   }
 
-  html += `<a href="/feed/pothole/${pid}" target="_blank" style="display:block;padding:8px;background:#0c0c14;border-radius:8px;margin-bottom:8px;text-align:center;font-size:12px;font-weight:600;color:#06b6d4;text-decoration:none;border:1px solid rgba(6,182,212,0.2);transition:background 0.15s;" onmouseover="this.style.background='rgba(6,182,212,0.08)'" onmouseout="this.style.background='#0c0c14'">Open in Feed →</a>`
-
-  html += `<div style="font-size:10px;color:#52525b;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;text-align:center;">Hazard #${pid}</div>`
+  // Footer — Open in Feed inline
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;">`
+  html += `<span style="font-size:9px;color:#52525b;">Hazard #${pid}</span>`
+  html += `<a href="/feed/pothole/${pid}" target="_blank" style="font-size:10px;font-weight:600;color:#06b6d4;text-decoration:none;">Open in Feed →</a>`
+  html += `</div>`
 
   html += `</div>`
   return html
