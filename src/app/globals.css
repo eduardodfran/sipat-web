@@ -5,7 +5,6 @@
   --color-surface: #18181b;
   --color-surface-raised: #1c1c22;
   --color-surface-hover: #27272a;
-  --color-amber-primary: #06b6d4;
   --color-cyan-accent: #06b6d4;
   --color-cyan-hover: #22d3ee;
   --color-cyan-dim: rgba(6, 182, 212, 0.1);
@@ -35,16 +34,15 @@
   --color-surface: #ece9e2;
   --color-surface-raised: #d9d6cf;
   --color-surface-hover: #cfccc5;
-  --color-amber-primary: #0891b2;
   --color-cyan-accent: #0891b2;
   --color-cyan-hover: #0e7490;
   --color-cyan-dim: rgba(8, 145, 178, 0.08);
   --color-green-safe: #16a34a;
   --color-amber-warn: #d97706;
   --color-red-hazard: #dc2626;
-  --color-text-primary: #1f2937;
-  --color-text-secondary: #4b5563;
-  --color-text-muted: #9ca3af;
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
   --color-border: rgba(0, 0, 0, 0.06);
 }
 
@@ -52,6 +50,16 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist), system-ui, -apple-system, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Leaflet popup overrides for light theme */

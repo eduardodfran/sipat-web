@@ -49,8 +49,8 @@ export function TimeOfDayChart({ potholes }: { potholes: Pothole[] }) {
 
   return (
     <div className="p-3">
-      <h3 className="text-[11px] font-bold text-text-primary">Time of Day</h3>
-      <p className="text-[9px] text-text-muted">When reported</p>
+      <h3 className="text-sm font-bold text-text-primary">Time of Day</h3>
+      <p className="text-xs text-text-muted">When reported</p>
       <div className="mt-2 h-32">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>

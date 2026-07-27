@@ -22,10 +22,10 @@ export function TimeOfDayArc({ potholes }: { potholes: Pothole[] }) {
   if (total === 0) {
     return (
       <div className="p-3">
-        <h3 className="text-[11px] font-bold text-text-primary">Time of Day</h3>
-        <p className="text-[9px] text-text-muted">When reported</p>
+        <h3 className="text-sm font-bold text-text-primary">Time of Day</h3>
+        <p className="text-xs text-text-muted">When reported</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-[9px] text-text-muted">No data</p>
+          <p className="text-xs text-text-muted">No data</p>
         </div>
       </div>
     )
@@ -43,7 +43,7 @@ export function TimeOfDayArc({ potholes }: { potholes: Pothole[] }) {
   return (
       <div className="p-4">
         <h3 className="text-xs font-bold text-text-primary">Time of Day</h3>
-        <p className="text-[10px] text-text-muted">When reported</p>
+        <p className="text-xs text-text-muted">When reported</p>
         <div className="mt-3 grid grid-cols-4 gap-2">
         {periods.map((period) => {
           const pct = total > 0 ? (period.count / total) * 100 : 0
@@ -61,9 +61,9 @@ export function TimeOfDayArc({ potholes }: { potholes: Pothole[] }) {
                 />
               </div>
               <div className="text-center">
-                <p className="text-[10px] font-bold text-text-primary">{period.count}</p>
-                <p className="text-[8px] text-text-muted">{period.name}</p>
-                <p className="text-[7px] text-text-muted/60">{period.time}</p>
+                <p className="text-xs font-bold text-text-primary">{period.count}</p>
+                <p className="text-[11px] text-text-muted">{period.name}</p>
+                <p className="text-[10px] text-text-muted/60">{period.time}</p>
               </div>
             </div>
           )
@@ -73,7 +73,7 @@ export function TimeOfDayArc({ potholes }: { potholes: Pothole[] }) {
         {periods.map((p) => (
           <div key={p.name} className="flex items-center gap-1">
             <span className="h-1 w-1 rounded-full" style={{ backgroundColor: p.color }} />
-            <span className="text-[8px] text-text-muted">{Math.round((p.count / total) * 100)}%</span>
+            <span className="text-[11px] text-text-muted">{Math.round((p.count / total) * 100)}%</span>
           </div>
         ))}
       </div>

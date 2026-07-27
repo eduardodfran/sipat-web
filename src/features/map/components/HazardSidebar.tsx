@@ -53,7 +53,7 @@ function DetailImage({ imageUrl }: { imageUrl: string | null }) {
     <div className="relative h-48 w-full overflow-hidden rounded-xl bg-surface-raised">
       {status === 'loading' && (
         <div className="absolute inset-0 z-10 flex animate-pulse flex-col items-center justify-center bg-surface-raised">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-primary border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-accent border-t-transparent" />
           <span className="mt-3 text-sm text-text-secondary">Loading evidence&hellip;</span>
         </div>
       )}
@@ -231,7 +231,7 @@ export default function HazardSidebar({
               {/* Detector list */}
               {loading && (
                 <div className="flex justify-center py-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-primary border-t-transparent" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-accent border-t-transparent" />
                 </div>
               )}
               {!loading && detectors.length > 0 && (
@@ -242,7 +242,7 @@ export default function HazardSidebar({
                   <div className="space-y-2">
                     {detectors.map((d, i) => (
                       <div key={`${d.user_id}-${i}`} className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-primary/15 text-xs font-bold text-amber-primary">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-accent/15 text-xs font-bold text-cyan-accent">
                           {(d.username ?? d.full_name ?? '?').charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -259,7 +259,7 @@ export default function HazardSidebar({
                           })}
                         </p>
                         {i === detectors.length - 1 && (
-                          <span className="rounded-md bg-amber-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-primary">
+                          <span className="rounded-md bg-cyan-accent/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cyan-accent">
                             Latest
                           </span>
                         )}
@@ -301,7 +301,7 @@ export default function HazardSidebar({
 
                 {commentsLoading && (
                   <div className="flex justify-center py-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-primary border-t-transparent" />
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-accent border-t-transparent" />
                   </div>
                 )}
 
@@ -309,7 +309,7 @@ export default function HazardSidebar({
                   <div className="mb-3 space-y-2">
                     {comments.map((c) => (
                       <div key={c.id} className="flex gap-2">
-                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-primary/15 text-[10px] font-bold text-amber-primary">
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-accent/15 text-[10px] font-bold text-cyan-accent">
                           {(c.username ?? '?').charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -337,7 +337,7 @@ export default function HazardSidebar({
 
                 {user ? (
                   <div className="flex gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-primary/15 text-xs font-bold text-amber-primary">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-accent/15 text-xs font-bold text-cyan-accent">
                       {(user.email ?? '?').charAt(0).toUpperCase()}
                     </div>
                     <div className="flex flex-1 gap-2">
@@ -346,7 +346,7 @@ export default function HazardSidebar({
                         value={commentDraft}
                         onChange={(e) => setCommentDraft(e.target.value)}
                         placeholder="Write a comment..."
-                        className="min-w-0 flex-1 rounded-lg border border-white/[0.06] bg-asphalt px-3 py-1.5 text-sm text-white placeholder-text-muted outline-none transition-colors focus:border-amber-primary/40"
+                        className="min-w-0 flex-1 rounded-lg border border-white/[0.06] bg-asphalt px-3 py-1.5 text-sm text-white placeholder-text-muted outline-none transition-colors focus:border-cyan-accent/40"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault()
@@ -365,7 +365,7 @@ export default function HazardSidebar({
                           }
                         }}
                         disabled={!commentDraft.trim() || posting}
-                        className="rounded-lg bg-amber-primary/15 px-2.5 py-1.5 text-xs font-semibold text-amber-primary transition-colors hover:bg-amber-primary/25 disabled:opacity-40"
+                        className="rounded-lg bg-cyan-accent/15 px-2.5 py-1.5 text-xs font-semibold text-cyan-accent transition-colors hover:bg-cyan-accent/25 disabled:opacity-40"
                       >
                         {posting ? '...' : 'Send'}
                       </button>

@@ -32,10 +32,10 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
   if (data.length === 0) {
     return (
       <div className="p-3">
-        <h3 className="text-[11px] font-bold text-text-primary">Detections Over Time</h3>
-        <p className="text-[9px] text-text-muted">Last 14 days</p>
+        <h3 className="text-sm font-bold text-text-primary">Detections Over Time</h3>
+        <p className="text-xs text-text-muted">Last 14 days</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-[9px] text-text-muted">No detection data yet</p>
+          <p className="text-xs text-text-muted">No detection data yet</p>
         </div>
       </div>
     )
@@ -47,11 +47,11 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xs font-bold text-text-primary">Detections Over Time</h3>
-            <p className="text-[10px] text-text-muted">Last 14 days</p>
+            <p className="text-xs text-text-muted">Last 14 days</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-bold text-cyan-accent">{totalDetections}</p>
-            <p className="text-[8px] text-text-muted">total</p>
+            <p className="text-xs font-bold text-cyan-accent">{totalDetections}</p>
+            <p className="text-[11px] text-text-muted">total</p>
           </div>
         </div>
         <div className="mt-2 flex h-20 items-center justify-center">
@@ -60,8 +60,8 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
               className="w-8 rounded-t bg-cyan-accent/80"
               style={{ height: `${Math.max((data[0].count / maxCount) * 64, 8)}px` }}
             />
-            <span className="text-[8px] text-text-muted">{data[0].date}</span>
-            <span className="text-[10px] font-bold text-text-primary">{data[0].count}</span>
+            <span className="text-[11px] text-text-muted">{data[0].date}</span>
+            <span className="text-xs font-bold text-text-primary">{data[0].count}</span>
           </div>
         </div>
       </div>
@@ -87,12 +87,12 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
     <div className="p-3">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-[11px] font-bold text-text-primary">Detections Over Time</h3>
-          <p className="text-[9px] text-text-muted">Last 14 days</p>
+          <h3 className="text-sm font-bold text-text-primary">Detections Over Time</h3>
+          <p className="text-xs text-text-muted">Last 14 days</p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-bold text-cyan-accent">{totalDetections}</p>
-          <p className="text-[8px] text-text-muted">total</p>
+          <p className="text-xs font-bold text-cyan-accent">{totalDetections}</p>
+          <p className="text-[11px] text-text-muted">total</p>
         </div>
       </div>
 
@@ -128,7 +128,7 @@ export function DetectionsTimeline({ potholes }: { potholes: Pothole[] }) {
         {/* X-axis labels */}
         <div className="mt-0.5 flex justify-between px-0.5">
           {data.filter((_, i) => i === 0 || i === data.length - 1 || i === Math.floor(data.length / 2)).map((d) => (
-            <span key={d.date} className="text-[7px] text-text-muted">{d.date}</span>
+            <span key={d.date} className="text-[10px] text-text-muted">{d.date}</span>
           ))}
         </div>
       </div>

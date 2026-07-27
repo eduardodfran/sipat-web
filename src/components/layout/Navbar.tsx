@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: '/feed', label: 'Feed' },
   { href: '/map', label: 'Map' },
   { href: '/rides', label: 'Rides' },
+  { href: '/about', label: 'About' },
 ]
 
 export function Navbar() {
@@ -19,23 +20,13 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-asphalt/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-dim">
-            <svg
-              className="h-5 w-5 text-cyan-accent"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-              />
-            </svg>
-          </div>
+          <img
+            src={theme === 'dark' ? '/sipat-dark.png' : '/sipat-light.png'}
+            alt="Sipat Logo"
+            className="h-9 w-auto"
+          />
           <div>
             <h1 className="text-lg font-bold tracking-tight text-text-primary">Sipat</h1>
             <p className="text-[11px] font-medium uppercase tracking-widest text-text-muted">
@@ -109,6 +100,17 @@ export function Navbar() {
                 }`}
               >
                 Map
+              </Link>
+
+              <Link
+                href="/about"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/about'
+                    ? 'text-cyan-accent'
+                    : 'text-text-secondary hover:text-cyan-hover'
+                }`}
+              >
+                About
               </Link>
 
               <button

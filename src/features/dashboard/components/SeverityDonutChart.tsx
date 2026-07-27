@@ -17,10 +17,10 @@ export function SeverityDonutChart({ potholes }: { potholes: Pothole[] }) {
   if (total === 0) {
     return (
       <div className="p-3">
-        <h3 className="text-[11px] font-bold text-text-primary">Severity</h3>
-        <p className="text-[9px] text-text-muted">Hazards by level</p>
+        <h3 className="text-sm font-bold text-text-primary">Severity</h3>
+        <p className="text-xs text-text-muted">Hazards by level</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-[9px] text-text-muted">No data</p>
+          <p className="text-xs text-text-muted">No data</p>
         </div>
       </div>
     )
@@ -42,7 +42,7 @@ export function SeverityDonutChart({ potholes }: { potholes: Pothole[] }) {
   return (
       <div className="p-4">
         <h3 className="text-xs font-bold text-text-primary">Severity</h3>
-        <p className="text-[10px] text-text-muted">Hazards by level</p>
+        <p className="text-xs text-text-muted">Hazards by level</p>
         <div className="mt-3 flex items-center gap-4">
           <svg width={size} height={size} className="shrink-0 -rotate-90">
           <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={strokeWidth} />
@@ -71,9 +71,9 @@ export function SeverityDonutChart({ potholes }: { potholes: Pothole[] }) {
           {segments.map((seg) => (
             <div key={seg.name} className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: seg.color }} />
-              <span className="text-[9px] text-text-secondary">{seg.name}</span>
-              <span className="text-[9px] font-bold text-text-primary">{seg.count}</span>
-              <span className="text-[8px] text-text-muted">({Math.round((seg.count / total) * 100)}%)</span>
+              <span className="text-xs text-text-secondary">{seg.name}</span>
+              <span className="text-xs font-bold text-text-primary">{seg.count}</span>
+              <span className="text-[11px] text-text-muted">({Math.round((seg.count / total) * 100)}%)</span>
             </div>
           ))}
         </div>

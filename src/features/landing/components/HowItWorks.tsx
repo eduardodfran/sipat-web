@@ -5,7 +5,7 @@ const steps = [
     number: "01",
     title: "Record your ride",
     description:
-      "Open the Sipat app and hit record. The app auto-segments your ride into 5-minute chunks, capturing video and GPS data.",
+      "Open the Sipat app and hit record. The app splits your ride into 5-minute chunks, capturing video and GPS data.",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -26,7 +26,7 @@ const steps = [
     number: "02",
     title: "AI detects hazards",
     description:
-      "Each segment is uploaded and processed by our YOLOv8 ML pipeline. Potholes and road anomalies are detected, geotagged, and severity-rated.",
+      "Each segment is uploaded and analyzed by AI. Potholes and road damage are detected, located on the map, and rated by severity.",
     icon: (
       <svg
         viewBox="0 0 24 24"

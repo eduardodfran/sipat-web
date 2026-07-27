@@ -3,6 +3,7 @@ import Link from 'next/link'
 const NAV_LINKS = [
   { href: '/map', label: 'Map' },
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/about', label: 'About' },
   { href: '/login', label: 'Sign In' },
 ]
 
@@ -19,9 +20,12 @@ export function Footer() {
       <div className="mx-auto max-w-5xl px-6 py-12 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div>
-            <span className="text-sm font-bold text-text-primary">Sipat</span>
+            <div className="flex items-center gap-2">
+              <img src="/sipat-dark.png" alt="Sipat" className="h-6 w-auto light:hidden" />
+              <img src="/sipat-light.png" alt="Sipat" className="h-6 w-auto hidden light:block" />
+            </div>
             <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-text-muted">
-              Crowdsourced road hazard detection. Record rides, detect potholes with AI, and help make roads safer for everyone.
+              Community-powered road safety. Record rides, detect potholes with AI, and help make roads safer for everyone.
             </p>
             <div className="mt-3 flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-green-safe" />
@@ -68,7 +72,7 @@ export function Footer() {
 
         <div className="mt-10 border-t border-border pt-6 sm:flex sm:items-center sm:justify-between">
           <p className="text-[10px] text-text-muted">
-            &copy; 2026 Sipat. Built with React Native, Next.js, FastAPI, YOLOv8, Supabase &amp; Azure.
+            &copy; 2026 Sipat. Built with React Native, Next.js, FastAPI, AI, Supabase &amp; Azure.
           </p>
           <div className="mt-2 flex items-center gap-4 sm:mt-0">
             <span className="text-[10px] text-text-muted">Map data &copy; OpenStreetMap</span>

@@ -7,12 +7,12 @@ const FAQ_ITEMS = [
   {
     question: 'What is Sipat?',
     answer:
-      'Sipat is a road hazard intelligence platform for the Philippines. It uses AI (YOLOv8) to detect potholes and road anomalies from ride recordings, and combines that with community photo reports to create a real-time hazard map.',
+      'Sipat is a road hazard intelligence platform for the Philippines. It uses AI to detect potholes and road anomalies from ride recordings, and combines that with community photo reports to create a real-time hazard map.',
   },
   {
     question: 'How does the AI detection work?',
     answer:
-      'When you record a ride with the Sipat mobile app, the video is automatically segmented into 5-minute chunks and uploaded. Each segment is processed by our YOLOv8 ML pipeline, which analyzes footage frame-by-frame to detect potholes and road anomalies. Each detection is geotagged and severity-rated.',
+      'When you record a ride with the Sipat mobile app, the video is automatically split into 5-minute chunks and uploaded. Each chunk is analyzed by our AI system, which scans footage for potholes and road damage. Each detection is located and rated by severity.',
   },
   {
     question: 'Do I need to install anything?',
@@ -22,7 +22,7 @@ const FAQ_ITEMS = [
   {
     question: 'How accurate is the detection?',
     answer:
-      'Our YOLOv8 model is trained on Philippine road conditions. It achieves good precision on moderate-to-severe hazards. Community verification and photo submissions help filter false positives and track hazard status over time.',
+      'Our AI model is trained on Philippine road conditions. It achieves good precision on moderate-to-severe hazards. Community verification and photo submissions help filter false positives and track hazard status over time.',
   },
   {
     question: 'Can I verify hazards reported by others?',
@@ -42,7 +42,7 @@ const FAQ_ITEMS = [
   {
     question: 'What technology does Sipat use?',
     answer:
-      'Sipat is built with React Native (Expo) for the mobile app, Next.js for the web dashboard, FastAPI for the backend, YOLOv8 for ML detection, Supabase for the database, and hosted on Microsoft Azure.',
+      'Sipat is built with React Native (Expo) for the mobile app, Next.js for the web dashboard, FastAPI for the backend, YOLO (AI model) for detection, Supabase for the database, and hosted on Microsoft Azure.',
   },
 ]
 

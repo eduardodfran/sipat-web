@@ -148,7 +148,7 @@ export function LiveMapPreview() {
               href="/map"
               className={`absolute right-3 bottom-3 z-[1000] rounded-md px-3 py-1.5 text-xs font-medium backdrop-blur-sm transition-colors ${isDark ? 'bg-black/60 text-white/70 hover:text-white' : 'bg-white/80 text-gray-600 hover:text-gray-900'}`}
             >
-              Open full map →
+              Explore full map →
             </Link>
           </div>
         </FadeIn>

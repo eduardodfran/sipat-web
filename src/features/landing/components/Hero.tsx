@@ -3,13 +3,11 @@
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { RoadBackground } from '@/components/ui/RoadBackground'
-import { useLandingData } from '@/features/landing/hooks/useLandingData'
 import { HeroIllustration } from './HeroIllustration'
 import { FadeIn } from '@/components/ui/FadeIn'
 
 export function Hero() {
   const { user } = useAuth()
-  const data = useLandingData()
 
   return (
     <section className="relative border-b border-border texture-noise overflow-hidden">
@@ -40,11 +38,6 @@ export function Hero() {
               Record your ride, let AI find the hazards, and see them on a live map.
             </p>
 
-              <p className="mb-4 mt-2 text-xs font-medium text-text-secondary">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-accent animate-pulse mr-1.5" />
-                {(data.potholeCount ?? 0).toLocaleString()} hazards detected across Metro Manila
-              </p>
-
               <div className="mt-8 flex items-center gap-3">
                 <Link
                   href="/map"
@@ -59,6 +52,13 @@ export function Hero() {
                   {user ? 'Dashboard' : 'Sign Up'}
                 </Link>
               </div>
+              <p className="mt-4 flex items-center gap-1.5 text-xs text-text-muted">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                  <line x1="12" y1="18" x2="12.01" y2="18" />
+                </svg>
+                Available on Android
+              </p>
             </div>
           </FadeIn>
 

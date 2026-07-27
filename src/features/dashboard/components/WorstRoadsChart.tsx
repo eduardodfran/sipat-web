@@ -42,9 +42,9 @@ export function WorstRoadsChart({ potholes }: { potholes: Pothole[] }) {
     return (
       <div className="p-4">
         <h3 className="text-xs font-bold text-text-primary">Worst Roads</h3>
-        <p className="text-[10px] text-text-muted">Most hazardous locations</p>
+        <p className="text-xs text-text-muted">Most hazardous locations</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-[10px] text-text-muted">No data yet</p>
+          <p className="text-xs text-text-muted">No data yet</p>
         </div>
       </div>
     )
@@ -55,14 +55,14 @@ export function WorstRoadsChart({ potholes }: { potholes: Pothole[] }) {
   return (
     <div className="p-4">
       <h3 className="text-xs font-bold text-text-primary">Worst Roads</h3>
-      <p className="text-[10px] text-text-muted">By detection hits</p>
+      <p className="text-xs text-text-muted">By detection hits</p>
       <div className="mt-3 space-y-1.5">
         {ranked.map(([key, data], i) => (
           <div key={key} className="flex items-center gap-3">
-            <span className="w-5 text-right text-[10px] font-bold text-text-muted">{i + 1}</span>
+            <span className="w-5 text-right text-xs font-bold text-text-muted">{i + 1}</span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-text-secondary truncate">{shortAddress(data.sample)}</span>
+                <span className="text-sm text-text-secondary truncate">{shortAddress(data.sample)}</span>
                 <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${SEVERITY_COLORS[data.worst]}`} />
               </div>
               <div className="mt-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">

@@ -49,8 +49,8 @@ export function SeverityBarChart({ potholes }: { potholes: Pothole[] }) {
 
   return (
     <div className="p-3">
-      <h3 className="text-[11px] font-bold text-text-primary">Severity</h3>
-      <p className="text-[9px] text-text-muted">Hazards by level</p>
+      <h3 className="text-sm font-bold text-text-primary">Severity</h3>
+      <p className="text-xs text-text-muted">Hazards by level</p>
       <div className="mt-2 h-32">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>

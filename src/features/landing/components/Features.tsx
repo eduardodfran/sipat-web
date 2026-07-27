@@ -23,10 +23,10 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
       </svg>
     ),
-    title: 'ML Detection',
+    title: 'AI-Powered Detection',
     description:
-      'YOLOv8 analyzes ride videos frame-by-frame to automatically detect potholes and road anomalies. Each detection is geotagged and severity-rated.',
-    capabilities: ['Auto-segment recording', 'Frame-by-frame YOLO analysis', 'Auto-upload & processing'],
+      'AI analyzes your ride video to detect potholes and road damage. Each detection is automatically located on the map and rated by severity.',
+    capabilities: ['Records in 5-min chunks', 'Scans every frame for hazards', 'Auto-uploads and processes'],
     href: '/login',
     accentColor: 'bg-green-safe',
   },

@@ -76,21 +76,11 @@ export default function LoginPage() {
         <div className="rounded-2xl border border-border bg-surface/80 backdrop-blur-xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
           {/* Logo */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-dim">
-              <svg
-                className="h-6 w-6 text-cyan-accent"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                />
-              </svg>
-            </div>
+            <img
+              src={theme === 'dark' ? '/sipat-dark.png' : '/sipat-light.png'}
+              alt="Sipat"
+              className="mx-auto mb-4 h-12 w-auto"
+            />
             <h1 className="text-2xl font-bold text-text-primary">Sipat</h1>
             <p className="mt-1 text-sm text-text-muted">
               {mode === 'login' ? 'Sign in to your account' : 'Create an account'}

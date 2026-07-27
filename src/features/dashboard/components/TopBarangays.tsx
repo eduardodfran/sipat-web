@@ -20,9 +20,9 @@ export function TopBarangays({ potholes }: { potholes: Pothole[] }) {
     return (
       <div className="p-4">
         <h3 className="text-xs font-bold text-text-primary">Top Barangays</h3>
-        <p className="text-[10px] text-text-muted">Most affected neighborhoods</p>
+        <p className="text-xs text-text-muted">Most affected neighborhoods</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed border-white/10">
-          <p className="text-[9px] text-text-muted">No address data yet</p>
+          <p className="text-xs text-text-muted">No address data yet</p>
         </div>
       </div>
     )
@@ -33,17 +33,17 @@ export function TopBarangays({ potholes }: { potholes: Pothole[] }) {
   return (
     <div className="p-4">
       <h3 className="text-xs font-bold text-text-primary">Top Barangays</h3>
-      <p className="text-[10px] text-text-muted">Most affected neighborhoods</p>
+      <p className="text-xs text-text-muted">Most affected neighborhoods</p>
       <div className="mt-3 space-y-1.5">
         {ranked.map(([name, count], i) => {
           const pct = maxCount > 0 ? (count / maxCount) * 100 : 0
           return (
             <div key={name} className="flex items-center gap-2">
-              <span className="w-3 text-right text-[9px] font-bold text-text-muted">{i + 1}</span>
+              <span className="w-3 text-right text-xs font-bold text-text-muted">{i + 1}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[9px] text-text-secondary truncate">{name}</span>
-                  <span className="text-[9px] font-bold text-text-primary">{count}</span>
+                  <span className="text-xs text-text-secondary truncate">{name}</span>
+                  <span className="text-xs font-bold text-text-primary">{count}</span>
                 </div>
                 <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-white/[0.06]">
                   <div

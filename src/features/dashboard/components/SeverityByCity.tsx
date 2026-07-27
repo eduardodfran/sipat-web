@@ -40,7 +40,7 @@ export function SeverityByCity({ potholes }: { potholes: Pothole[] }) {
     return (
       <div className="p-4">
         <h3 className="text-xs font-bold text-text-primary">Severity by City</h3>
-        <p className="text-[10px] text-text-muted">Hazard severity breakdown</p>
+        <p className="text-xs text-text-muted">Hazard severity breakdown</p>
         <div className="mt-2 flex h-32 items-center justify-center rounded border border-dashed border-border">
           <p className="text-xs text-text-muted">No address data yet</p>
         </div>
@@ -53,13 +53,13 @@ export function SeverityByCity({ potholes }: { potholes: Pothole[] }) {
   return (
     <div className="p-4">
       <h3 className="text-xs font-bold text-text-primary">Severity by City</h3>
-      <p className="text-[10px] text-text-muted">Hazard severity breakdown</p>
+      <p className="text-xs text-text-muted">Hazard severity breakdown</p>
 
       <div className="mt-3 flex items-center gap-3">
         {(Object.entries(SEVERITY_COLORS) as [string, string][]).map(([label, color]) => (
           <div key={label} className="flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-            <span className="text-[9px] text-text-secondary">{label}</span>
+            <span className="text-xs text-text-secondary">{label}</span>
           </div>
         ))}
       </div>
@@ -72,7 +72,7 @@ export function SeverityByCity({ potholes }: { potholes: Pothole[] }) {
 
           return (
             <div key={city.city} className="flex items-center gap-2">
-              <span className="w-20 shrink-0 truncate text-[9px] text-text-secondary" title={city.city}>
+              <span className="w-20 shrink-0 truncate text-xs text-text-secondary" title={city.city}>
                 {city.city}
               </span>
               <div className="relative h-3 flex-1 overflow-hidden rounded-sm bg-border/30">
@@ -103,7 +103,7 @@ export function SeverityByCity({ potholes }: { potholes: Pothole[] }) {
                   />
                 )}
               </div>
-              <div className="flex shrink-0 gap-1.5 text-[9px]">
+              <div className="flex shrink-0 gap-1.5 text-xs">
                 {city.Severe > 0 && <span className="text-text-secondary">{city.Severe}</span>}
                 {city.Moderate > 0 && <span className="text-text-secondary">{city.Moderate}</span>}
                 {city.Minor > 0 && <span className="text-text-secondary">{city.Minor}</span>}

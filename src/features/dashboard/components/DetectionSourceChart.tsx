@@ -24,8 +24,8 @@ export function DetectionSourceChart({ potholes }: { potholes: Pothole[] }) {
 
   return (
     <div className="p-3">
-      <h3 className="text-[11px] font-bold text-text-primary">Detection Sources</h3>
-      <p className="text-[9px] text-text-muted">How identified</p>
+      <h3 className="text-sm font-bold text-text-primary">Detection Sources</h3>
+      <p className="text-xs text-text-muted">How identified</p>
 
       <div className="mt-2 space-y-2">
         {/* ML Detection */}

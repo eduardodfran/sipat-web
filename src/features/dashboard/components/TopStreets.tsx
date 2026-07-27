@@ -44,9 +44,9 @@ export function TopStreets({ potholes }: { potholes: Pothole[] }) {
     return (
       <div className="p-4">
         <h3 className="text-xs font-bold text-text-primary">Top Streets</h3>
-        <p className="text-[10px] text-text-muted">Most hazardous roads</p>
+        <p className="text-xs text-text-muted">Most hazardous roads</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed border-white/10">
-          <p className="text-[9px] text-text-muted">No address data yet</p>
+          <p className="text-xs text-text-muted">No address data yet</p>
         </div>
       </div>
     )
@@ -55,20 +55,20 @@ export function TopStreets({ potholes }: { potholes: Pothole[] }) {
   return (
     <div className="p-4">
       <h3 className="text-xs font-bold text-text-primary">Top Streets</h3>
-      <p className="text-[10px] text-text-muted">Most hazardous roads</p>
+      <p className="text-xs text-text-muted">Most hazardous roads</p>
       <div className="mt-3 space-y-2">
         {ranked.map((item, i) => (
           <div key={item.street} className="flex items-center gap-2">
-            <span className="w-3 text-right text-[8px] font-bold text-text-muted">
+            <span className="w-3 text-right text-[11px] font-bold text-text-muted">
               {i + 1}
             </span>
             <div className={`h-1.5 w-1.5 shrink-0 rounded-full ${severityDotClass[item.worst]}`} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
-                <span className="text-[9px] text-text-secondary truncate">
+                <span className="text-xs text-text-secondary truncate">
                   {item.street}
                 </span>
-                <span className="text-[9px] font-bold text-text-primary">
+                <span className="text-xs font-bold text-text-primary">
                   {item.count}
                 </span>
               </div>

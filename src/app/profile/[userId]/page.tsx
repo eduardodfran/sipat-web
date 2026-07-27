@@ -11,7 +11,7 @@ import type { Pothole } from '@/lib/types'
 import { shortAddress } from '@/lib/address'
 import { Badge } from '@/components/ui/Badge'
 
-function Avatar({ name }: { name: string | null }) {
+function Avatar({ name, size = 'lg' }: { name: string | null; size?: 'lg' | 'xl' }) {
   const initial = (name ?? '?')[0].toUpperCase()
   const colors = [
     'bg-cyan-accent/20 text-cyan-accent',
@@ -21,9 +21,19 @@ function Avatar({ name }: { name: string | null }) {
     'bg-red-hazard/20 text-red-hazard',
   ]
   const color = colors[(name ?? '').charCodeAt(0) % colors.length]
+  const dims = size === 'xl' ? 'h-24 w-24 text-4xl' : 'h-20 w-20 text-3xl'
   return (
-    <div className={`flex h-20 w-20 items-center justify-center rounded-2xl text-3xl font-bold ${color}`}>
+    <div className={`flex items-center justify-center rounded-2xl font-bold ${color} ${dims}`}>
       {initial}
+    </div>
+  )
+}
+
+function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className={`flex-1 rounded-xl border border-border bg-surface/60 px-4 py-3 text-center backdrop-blur-sm`}>
+      <p className={`text-xl font-bold ${color}`}>{value}</p>
+      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-text-muted">{label}</p>
     </div>
   )
 }
@@ -70,13 +80,20 @@ function PhotoCard({ photo }: { photo: CommunityPhoto }) {
 function PotholeCard({ p }: { p: Pothole }) {
   const address = shortAddress(p)
   return (
-    <Link href={`/feed/pothole/${p.pothole_id}`} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 transition-all hover:border-cyan-accent/30 hover:bg-surface-hover">
-      {p.image_url && (
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
-          <Image src={p.image_url} alt="Pothole" fill className="object-cover" sizes="64px" />
+    <Link href={`/feed/pothole/${p.pothole_id}`} className="overflow-hidden rounded-xl border border-border bg-surface transition-all hover:border-cyan-accent/30 hover:shadow-lg hover:shadow-cyan-accent/5">
+      {p.image_url ? (
+        <div className="relative h-44 w-full">
+          <Image src={p.image_url} alt="Pothole" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+        </div>
+      ) : (
+        <div className="flex h-44 w-full items-center justify-center bg-surface-raised">
+          <svg className="h-10 w-10 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+          </svg>
         </div>
       )}
-      <div className="min-w-0 flex-1">
+      <div className="p-3">
         <div className="flex items-center gap-2 mb-1">
           <Badge severity={p.worst_severity} size="sm" />
           <span className="text-[9px] text-text-muted">{p.total_detection_hits} detection{p.total_detection_hits !== 1 ? 's' : ''}</span>
@@ -86,9 +103,6 @@ function PotholeCard({ p }: { p: Pothole }) {
           {new Date(p.latest_activity_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
         </p>
       </div>
-      <svg className="h-4 w-4 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-      </svg>
     </Link>
   )
 }
@@ -207,16 +221,32 @@ export default function PublicProfilePage() {
         <div className="h-px bg-gradient-to-r from-transparent via-cyan-accent/40 to-transparent" />
       </header>
 
-      <main className="mx-auto max-w-3xl px-6 py-10">
-        {/* Profile info */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <Avatar name={profile.username} />
-          <h2 className="mt-4 text-xl font-bold text-text-primary">{profile.username ?? 'Anonymous'}</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            {totalCount} contribution{totalCount !== 1 ? 's' : ''}
-          </p>
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-accent/5 via-transparent to-transparent" />
+        <div className="relative mx-auto max-w-3xl px-6 py-10">
+          <div className="flex flex-col items-center text-center">
+            <Avatar name={profile.username} size="xl" />
+            <h2 className="mt-4 text-2xl font-bold text-text-primary">{profile.username ?? 'Anonymous'}</h2>
+            <p className="mt-1 text-sm text-text-muted">
+              {totalCount} contribution{totalCount !== 1 ? 's' : ''}
+            </p>
+          </div>
         </div>
+      </div>
 
+      {/* Stats Bar */}
+      {totalCount > 0 && (
+        <div className="mx-auto max-w-3xl px-6 -mt-4 relative z-10">
+          <div className="flex gap-3">
+            <StatCard label="Photos" value={photos.length} color="text-cyan-accent" />
+            <StatCard label="Hazards" value={potholes.length} color="text-amber-warn" />
+            <StatCard label="Total" value={totalCount} color="text-green-safe" />
+          </div>
+        </div>
+      )}
+
+      <main className="mx-auto max-w-3xl px-6 py-8">
         {/* Tabs */}
         {totalCount > 0 && (
           <div className="flex justify-center gap-1 mb-6">
@@ -248,21 +278,13 @@ export default function PublicProfilePage() {
             <p className="text-sm font-medium text-text-muted">No contributions yet</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredPotholes.length > 0 && (
-              <div className="space-y-2">
-                {filteredPotholes.map((p) => (
-                  <PotholeCard key={p.pothole_id} p={p} />
-                ))}
-              </div>
-            )}
-            {filteredPhotos.length > 0 && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {filteredPhotos.map((photo) => (
-                  <PhotoCard key={photo.id} photo={photo} />
-                ))}
-              </div>
-            )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filteredPotholes.map((p) => (
+              <PotholeCard key={p.pothole_id} p={p} />
+            ))}
+            {filteredPhotos.map((photo) => (
+              <PhotoCard key={photo.id} photo={photo} />
+            ))}
           </div>
         )}
       </main>

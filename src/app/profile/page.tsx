@@ -85,8 +85,8 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-asphalt">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-asphalt/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-2xl items-center justify-between px-6">
-          <Link href="/dashboard" className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors">
+        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-6">
+          <Link href="/dashboard" className="flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
@@ -95,7 +95,7 @@ export default function ProfilePage() {
           <h1 className="text-sm font-semibold text-text-primary">Profile</h1>
           <button
             onClick={toggle}
-            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            className="rounded-xl p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
             aria-label="Toggle theme"
           >
             {theme === 'dark' ? (
@@ -109,23 +109,30 @@ export default function ProfilePage() {
             )}
           </button>
         </div>
+        <div className="h-px bg-gradient-to-r from-transparent via-cyan-accent/40 to-transparent" />
       </header>
 
-      <div className="mx-auto max-w-2xl px-6 py-10">
-        {/* Avatar + Info */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-dim text-2xl font-bold text-cyan-accent">
-            {initial}
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-text-primary">{username || 'No username'}</h2>
-            <p className="text-sm text-text-muted">{user.email}</p>
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-accent/5 via-transparent to-transparent" />
+        <div className="relative mx-auto max-w-2xl px-6 py-10">
+          <div className="flex flex-col items-center text-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-cyan-dim text-4xl font-bold text-cyan-accent">
+              {initial}
+            </div>
+            <h2 className="mt-4 text-2xl font-bold text-text-primary">{username || 'No username'}</h2>
+            <p className="mt-1 text-sm text-text-muted">{user.email}</p>
           </div>
         </div>
+      </div>
 
-        {/* Edit Card */}
-        <div className="rounded-2xl border border-border bg-surface/80 backdrop-blur-xl p-6 mb-6">
-          <h3 className="text-sm font-semibold text-text-primary mb-4">Account</h3>
+      <div className="mx-auto max-w-2xl px-6 py-8">
+        {/* Account Settings */}
+        <div className="rounded-2xl border border-border bg-surface/80 p-6 mb-6">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="h-1 w-1 rounded-full bg-cyan-accent" />
+            <h3 className="text-sm font-semibold text-text-primary">Account Settings</h3>
+          </div>
 
           <div className="space-y-4">
             <div>
@@ -149,7 +156,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-5 flex items-center gap-3">
             <button
               onClick={handleSave}
               disabled={saving}
@@ -162,8 +169,11 @@ export default function ProfilePage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="rounded-2xl border border-red-hazard/30 bg-surface/80 backdrop-blur-xl p-6">
-          <h3 className="text-sm font-semibold text-red-hazard mb-2">Danger Zone</h3>
+        <div className="rounded-2xl border border-red-hazard/30 bg-surface/80 p-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-1 w-1 rounded-full bg-red-hazard" />
+            <h3 className="text-sm font-semibold text-red-hazard">Danger Zone</h3>
+          </div>
           <p className="text-sm text-text-secondary mb-4">
             Permanently delete your account and all associated data. This cannot be undone.
           </p>
