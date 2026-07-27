@@ -13,7 +13,7 @@ export function DetectionSourceChart({ potholes }: { potholes: Pothole[] }) {
         <h3 className="text-sm font-semibold text-text-primary">Detection Sources</h3>
         <p className="mt-0.5 text-xs text-text-muted">How hazards were identified</p>
         <div className="mt-2 flex h-24 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-xs text-text-muted">No data yet</p>
+          <p className="text-xs text-text-muted">No hazards detected yet</p>
         </div>
       </div>
     )

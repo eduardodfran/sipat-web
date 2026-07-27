@@ -52,7 +52,10 @@ function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Poth
           </span>
         </div>
       </div>
-      <span className="text-sm font-bold text-text-primary">{pothole.total_detection_hits}</span>
+      <div className="text-right shrink-0">
+        <span className="text-sm font-bold text-text-primary">{pothole.total_detection_hits}</span>
+        <span className="text-[10px] text-text-muted ml-0.5">det</span>
+      </div>
     </button>
   )
 }
@@ -61,6 +64,7 @@ export default function Dashboard() {
   const { allPotholes, stats, loading, error } = usePotholeData()
   const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null)
   const [timeFilter, setTimeFilter] = useState<'all' | 7 | 30 | 90>('all')
+  const [severityFilter, setSeverityFilter] = useState<string | null>(null)
   const [communityPhotos, setCommunityPhotos] = useState<CommunityPhoto[]>([])
 
   useEffect(() => {
@@ -118,7 +122,7 @@ export default function Dashboard() {
     URL.revokeObjectURL(url)
   }
 
-  const filteredHazards = timeFilter === 'all'
+  const filteredHazards = (timeFilter === 'all'
     ? allPotholes
     : allPotholes.filter(p => {
         const reported = new Date(p.citizen_first_reported_at)
@@ -126,6 +130,7 @@ export default function Dashboard() {
         cutoff.setDate(cutoff.getDate() - timeFilter)
         return reported >= cutoff
       })
+  ).filter(p => !severityFilter || p.worst_severity === severityFilter)
 
   const filteredStats = {
     total: filteredHazards.length,
@@ -163,26 +168,38 @@ export default function Dashboard() {
 
       {/* KPI CARDS */}
       <div className="mb-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-7">
-        <div className="rounded-xl border border-border bg-surface p-6">
+        <button
+          onClick={() => setSeverityFilter(severityFilter === null ? null : null)}
+          className={`rounded-xl border bg-surface p-6 text-left transition-all hover:bg-surface-hover ${severityFilter === null ? 'border-cyan-accent/40 ring-1 ring-cyan-accent/20' : 'border-border'}`}
+        >
           <p className="text-base font-bold uppercase tracking-widest text-text-muted">Total</p>
           <p className="mt-3 text-5xl font-black text-text-primary">{filteredStats.total}</p>
           <p className="mt-2 text-sm text-text-muted">hazards detected</p>
-        </div>
-        <div className="rounded-xl border border-border bg-surface p-6">
+        </button>
+        <button
+          onClick={() => setSeverityFilter(severityFilter === 'Severe' ? null : 'Severe')}
+          className={`rounded-xl border bg-surface p-6 text-left transition-all hover:bg-surface-hover ${severityFilter === 'Severe' ? 'border-red-hazard/40 ring-1 ring-red-hazard/20' : 'border-border'}`}
+        >
           <p className="text-base font-bold uppercase tracking-widest text-text-muted">Severe</p>
           <p className="mt-3 text-5xl font-black text-red-400">{filteredStats.severe}</p>
           <p className="mt-2 text-sm text-text-muted">critical hazards</p>
-        </div>
-        <div className="rounded-xl border border-border bg-surface p-6">
+        </button>
+        <button
+          onClick={() => setSeverityFilter(severityFilter === 'Moderate' ? null : 'Moderate')}
+          className={`rounded-xl border bg-surface p-6 text-left transition-all hover:bg-surface-hover ${severityFilter === 'Moderate' ? 'border-amber-warn/40 ring-1 ring-amber-warn/20' : 'border-border'}`}
+        >
           <p className="text-base font-bold uppercase tracking-widest text-text-muted">Moderate</p>
           <p className="mt-3 text-5xl font-black text-amber-400">{filteredStats.moderate}</p>
           <p className="mt-2 text-sm text-text-muted">warnings</p>
-        </div>
-        <div className="rounded-xl border border-border bg-surface p-6">
+        </button>
+        <button
+          onClick={() => setSeverityFilter(severityFilter === 'Minor' ? null : 'Minor')}
+          className={`rounded-xl border bg-surface p-6 text-left transition-all hover:bg-surface-hover ${severityFilter === 'Minor' ? 'border-green-safe/40 ring-1 ring-green-safe/20' : 'border-border'}`}
+        >
           <p className="text-base font-bold uppercase tracking-widest text-text-muted">Minor</p>
           <p className="mt-3 text-5xl font-black text-green-400">{filteredStats.minor}</p>
           <p className="mt-2 text-sm text-text-muted">low severity</p>
-        </div>
+        </button>
         <div className="rounded-xl border border-border bg-surface p-6">
           <p className="text-base font-bold uppercase tracking-widest text-text-muted">Routes</p>
           <p className="mt-3 text-5xl font-black text-text-primary">{stats.routeCount}</p>
@@ -202,6 +219,22 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Active filter indicator */}
+      {severityFilter && (
+        <div className="mb-4 flex items-center gap-2">
+          <span className="text-sm text-text-muted">Filtered by:</span>
+          <span className="rounded-full bg-cyan-accent/15 px-3 py-1 text-xs font-semibold text-cyan-accent">
+            {severityFilter}
+          </span>
+          <button
+            onClick={() => setSeverityFilter(null)}
+            className="text-xs text-text-muted hover:text-text-primary"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* MAIN CONTENT: 3-column bento grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* LEFT: Hazards list + Detection Sources */}
@@ -211,7 +244,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
               <div>
                 <p className="text-sm font-bold text-text-primary">Recent Hazards</p>
-                <p className="text-sm text-text-muted">{filteredHazards.length} total</p>
+                <p className="text-sm text-text-muted">{filteredHazards.length} hazard{filteredHazards.length !== 1 ? 's' : ''}</p>
               </div>
               <div className="flex items-center gap-1">
                 {([7, 30, 'all'] as const).map((d) => (
@@ -271,15 +304,28 @@ export default function Dashboard() {
           <div className="rounded-xl border border-border bg-surface">
             <TimeOfDayArc potholes={allPotholes} />
           </div>
-          <div className="rounded-xl border border-border bg-surface p-6">
-            <p className="text-base font-bold uppercase tracking-widest text-text-muted">Road Safety</p>
-            <div className="mt-4 flex items-baseline gap-5">
-              <span className={`text-7xl font-black ${safety.color}`}>{safety.grade}</span>
-              <div>
-                <p className="text-lg font-semibold text-text-primary">{safety.description}</p>
-                <p className="text-sm text-text-muted">based on {stats.totalPotholes} hazard{stats.totalPotholes !== 1 ? 's' : ''}</p>
+          <div className="rounded-xl border border-border bg-surface p-5">
+            <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Road Safety</p>
+            <div className="mt-3 flex items-center gap-4">
+              <span className={`text-4xl font-black ${safety.color}`}>{safety.grade}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-text-primary">{safety.description}</p>
+                <p className="text-xs text-text-muted">
+                  {stats.totalPotholes} hazard{stats.totalPotholes !== 1 ? 's' : ''} detected
+                </p>
               </div>
             </div>
+            {stats.totalPotholes > 0 && (
+              <Link
+                href="/map"
+                className="mt-3 flex items-center gap-1.5 text-xs font-medium text-cyan-accent hover:text-cyan-hover"
+              >
+                View on map
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+            )}
           </div>
 
           {/* Quick links */}

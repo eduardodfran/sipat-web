@@ -127,10 +127,10 @@ export function LiveMapPreview() {
         <FadeIn>
           <div className="mb-6">
             <p className="text-cyan-accent text-[11px] font-semibold uppercase tracking-widest">
-              Live data
+              Hazard map
             </p>
             <h2 className="text-text-primary mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-              See hazards in real time
+              See hazards across Metro Manila
             </h2>
           </div>
         </FadeIn>
@@ -138,11 +138,6 @@ export function LiveMapPreview() {
         <FadeIn delay={100}>
           <div className="relative h-72 overflow-hidden rounded-xl border border-border shadow-[0_4px_24px_rgba(0,0,0,0.06)] sm:h-80">
             <MapInner potholes={data.markers} theme={theme} />
-
-            <div className={`absolute top-3 right-3 z-[1000] flex items-center gap-1.5 rounded-full px-2.5 py-1 backdrop-blur-sm ${isDark ? 'bg-black/60' : 'bg-white/80'}`}>
-              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-green-safe" />
-              <span className={`text-[10px] font-medium ${isDark ? 'text-white/70' : 'text-gray-600'}`}>Live</span>
-            </div>
 
             <Link
               href="/map"
@@ -170,7 +165,7 @@ export function LiveMapPreview() {
           </div>
 
           <p className="text-text-muted mt-3 text-xs">
-            Live from Supabase • Last updated: just now
+            Data from community reports and AI detection
           </p>
         </FadeIn>
       </div>

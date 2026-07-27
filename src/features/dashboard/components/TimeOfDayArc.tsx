@@ -25,7 +25,7 @@ export function TimeOfDayArc({ potholes }: { potholes: Pothole[] }) {
         <h3 className="text-sm font-bold text-text-primary">Time of Day</h3>
         <p className="text-xs text-text-muted">When reported</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-xs text-text-muted">No data</p>
+          <p className="text-xs text-text-muted">No hazards detected yet</p>
         </div>
       </div>
     )

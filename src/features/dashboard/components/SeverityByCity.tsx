@@ -42,7 +42,7 @@ export function SeverityByCity({ potholes }: { potholes: Pothole[] }) {
         <h3 className="text-xs font-bold text-text-primary">Severity by City</h3>
         <p className="text-xs text-text-muted">Hazard severity breakdown</p>
         <div className="mt-2 flex h-32 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-xs text-text-muted">No address data yet</p>
+          <p className="text-xs text-text-muted">Address data comes from community photo submissions</p>
         </div>
       </div>
     )

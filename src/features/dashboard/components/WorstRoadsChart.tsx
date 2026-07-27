@@ -44,7 +44,7 @@ export function WorstRoadsChart({ potholes }: { potholes: Pothole[] }) {
         <h3 className="text-xs font-bold text-text-primary">Worst Roads</h3>
         <p className="text-xs text-text-muted">Most hazardous locations</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-xs text-text-muted">No data yet</p>
+          <p className="text-xs text-text-muted">No hazards detected yet</p>
         </div>
       </div>
     )

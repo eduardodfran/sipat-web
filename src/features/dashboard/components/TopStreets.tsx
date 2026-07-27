@@ -46,7 +46,7 @@ export function TopStreets({ potholes }: { potholes: Pothole[] }) {
         <h3 className="text-xs font-bold text-text-primary">Top Streets</h3>
         <p className="text-xs text-text-muted">Most hazardous roads</p>
         <div className="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed border-white/10">
-          <p className="text-xs text-text-muted">No address data yet</p>
+          <p className="text-xs text-text-muted">Address data comes from community photo submissions</p>
         </div>
       </div>
     )

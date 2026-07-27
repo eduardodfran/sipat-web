@@ -41,7 +41,7 @@ export function TimeOfDayChart({ potholes }: { potholes: Pothole[] }) {
         <h3 className="text-sm font-semibold text-text-primary">Time of Day</h3>
         <p className="mt-0.5 text-xs text-text-muted">When hazards are reported</p>
         <div className="mt-2 flex h-24 items-center justify-center rounded border border-dashed border-border">
-          <p className="text-xs text-text-muted">No data yet</p>
+          <p className="text-xs text-text-muted">No hazards detected yet</p>
         </div>
       </div>
     )
