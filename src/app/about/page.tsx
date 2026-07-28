@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { useTheme } from '@/contexts/ThemeContext'
+import { Navbar } from '@/components/layout/Navbar'
 import { FadeIn } from '@/components/ui/FadeIn'
 import { Footer } from '@/features/landing/components/Footer'
 
@@ -19,10 +20,10 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
       </svg>
     ),
-    title: 'Mobile Recording + ML Detection',
+    title: 'Mobile Recording + AI Detection',
     description:
-      'Record your ride with the app. Our AI analyzes every frame for potholes, cracks, and road distress using YOLOv8 object detection.',
-    capabilities: ['Auto-segment recording', 'Frame-by-frame YOLO analysis', 'Auto-upload & processing'],
+      'Record your ride with the app. Our AI analyzes every frame for potholes, cracks, and road distress.',
+    capabilities: ['Records in 5-min chunks', 'Scans every frame for hazards', 'Auto-uploads and processes'],
     accentColor: 'bg-cyan-accent',
   },
   {
@@ -68,7 +69,7 @@ const PIPELINE_STEPS = [
   {
     number: '03',
     title: 'Process',
-    description: 'YOLOv8 detects hazards, IPM measures real-world area, severity is classified',
+    description: 'AI detects hazards, measures real-world area, severity is classified',
     barColor: 'bg-amber-warn',
   },
   {
@@ -81,76 +82,27 @@ const PIPELINE_STEPS = [
 
 const TECH_STACK = [
   {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-      </svg>
-    ),
-    title: 'Mobile App',
-    description: 'React Native + Expo, Camera API, GPS telemetry, AsyncStorage',
+    category: 'Frontend',
+    items: [
+      { name: 'React Native + Expo', description: 'Mobile app with Camera API, GPS, AsyncStorage' },
+      { name: 'Next.js 16', description: 'Web dashboard with Tailwind CSS, Leaflet maps' },
+    ],
   },
   {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
-      </svg>
-    ),
-    title: 'Web Dashboard',
-    description: 'Next.js 16, React, Tailwind CSS, Leaflet maps',
+    category: 'Backend',
+    items: [
+      { name: 'FastAPI (Python)', description: 'REST API with Gunicorn + Uvicorn' },
+      { name: 'YOLO (Ultralytics)', description: 'Object detection with CPU PyTorch, IPM area measurement' },
+      { name: 'Supabase', description: 'PostgreSQL, Row-Level Security, Auth, Real-time' },
+    ],
   },
   {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z" />
-      </svg>
-    ),
-    title: 'Backend API',
-    description: 'FastAPI (Python), Gunicorn + Uvicorn, REST API',
-  },
-  {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-      </svg>
-    ),
-    title: 'Machine Learning',
-    description: 'YOLOv8 (Ultralytics), CPU PyTorch, Inverse Perspective Mapping',
-  },
-  {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-      </svg>
-    ),
-    title: 'Database & Auth',
-    description: 'Supabase (PostgreSQL), Row-Level Security, Real-time',
-  },
-  {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
-      </svg>
-    ),
-    title: 'Cloud Infrastructure',
-    description: 'Azure VM Scale Set, Blob Storage, Load Balancer, Nginx',
-  },
-  {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-      </svg>
-    ),
-    title: 'Infrastructure as Code',
-    description: 'Terraform, Docker, GitHub Actions',
-  },
-  {
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
-      </svg>
-    ),
-    title: 'External Services',
-    description: 'Nominatim/OpenStreetMap geocoding, Let\'s Encrypt TLS',
+    category: 'Infrastructure',
+    items: [
+      { name: 'Azure VMSS', description: 'VM Scale Set, Blob Storage, Load Balancer, Nginx' },
+      { name: 'Terraform + Docker', description: 'Infrastructure as Code, GitHub Actions CI/CD' },
+      { name: 'OpenStreetMap', description: 'Nominatim geocoding, Let\'s Encrypt TLS' },
+    ],
   },
 ]
 
@@ -198,38 +150,11 @@ const RESOURCES = [
 ]
 
 export default function AboutPage() {
-  const { theme, toggle } = useTheme()
+  const [showSpecs, setShowSpecs] = useState(false)
 
   return (
     <div className="min-h-screen bg-asphalt">
-      <header className="sticky top-0 z-50 border-b border-border bg-asphalt/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-            <Link href="/" className="flex items-center gap-2 text-base text-text-secondary transition-colors hover:text-text-primary">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-            <img src={theme === 'dark' ? '/sipat-dark.png' : '/sipat-light.png'} alt="Sipat" className="h-5 w-auto" />
-            Home
-          </Link>
-          <h1 className="text-base font-semibold text-text-primary">About</h1>
-          <button
-            onClick={toggle}
-            className="rounded-xl p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-              </svg>
-            ) : (
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-              </svg>
-            )}
-          </button>
-        </div>
-        <div className="h-px bg-gradient-to-r from-transparent via-cyan-accent/40 to-transparent" />
-      </header>
+      <Navbar />
 
       {/* Hero / Motivation */}
       <section className="relative border-b border-border texture-noise overflow-hidden">
@@ -404,16 +329,18 @@ export default function AboutPage() {
             </h2>
           </FadeIn>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {TECH_STACK.map((tech, i) => (
-              <FadeIn key={tech.title} delay={i * 80}>
-                <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-raised text-cyan-accent">
-                    {tech.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-text-primary">{tech.title}</h3>
-                    <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">{tech.description}</p>
+          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
+            {TECH_STACK.map((group, i) => (
+              <FadeIn key={group.category} delay={i * 100}>
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-cyan-accent">{group.category}</h3>
+                  <div className="mt-3 space-y-3">
+                    {group.items.map((tech) => (
+                      <div key={tech.name} className="rounded-lg border border-border bg-surface p-3">
+                        <p className="text-sm font-semibold text-text-primary">{tech.name}</p>
+                        <p className="mt-0.5 text-xs text-text-muted">{tech.description}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </FadeIn>
@@ -479,25 +406,41 @@ export default function AboutPage() {
 
           {/* Infrastructure specs */}
           <FadeIn delay={200}>
-            <div className="mt-8 rounded-xl border border-border bg-surface/80 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-1 w-1 rounded-full bg-cyan-accent" />
-                <h3 className="text-base font-semibold text-text-primary">Infrastructure Specs</h3>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {[
-                  { label: 'Region', value: 'Malaysia West' },
-                  { label: 'VMSS', value: 'Standard_B2als_v2, 2 instances' },
-                  { label: 'Concurrent capacity', value: '4 rides' },
-                  { label: 'Processing timeout', value: '10 minutes per ride' },
-                  { label: 'SAS token expiry', value: '60 minutes' },
-                ].map((spec) => (
-                  <div key={spec.label} className="flex items-baseline justify-between rounded-lg bg-surface-raised px-3 py-2">
-                    <span className="text-sm text-text-muted">{spec.label}</span>
-                    <span className="text-sm font-medium text-text-primary">{spec.value}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8 rounded-xl border border-border bg-surface/80">
+              <button
+                onClick={() => setShowSpecs(!showSpecs)}
+                className="flex w-full items-center justify-between p-4 text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="h-1 w-1 rounded-full bg-cyan-accent" />
+                  <h3 className="text-sm font-semibold text-text-primary">Infrastructure Specs</h3>
+                </div>
+                <svg
+                  className={`h-4 w-4 text-text-muted transition-transform ${showSpecs ? 'rotate-180' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              {showSpecs && (
+                <div className="grid grid-cols-1 gap-3 border-t border-border p-4 sm:grid-cols-2">
+                  {[
+                    { label: 'Region', value: 'Malaysia West' },
+                    { label: 'VMSS', value: 'Standard_B2als_v2, 2 instances' },
+                    { label: 'Concurrent capacity', value: '4 rides' },
+                    { label: 'Processing timeout', value: '10 minutes per ride' },
+                    { label: 'SAS token expiry', value: '60 minutes' },
+                  ].map((spec) => (
+                    <div key={spec.label} className="flex items-baseline justify-between rounded-lg bg-surface-raised px-3 py-2">
+                      <span className="text-xs text-text-muted">{spec.label}</span>
+                      <span className="text-xs font-medium text-text-primary">{spec.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </FadeIn>
         </div>
