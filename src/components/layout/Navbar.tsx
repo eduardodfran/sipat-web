@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
@@ -17,10 +18,11 @@ export function Navbar() {
   const pathname = usePathname()
   const { user, signOut } = useAuth()
   const { theme, toggle } = useTheme()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-asphalt/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-3">
           <img
             src={theme === 'dark' ? '/sipat-dark.png' : '/sipat-light.png'}
@@ -35,7 +37,8 @@ export function Navbar() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-4 md:flex">
           {user ? (
             <>
               {NAV_LINKS.map((link) => (
@@ -78,7 +81,7 @@ export function Navbar() {
                     </svg>
                   )}
                 </button>
-                <Link href="/profile" className="hidden text-xs text-text-muted transition-colors hover:text-text-primary sm:block">
+                <Link href="/profile" className="text-xs text-text-muted transition-colors hover:text-text-primary">
                   {user.email}
                 </Link>
                 <button
@@ -125,9 +128,9 @@ export function Navbar() {
                 ) : (
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                  </svg>
-                )}
-              </button>
+                    </svg>
+                  )}
+                </button>
 
               <Link
                 href="/login"
@@ -138,7 +141,124 @@ export function Navbar() {
             </>
           )}
         </nav>
+
+        {/* Mobile hamburger + theme toggle */}
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            onClick={toggle}
+            className="rounded-lg p-2.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+              </svg>
+            )}
+          </button>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="rounded-lg p-2.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="border-t border-border bg-asphalt px-4 py-4 md:hidden">
+          {user ? (
+            <div className="flex flex-col gap-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                    pathname === link.href
+                      ? 'bg-cyan-dim text-cyan-accent'
+                      : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+              <Link
+                href="/map"
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-cyan-accent px-3 py-2.5 text-sm font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Report Hazard
+              </Link>
+
+              <div className="mt-3 border-t border-border pt-3">
+                <Link
+                  href="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2.5 text-sm text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
+                >
+                  {user.email}
+                </Link>
+                <button
+                  onClick={() => { signOut(); setMenuOpen(false) }}
+                  className="mt-1 w-full rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-red-hazard transition-colors hover:bg-surface-hover"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <Link
+                href="/map"
+                onClick={() => setMenuOpen(false)}
+                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  pathname === '/map'
+                    ? 'bg-cyan-dim text-cyan-accent'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                }`}
+              >
+                Map
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setMenuOpen(false)}
+                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  pathname === '/about'
+                    ? 'bg-cyan-dim text-cyan-accent'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                }`}
+              >
+                About
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 flex items-center justify-center rounded-lg bg-cyan-accent px-3 py-2.5 text-sm font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   )
 }
