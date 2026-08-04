@@ -37,7 +37,7 @@ const FAQ_ITEMS = [
   {
     question: 'How do I get the app?',
     answer:
-      'The Sipat mobile app is available for Android. Download the APK from sipat.app or contact us for the download link.',
+      'The Sipat mobile app is available for Android. Download it from the link below or contact us for assistance.',
   },
   {
     question: 'What technology does Sipat use?',
@@ -104,15 +104,30 @@ export function FAQ() {
         </div>
 
         <FadeIn delay={200}>
-          <p className="mt-8 text-sm text-text-secondary">
-            Still have questions?{' '}
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-text-secondary">
+              Still have questions?{' '}
+              <a
+                href="mailto:franeduardo305@gmail.com"
+                className="text-cyan-accent hover:text-cyan-hover"
+              >
+                Contact us
+              </a>
+            </p>
             <a
-              href="mailto:hello@sipat.app"
-              className="text-cyan-accent hover:text-cyan-hover"
+              href="https://expo.dev/accounts/eduardofran/projects/SipatApp/builds/865c880b-07aa-4423-8439-e40f63898e06"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg bg-cyan-accent px-5 py-2.5 text-sm font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
             >
-              Contact us
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download App
             </a>
-          </p>
+          </div>
         </FadeIn>
       </div>
     </section>
