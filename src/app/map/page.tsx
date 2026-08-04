@@ -52,7 +52,7 @@ export default function MapPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const { theme, toggle } = useTheme()
-  const { potholes, allPotholes, filter, setFilter } = usePotholeData()
+  const { potholes, allPotholes, filter, setFilter, streetFilter, setStreetFilter, uniqueStreets } = usePotholeData()
   const { routes } = useRideRoutes()
   const [viewMode, setViewMode] = useState<ViewMode>('all')
   const [vizMode, setVizMode] = useState<'markers' | 'heatmap'>('markers')
@@ -110,6 +110,26 @@ export default function MapPage() {
             </svg>
           )}
         </button>
+        {/* Street filter */}
+        {uniqueStreets.length > 0 && (
+          <div className="relative">
+            <select
+              value={streetFilter ?? ''}
+              onChange={(e) => setStreetFilter(e.target.value || null)}
+              className="appearance-none rounded-lg border border-border bg-surface/90 px-3 py-1.5 pr-7 text-xs font-semibold text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary cursor-pointer"
+            >
+              <option value="">All Streets</option>
+              {uniqueStreets.map((s) => (
+                <option key={s.street} value={s.street}>
+                  {s.street} ({s.count})
+                </option>
+              ))}
+            </select>
+            <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+        )}
         {/* Source filter */}
         <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 shadow-lg shadow-black/30 backdrop-blur-md">
           {(['all', 'hazard', 'community'] as const).map((s) => (
@@ -157,6 +177,7 @@ export default function MapPage() {
         routes={routes}
         viewMode={viewMode}
         filter={filter}
+        streetFilter={streetFilter}
         vizMode={vizMode}
         onViewModeChange={setViewMode}
         communityPhotos={sourceFilter === 'hazard' ? [] : (communityPhotos ?? []).map(mapPhoto)}

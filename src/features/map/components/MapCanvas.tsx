@@ -159,6 +159,7 @@ export default function MapCanvas({
   routes,
   viewMode,
   filter,
+  streetFilter,
   vizMode = 'markers',
   onViewModeChange,
   communityPhotos,
@@ -169,6 +170,7 @@ export default function MapCanvas({
   routes: RideRoute[]
   viewMode: ViewMode
   filter: Severity | 'All'
+  streetFilter?: string | null
   vizMode?: 'markers' | 'heatmap'
   onViewModeChange: (mode: ViewMode) => void
   communityPhotos?: CommunityPhoto[]
@@ -257,7 +259,8 @@ export default function MapCanvas({
       allPotholes
         .filter(
           (p) =>
-            p.consolidated_latitude != null && p.consolidated_longitude != null,
+            p.consolidated_latitude != null && p.consolidated_longitude != null &&
+            (!streetFilter || p.street === streetFilter),
         )
         .forEach((p) => {
           const color = SEVERITY_COLOR[p.worst_severity]
@@ -365,7 +368,7 @@ export default function MapCanvas({
     } else {
       map.setView([14.5547, 121.0509], 13)
     }
-  }, [allPotholes, routes, viewMode, vizMode])
+  }, [allPotholes, routes, viewMode, vizMode, streetFilter])
 
   // Filter visibility effect — runs only when filter changes (no fitBounds)
   useEffect(() => {
@@ -410,7 +413,8 @@ export default function MapCanvas({
         allPotholes
           .filter(
             (p) =>
-              p.consolidated_latitude != null && p.consolidated_longitude != null,
+              p.consolidated_latitude != null && p.consolidated_longitude != null &&
+              (!streetFilter || p.street === streetFilter),
           )
           .forEach(
             (p) =>
@@ -440,7 +444,7 @@ export default function MapCanvas({
         }).addTo(map)
       }
     }
-  }, [allPotholes, vizMode, showPotholeMarkers, communityPhotos])
+  }, [allPotholes, vizMode, showPotholeMarkers, communityPhotos, streetFilter])
 
   const hasData = (showPotholeMarkers && allPotholes.length > 0) || routes.length > 0 || (communityPhotos && communityPhotos.length > 0)
 

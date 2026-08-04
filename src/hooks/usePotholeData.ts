@@ -68,14 +68,32 @@ function mapRow(row: Record<string, unknown>): Pothole {
 
 export function usePotholeData() {
   const [filter, setFilter] = useState<Severity | 'All'>('All')
+  const [streetFilter, setStreetFilter] = useState<string | null>(null)
   const { data, loading, error, refetch } = useServerData<Record<string, unknown>[]>(QUERY_PARAMS)
 
   const allPotholes = useMemo(() => (data ?? []).map(mapRow), [data])
   const stats = useMemo(() => computeStats(allPotholes), [allPotholes])
 
+  const uniqueStreets = useMemo(() => {
+    const streetSet = new Map<string, number>()
+    for (const p of allPotholes) {
+      if (p.street) {
+        streetSet.set(p.street, (streetSet.get(p.street) ?? 0) + 1)
+      }
+    }
+    return Array.from(streetSet.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([street, count]) => ({ street, count }))
+  }, [allPotholes])
+
   const filtered = useMemo(
-    () => (filter === 'All' ? allPotholes : allPotholes.filter((p) => p.worst_severity === filter)),
-    [filter, allPotholes],
+    () =>
+      allPotholes.filter(
+        (p) =>
+          (filter === 'All' || p.worst_severity === filter) &&
+          (!streetFilter || p.street === streetFilter),
+      ),
+    [filter, streetFilter, allPotholes],
   )
 
   return {
@@ -86,6 +104,9 @@ export function usePotholeData() {
     error,
     filter,
     setFilter,
+    streetFilter,
+    setStreetFilter,
+    uniqueStreets,
     refetch,
   }
 }

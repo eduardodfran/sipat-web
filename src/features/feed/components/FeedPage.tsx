@@ -313,6 +313,7 @@ function TrendingCard({ item }: { item: FeedItem }) {
 
 export default function FeedPage() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'hazard' | 'community'>('all')
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most_detected'>('newest')
   const [view, setView] = useState<'grid' | 'list'>('grid')
 
   const {
@@ -353,9 +354,25 @@ export default function FeedPage() {
       }
     }
 
-    result.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    switch (sortBy) {
+      case 'oldest':
+        result.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+        break
+      case 'most_detected':
+        result.sort((a, b) => {
+          const aHits = a.type === 'hazard' ? a.pothole.total_detection_hits : 0
+          const bHits = b.type === 'hazard' ? b.pothole.total_detection_hits : 0
+          return bHits - aHits
+        })
+        break
+      case 'newest':
+      default:
+        result.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        break
+    }
+
     return result.slice(0, 50)
-  }, [hazards, photos, typeFilter])
+  }, [hazards, photos, typeFilter, sortBy])
 
   // Trending: top 3 by detection hits (hazards only)
   const trending = useMemo(() => {
@@ -399,6 +416,24 @@ export default function FeedPage() {
           <p className="mt-0.5 text-[11px] text-text-muted">Hazard detections and community reports</p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Sort */}
+          <div className="flex items-center gap-0.5 rounded-lg border border-border bg-surface p-0.5">
+            {([
+              { key: 'newest' as const, label: 'New', icon: '↓' },
+              { key: 'oldest' as const, label: 'Old', icon: '↑' },
+              { key: 'most_detected' as const, label: 'Top', icon: '⚡' },
+            ]).map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setSortBy(opt.key)}
+                className={`rounded-md px-2 py-1 text-[10px] font-semibold transition-colors ${
+                  sortBy === opt.key ? 'bg-cyan-accent text-asphalt' : 'text-text-muted hover:text-text-secondary'
+                }`}
+              >
+                {opt.icon} {opt.label}
+              </button>
+            ))}
+          </div>
           {/* View toggle */}
           <div className="flex items-center gap-0.5 rounded-lg border border-border bg-surface p-0.5">
             <button
