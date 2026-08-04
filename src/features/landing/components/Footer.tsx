@@ -8,7 +8,6 @@ const NAV_LINKS = [
 ]
 
 const RESOURCE_LINKS = [
-  { href: 'https://github.com/sipat', label: 'GitHub' },
   { href: '/rides', label: 'Rides' },
 ]
 
