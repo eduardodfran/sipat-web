@@ -15,6 +15,7 @@ export interface Ride {
   error_log: string | null
   created_at: string
   processed_at: string | null
+  detection_count?: number
 }
 
 export const STATUS_LABELS: Record<RideStatus, string> = {
@@ -54,6 +55,26 @@ export function useRides(userId?: string | null) {
 
   if (rides.length === 0 && serverRides.length > 0) {
     setRides(serverRides)
+    // Fetch detection counts for completed rides
+    const completedRides = serverRides.filter((r) => r.status === 'completed')
+    if (completedRides.length > 0) {
+      Promise.all(
+        completedRides.map(async (r) => {
+          const { count } = await supabase
+            .from('raw_detections')
+            .select('id', { count: 'exact', head: true })
+            .eq('ride_id', r.id)
+          return { id: r.id, count: count ?? 0 }
+        })
+      ).then((results) => {
+        setRides((prev) =>
+          prev.map((r) => {
+            const found = results.find((res) => res.id === r.id)
+            return found ? { ...r, detection_count: found.count } : r
+          })
+        )
+      })
+    }
   }
 
   const deleteRide = useCallback(async (id: string) => {
