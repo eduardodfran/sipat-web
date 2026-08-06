@@ -182,7 +182,11 @@ export default function LoginPage() {
 
             {error && (
               <div className="rounded-lg border border-red-hazard/20 bg-red-hazard/5 px-3 py-2">
-                <p className="text-sm text-red-hazard">{error}</p>
+                <p className="text-sm text-red-hazard">
+                  {error.toLowerCase().includes('rate limit')
+                    ? 'Too many attempts. Please wait about an hour and try again, or check your email for a previous verification link.'
+                    : error}
+                </p>
               </div>
             )}
 
