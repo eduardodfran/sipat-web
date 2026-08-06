@@ -81,16 +81,22 @@ export function ReportButton({
         {reported ? 'Reported' : 'Report'}
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface shadow-xl">
+        <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
           {REASONS.map((r) => (
             <button
               key={r.value}
               onClick={() => submit(r.value)}
-              className="block w-full px-3 py-2 text-left text-[12px] text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary first:rounded-t-xl last:rounded-b-xl"
+              className="block w-full px-3 py-2 text-left text-[12px] text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
               {r.label}
             </button>
           ))}
+          <button
+            onClick={() => setOpen(false)}
+            className="block w-full px-3 py-2 text-center text-[12px] text-text-muted transition-colors hover:bg-surface-hover hover:text-text-secondary border-t border-border"
+          >
+            Cancel
+          </button>
         </div>
       )}
     </div>
