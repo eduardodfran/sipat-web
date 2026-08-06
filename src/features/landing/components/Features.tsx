@@ -14,7 +14,7 @@ const FEATURES = [
     description:
       'Real-time pothole locations with severity ratings. Interactive map with clusters, heatmaps, and filtering.',
     capabilities: ['Severity ratings', 'Cluster view', 'Time filtering', 'Heatmap overlay'],
-    href: '/map',
+    href: '/about',
     accentColor: 'bg-cyan-accent',
   },
   {
@@ -27,7 +27,7 @@ const FEATURES = [
     description:
       'AI analyzes your ride video to detect potholes and road damage. Each detection is automatically located on the map and rated by severity.',
     capabilities: ['Records in 5-min chunks', 'Scans every frame for hazards', 'Auto-uploads and processes'],
-    href: '/login',
+    href: '/about',
     accentColor: 'bg-green-safe',
   },
   {
@@ -40,7 +40,7 @@ const FEATURES = [
     description:
       'Citizens submit photos, verify hazards, and track status changes. Crowdsourced road safety for the Philippines.',
     capabilities: ['Photo submissions', 'Verify hazards', 'Track status changes'],
-    href: '/login',
+    href: '/about',
     accentColor: 'bg-amber-warn',
   },
 ]
