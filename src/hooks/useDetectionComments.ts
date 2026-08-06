@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { DetectionComment } from '@/lib/types'
+import { validateComment } from '@/lib/spamDetection'
 
 export function useDetectionComments(potholeId: number | null) {
   const [comments, setComments] = useState<DetectionComment[]>([])
@@ -45,6 +46,9 @@ export function useDetectionComments(potholeId: number | null) {
 
   const postComment = useCallback(async (body: string) => {
     if (potholeId === null || !body.trim()) return null
+
+    const validation = validateComment(body)
+    if (!validation.ok) return null
 
     setPosting(true)
     try {

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { validateComment } from '@/lib/spamDetection'
 
 interface PhotoComment {
   id: string
@@ -52,6 +53,9 @@ export function useCommunityPhotoComments(photoId: number | null) {
 
   const postComment = useCallback(async (body: string) => {
     if (photoId === null || !body.trim()) return null
+
+    const validation = validateComment(body)
+    if (!validation.ok) return null
 
     setPosting(true)
     try {

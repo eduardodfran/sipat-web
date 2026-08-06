@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useDetectionComments } from '@/hooks/useDetectionComments'
 import { useCommunityPhotoComments } from '@/hooks/useCommunityPhotoComments'
 import { useAuth } from '@/contexts/AuthContext'
+import { validateComment, MAX_COMMENT_LENGTH, COMMENT_COOLDOWN_MS } from '@/lib/spamDetection'
 
 interface CommentSectionProps {
   potholeId?: number | null
@@ -46,6 +47,9 @@ export default function CommentSection({ potholeId, photoId, commentCount }: Com
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
+  const [error, setError] = useState('')
+  const [cooldown, setCooldown] = useState(0)
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const potholeComments = useDetectionComments(potholeId ?? null)
   const photoComments = useCommunityPhotoComments(photoId ?? null)
@@ -53,10 +57,33 @@ export default function CommentSection({ potholeId, photoId, commentCount }: Com
   const isPothole = potholeId != null
   const { comments, loading, posting, postComment } = isPothole ? potholeComments : photoComments
 
+  useEffect(() => {
+    if (cooldown <= 0) return
+    cooldownRef.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          if (cooldownRef.current) clearInterval(cooldownRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current) }
+  }, [cooldown > 0])
+
   const handlePost = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || cooldown > 0) return
+    setError('')
+
+    const result = validateComment(input)
+    if (!result.ok) {
+      setError(result.error!)
+      return
+    }
+
     await postComment(input)
     setInput('')
+    setCooldown(COMMENT_COOLDOWN_MS / 1000)
   }
 
   if (commentCount === 0 && !open) {
@@ -103,22 +130,33 @@ export default function CommentSection({ potholeId, photoId, commentCount }: Com
           )}
 
           {user && (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handlePost()}
-                placeholder="Write a comment..."
-                className="flex-1 rounded-lg border border-border bg-surface-raised px-3 py-1.5 text-[12px] text-text-primary placeholder-text-muted outline-none transition-colors focus:border-cyan-accent/50"
-              />
-              <button
-                onClick={handlePost}
-                disabled={posting || !input.trim()}
-                className="rounded-lg bg-cyan-accent px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-cyan-hover disabled:opacity-50"
-              >
-                {posting ? '...' : 'Send'}
-              </button>
+            <div className="space-y-1.5">
+              {error && (
+                <p className="text-[11px] text-red-400">{error}</p>
+              )}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => { setInput(e.target.value); setError('') }}
+                  onKeyDown={(e) => e.key === 'Enter' && handlePost()}
+                  placeholder={cooldown > 0 ? `Wait ${cooldown}s...` : 'Write a comment...'}
+                  maxLength={MAX_COMMENT_LENGTH}
+                  className="flex-1 rounded-lg border border-border bg-surface-raised px-3 py-1.5 text-[12px] text-text-primary placeholder-text-muted outline-none transition-colors focus:border-cyan-accent/50"
+                />
+                <button
+                  onClick={handlePost}
+                  disabled={posting || !input.trim() || cooldown > 0}
+                  className="rounded-lg bg-cyan-accent px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-cyan-hover disabled:opacity-50"
+                >
+                  {posting ? '...' : cooldown > 0 ? `${cooldown}s` : 'Send'}
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <span className={`text-[10px] ${input.length > MAX_COMMENT_LENGTH * 0.9 ? 'text-amber-400' : 'text-text-muted'}`}>
+                  {input.length}/{MAX_COMMENT_LENGTH}
+                </span>
+              </div>
             </div>
           )}
         </div>
