@@ -23,13 +23,13 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-asphalt/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 shrink-0">
           <img
             src={theme === 'dark' ? '/sipat-dark.png' : '/sipat-light.png'}
             alt="Sipat Logo"
             className="h-9 w-auto"
           />
-          <div>
+          <div className="hidden sm:block">
             <h1 className="text-lg font-bold tracking-tight text-text-primary">Sipat</h1>
             <p className="text-[11px] font-medium uppercase tracking-widest text-text-muted">
               Road Hazard Intelligence
@@ -38,7 +38,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-4 md:flex">
+        <nav className="hidden items-center gap-3 lg:flex lg:gap-4">
           {user ? (
             <>
               {NAV_LINKS.map((link) => (
@@ -62,7 +62,7 @@ export function Navbar() {
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                Report Hazard
+                <span className="hidden xl:inline">Report Hazard</span>
               </Link>
 
               <Link
@@ -79,7 +79,7 @@ export function Navbar() {
                 </svg>
               </Link>
 
-              <div className="flex items-center gap-3 border-l border-border pl-4">
+              <div className="flex items-center gap-2 border-l border-border pl-3 lg:gap-3 lg:pl-4">
                 <button
                   onClick={toggle}
                   className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
@@ -95,7 +95,7 @@ export function Navbar() {
                     </svg>
                   )}
                 </button>
-                <Link href="/profile" className="text-xs text-text-muted transition-colors hover:text-text-primary">
+                <Link href="/profile" className="hidden text-xs text-text-muted transition-colors hover:text-text-primary xl:inline">
                   {user.email}
                 </Link>
                 <button
@@ -142,9 +142,9 @@ export function Navbar() {
                 ) : (
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                    </svg>
-                  )}
-                </button>
+                  </svg>
+                )}
+              </button>
 
               <Link
                 href="/login"
@@ -157,7 +157,7 @@ export function Navbar() {
         </nav>
 
         {/* Mobile hamburger + theme toggle */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <button
             onClick={toggle}
             className="rounded-lg p-2.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
@@ -193,7 +193,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="border-t border-border bg-asphalt px-4 py-4 md:hidden">
+        <div className="border-t border-border bg-asphalt px-4 py-4 lg:hidden">
           {user ? (
             <div className="flex flex-col gap-1">
               {NAV_LINKS.map((link) => (
@@ -212,17 +212,6 @@ export function Navbar() {
               ))}
 
               <Link
-                href="/map"
-                onClick={() => setMenuOpen(false)}
-                className="mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-cyan-accent px-3 py-2.5 text-sm font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                Report Hazard
-              </Link>
-
-              <Link
                 href="/search"
                 onClick={() => setMenuOpen(false)}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
@@ -235,6 +224,17 @@ export function Navbar() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 Search
+              </Link>
+
+              <Link
+                href="/map"
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-cyan-accent px-3 py-2.5 text-sm font-semibold text-asphalt transition-colors hover:bg-cyan-hover"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Report Hazard
               </Link>
 
               <div className="mt-3 border-t border-border pt-3">
@@ -276,6 +276,20 @@ export function Navbar() {
                 }`}
               >
                 About
+              </Link>
+              <Link
+                href="/search"
+                onClick={() => setMenuOpen(false)}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  pathname === '/search'
+                    ? 'bg-cyan-dim text-cyan-accent'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                }`}
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                Search
               </Link>
               <Link
                 href="/login"
