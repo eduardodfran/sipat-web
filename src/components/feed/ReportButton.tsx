@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 
-const REASONS = ['Spam', 'Inappropriate content', 'Not a pothole', 'Duplicate', 'Other'] as const
+const REASONS = [
+  { label: 'Spam', value: 'spam' },
+  { label: 'Inappropriate content', value: 'inappropriate' },
+  { label: 'Not a pothole', value: 'not_pothole' },
+  { label: 'Duplicate', value: 'duplicate' },
+  { label: 'Other', value: 'other' },
+] as const
 
 export function ReportButton({
   contentType,
@@ -48,12 +54,12 @@ export function ReportButton({
       })
       setReported(false)
     } else {
-      await supabase.rpc('report_content', {
+      const { error } = await supabase.rpc('report_content', {
         p_content_type: contentType,
         p_content_id: contentId,
         p_reason: reason,
       })
-      setReported(true)
+      if (!error) setReported(true)
     }
     setOpen(false)
   }
@@ -78,11 +84,11 @@ export function ReportButton({
         <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface shadow-xl">
           {REASONS.map((r) => (
             <button
-              key={r}
-              onClick={() => submit(r)}
+              key={r.value}
+              onClick={() => submit(r.value)}
               className="block w-full px-3 py-2 text-left text-[12px] text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary first:rounded-t-xl last:rounded-b-xl"
             >
-              {r}
+              {r.label}
             </button>
           ))}
         </div>
