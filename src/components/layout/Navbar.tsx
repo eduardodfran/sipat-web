@@ -65,6 +65,20 @@ export function Navbar() {
                 Report Hazard
               </Link>
 
+              <Link
+                href="/search"
+                className={`rounded-lg p-2 transition-colors ${
+                  pathname === '/search'
+                    ? 'text-cyan-accent bg-cyan-dim'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                }`}
+                aria-label="Search"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </Link>
+
               <div className="flex items-center gap-3 border-l border-border pl-4">
                 <button
                   onClick={toggle}
@@ -206,6 +220,21 @@ export function Navbar() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 Report Hazard
+              </Link>
+
+              <Link
+                href="/search"
+                onClick={() => setMenuOpen(false)}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  pathname === '/search'
+                    ? 'bg-cyan-dim text-cyan-accent'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                }`}
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                Search
               </Link>
 
               <div className="mt-3 border-t border-border pt-3">
