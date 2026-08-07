@@ -14,10 +14,13 @@ const REASONS = [
 export function ReportButton({
   contentType,
   contentId,
+  user,
 }: {
   contentType: 'photo' | 'pothole'
   contentId: string
+  user?: { email?: string } | null
 }) {
+  if (!user) return null
   const [reported, setReported] = useState(false)
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(true)
