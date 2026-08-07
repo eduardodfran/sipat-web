@@ -111,9 +111,10 @@ type Props = {
   photos: CommunityPhoto[]
   map: L.Map
   onSelect?: (photo: CommunityPhoto) => void
+  user?: { email?: string } | null
 }
 
-export default function CommunityPhotoMarker({ photos, map, onSelect }: Props) {
+export default function CommunityPhotoMarker({ photos, map, onSelect, user }: Props) {
   const groupRef = useRef<L.LayerGroup>(L.layerGroup())
 
   useEffect(() => {

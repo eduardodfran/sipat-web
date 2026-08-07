@@ -177,6 +177,7 @@ export default function MapPage() {
         communityPhotos={sourceFilter === 'hazard' ? [] : (communityPhotos ?? []).map(mapPhoto)}
         showPotholeMarkers={sourceFilter !== 'community'}
         theme={theme}
+        user={user}
       />
 
       {/* Timeline filter drawer */}
