@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useServerData, type ProxyParams } from '@/hooks/useServerData'
 import { Badge } from '@/components/ui/Badge'
+import { GuideCard } from '@/components/ui/GuideCard'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { VoteButtons } from '@/components/feed/VoteButtons'
 import { ReportButton } from '@/components/feed/ReportButton'
@@ -470,6 +471,19 @@ export default function FeedPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* GUIDE */}
+      <div className="mb-5">
+        <GuideCard
+          storageKey="sipat_feed_guide_seen"
+          title="How the Feed Works"
+          steps={[
+            { icon: '👍', label: 'Vote', description: 'Upvote or downvote reports to highlight the most relevant hazards.' },
+            { icon: '🚩', label: 'Report', description: 'Flag spam, inaccurate, or duplicate content to keep the feed clean.' },
+            { icon: '✅', label: 'Verify', description: 'Confirm if a pothole is still present to help prioritize repairs.' },
+          ]}
+        />
       </div>
 
       {loading && allItems.length === 0 ? (

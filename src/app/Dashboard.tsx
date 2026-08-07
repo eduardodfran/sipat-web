@@ -16,6 +16,7 @@ import { SeverityByCity } from '@/features/dashboard/components/SeverityByCity'
 import { TopBarangays } from '@/features/dashboard/components/TopBarangays'
 import { TopStreets } from '@/features/dashboard/components/TopStreets'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { GuideCard } from '@/components/ui/GuideCard'
 import { shortAddress } from '@/lib/address'
 import { supabase } from '@/lib/supabase'
 import type { Pothole } from '@/lib/types'
@@ -164,6 +165,19 @@ export default function Dashboard() {
             Export
           </button>
         </div>
+      </div>
+
+      {/* GUIDE */}
+      <div className="mb-6">
+        <GuideCard
+          storageKey="sipat_dashboard_guide_seen"
+          title="Welcome to SIPAT Dashboard"
+          steps={[
+            { icon: '📹', label: 'Record a Ride', description: 'Use the mobile app to record road footage with GPS tracking.' },
+            { icon: '🗺️', label: 'View the Map', description: 'See detected hazards on the interactive map with severity colors.' },
+            { icon: '📊', label: 'Check Analytics', description: 'Explore severity distribution, timelines, and top hazard areas below.' },
+          ]}
+        />
       </div>
 
       {/* KPI CARDS */}
