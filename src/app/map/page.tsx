@@ -63,10 +63,6 @@ export default function MapPage() {
     if (sourceFilter === 'community') setVizMode('markers')
   }, [sourceFilter])
 
-  useEffect(() => {
-    if (!authLoading && !user) router.push('/login')
-  }, [user, authLoading, router])
-
   if (authLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-asphalt">
@@ -75,20 +71,18 @@ export default function MapPage() {
     )
   }
 
-  if (!user) return null
-
   return (
     <div className="relative h-screen w-full bg-asphalt">
       {/* Back button */}
       <div className="absolute left-4 top-4 z-30">
         <Link
-          href="/dashboard"
+          href={user ? '/dashboard' : '/'}
           className="flex items-center gap-2 rounded-xl border border-border bg-surface/90 px-4 py-2.5 text-sm font-semibold text-text-primary backdrop-blur-md transition-colors hover:bg-surface-hover"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          Dashboard
+          {user ? 'Dashboard' : 'Home'}
         </Link>
       </div>
 
@@ -193,6 +187,21 @@ export default function MapPage() {
           filter={filter}
           onFilterChange={setFilter}
         />
+      )}
+
+      {/* Sign-in prompt for non-auth users */}
+      {!user && (
+        <div className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2">
+          <Link
+            href="/login"
+            className="flex items-center gap-2 rounded-xl border border-cyan-accent/30 bg-surface/95 px-5 py-3 text-sm font-semibold text-text-primary shadow-lg backdrop-blur-md transition-colors hover:bg-surface-hover"
+          >
+            <svg className="h-4 w-4 text-cyan-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            Sign in to vote and report
+          </Link>
+        </div>
       )}
     </div>
   )
