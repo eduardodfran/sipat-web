@@ -129,7 +129,7 @@ export default function CommentSection({ potholeId, photoId, commentCount }: Com
             </div>
           )}
 
-          {user && (
+          {user ? (
             <div className="space-y-1.5">
               {error && (
                 <p className="text-[11px] text-red-400">{error}</p>
@@ -158,6 +158,8 @@ export default function CommentSection({ potholeId, photoId, commentCount }: Com
                 </span>
               </div>
             </div>
+          ) : (
+            <p className="text-[11px] text-text-muted">Sign in to comment</p>
           )}
         </div>
       )}
