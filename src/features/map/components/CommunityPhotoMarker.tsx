@@ -19,7 +19,7 @@ const SEVERITY_COLOR: Record<string, string> = {
   Minor: '#22c55e',
 }
 
-function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInteractions?: boolean): string {
+function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInteractions?: boolean, user?: { email?: string } | null): string {
   const addrLines: string[] = []
   if (p.street) addrLines.push(p.street)
   if (p.barangay) addrLines.push(p.barangay)
@@ -79,22 +79,31 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
 
   // Interactive section
   if (showInteractions) {
-    const verifyCount = comments ? comments.filter((c) => c.body.includes('✅')).length : 0
+    if (!user) {
+      // Sign-in prompt for non-auth users
+      html += `<div style="padding:8px;background:#141420;border-radius:8px;margin-bottom:8px;text-align:center;">`
+      html += `<div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;">Community</div>`
+      html += `<p style="font-size:11px;color:#a1a1aa;margin-bottom:6px;">Sign in to vote, comment, and verify</p>`
+      html += `<a href="/login" style="display:inline-block;padding:4px 12px;border-radius:4px;background:rgba(6,182,212,0.15);color:#06b6d4;font-size:10px;font-weight:600;text-decoration:none;">Sign in →</a>`
+      html += `</div>`
+    } else {
+      const verifyCount = comments ? comments.filter((c) => c.body.includes('✅')).length : 0
 
-    // Verify + comment input in one row
-    html += `<div style="display:flex;gap:4px;margin-bottom:6px;align-items:center;">`
-    html += `<button id="photo-verify-stillhere-${pid}" style="padding:4px 6px;border-radius:4px;border:1px solid rgba(34,197,94,0.2);background:rgba(34,197,94,0.05);color:#22c55e;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;">✓ Here</button>`
-    html += `<button id="photo-verify-fixed-${pid}" style="padding:4px 6px;border-radius:4px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);color:#ef4444;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;">✗ Fixed</button>`
-    html += `<input id="photo-comment-input-${pid}" type="text" placeholder="Comment..." style="flex:1;padding:4px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.06);background:#0c0c14;color:#e4e4e7;font-size:11px;outline:none;min-width:0;" />`
-    html += `<button id="photo-comment-send-${pid}" style="padding:4px 8px;border-radius:4px;background:rgba(230,168,23,0.15);color:#e6a817;font-size:10px;font-weight:700;border:none;cursor:pointer;">Send</button>`
-    html += `</div>`
+      // Verify + comment input in one row
+      html += `<div style="display:flex;gap:4px;margin-bottom:6px;align-items:center;">`
+      html += `<button id="photo-verify-stillhere-${pid}" style="padding:4px 6px;border-radius:4px;border:1px solid rgba(34,197,94,0.2);background:rgba(34,197,94,0.05);color:#22c55e;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;">✓ Here</button>`
+      html += `<button id="photo-verify-fixed-${pid}" style="padding:4px 6px;border-radius:4px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);color:#ef4444;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;">✗ Fixed</button>`
+      html += `<input id="photo-comment-input-${pid}" type="text" placeholder="Comment..." style="flex:1;padding:4px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.06);background:#0c0c14;color:#e4e4e7;font-size:11px;outline:none;min-width:0;" />`
+      html += `<button id="photo-comment-send-${pid}" style="padding:4px 8px;border-radius:4px;background:rgba(230,168,23,0.15);color:#e6a817;font-size:10px;font-weight:700;border:none;cursor:pointer;">Send</button>`
+      html += `</div>`
 
-    if (verifyCount > 0) {
-      html += `<div style="font-size:9px;color:#71717a;text-align:center;margin-bottom:6px;">${verifyCount} verification${verifyCount !== 1 ? 's' : ''}</div>`
+      if (verifyCount > 0) {
+        html += `<div style="font-size:9px;color:#71717a;text-align:center;margin-bottom:6px;">${verifyCount} verification${verifyCount !== 1 ? 's' : ''}</div>`
+      }
+
+      // Vote + Report
+      html += buildVoteReportHtml('photo', pid)
     }
-
-    // Vote + Report
-    html += buildVoteReportHtml('photo', pid)
   }
 
   // Footer — inline
@@ -138,7 +147,7 @@ export default function CommunityPhotoMarker({ photos, map, onSelect, user }: Pr
       })
 
       const marker = L.marker([p.latitude, p.longitude], { icon })
-      marker.bindPopup(popupHtml(p), { maxWidth: 300, className: 'community-photo-popup' })
+      marker.bindPopup(popupHtml(p, undefined, false, user), { maxWidth: 300, className: 'community-photo-popup' })
       marker.on('click', () => onSelect?.(p))
 
       marker.on('popupopen', () => {
@@ -153,7 +162,7 @@ export default function CommunityPhotoMarker({ photos, map, onSelect, user }: Pr
             p_photo_id: pid,
           })
           const comments = (commentsData ?? []) as DetectionComment[]
-          const html = popupHtml(p, comments, true)
+          const html = popupHtml(p, comments, true, user)
           myPopup.setContent(html)
 
           setTimeout(() => {
