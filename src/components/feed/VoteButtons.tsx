@@ -12,9 +12,11 @@ interface VoteState {
 export function VoteButtons({
   contentType,
   contentId,
+  user,
 }: {
   contentType: 'photo' | 'pothole'
   contentId: string
+  user?: { email?: string } | null
 }) {
   const [votes, setVotes] = useState<VoteState>({ upvotes: 0, downvotes: 0, userVote: 0 })
   const [loading, setLoading] = useState(true)
@@ -60,6 +62,21 @@ export function VoteButtons({
   )
 
   const score = votes.upvotes - votes.downvotes
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <svg className="h-4 w-4 text-text-muted/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+        </svg>
+        <span className="min-w-[1.5rem] text-center text-xs font-semibold text-text-muted">{score}</span>
+        <svg className="h-4 w-4 text-text-muted/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+        <a href="/login" className="ml-1 text-[10px] font-medium text-cyan-accent hover:underline">Sign in to vote</a>
+      </div>
+    )
+  }
 
   return (
     <div className="flex items-center gap-1">
