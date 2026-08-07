@@ -6,9 +6,10 @@ import { supabase } from '@/lib/supabase'
 interface VerifyButtonsProps {
   potholeId?: number | null
   photoId?: number | null
+  user?: { email?: string } | null
 }
 
-export default function VerifyButtons({ potholeId, photoId }: VerifyButtonsProps) {
+export default function VerifyButtons({ potholeId, photoId, user }: VerifyButtonsProps) {
   const [stillHereCount, setStillHereCount] = useState(0)
   const [fixedCount, setFixedCount] = useState(0)
   const [posting, setPosting] = useState<string | null>(null)
@@ -17,6 +18,12 @@ export default function VerifyButtons({ potholeId, photoId }: VerifyButtonsProps
   const rpcGet = isPothole ? 'get_detection_comments' : 'get_community_photo_comments'
   const rpcPost = isPothole ? 'create_detection_comment' : 'create_community_photo_comment'
   const idParam = isPothole ? { p_pothole_id: potholeId } : { p_photo_id: photoId }
+
+  if (!user) {
+    return (
+      <p className="text-[11px] text-text-muted">Sign in to verify this hazard</p>
+    )
+  }
 
   const fetchCounts = useCallback(async () => {
     const { data } = await supabase.rpc(rpcGet, idParam)
