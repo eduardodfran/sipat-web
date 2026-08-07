@@ -11,6 +11,7 @@ import { ReportButton } from '@/components/feed/ReportButton'
 import CommentSection from '@/components/feed/CommentSection'
 import VerifyButtons from '@/components/feed/VerifyButtons'
 import { shortAddress } from '@/lib/address'
+import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import type { Pothole, Severity } from '@/lib/types'
 import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
@@ -243,6 +244,7 @@ function PageHeader({ title, theme, toggle }: { title: string; theme: string; to
 
 function PotholeView({ id }: { id: string }) {
   const { theme, toggle } = useTheme()
+  const { user } = useAuth()
   const params: ProxyParams = {
     table: 'v_unified_potholes',
     columns: '*',
@@ -365,14 +367,14 @@ function PotholeView({ id }: { id: string }) {
             {/* Verification */}
             <div className="rounded-2xl border border-border bg-surface p-5 border-l-[3px] border-l-cyan-accent/40">
               <SectionTag>Verification</SectionTag>
-              <VerifyButtons potholeId={pothole.pothole_id} />
+              <VerifyButtons potholeId={pothole.pothole_id} user={user} />
             </div>
 
             {/* Action bar */}
             <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-3">
-              <VoteButtons contentType="pothole" contentId={String(pothole.pothole_id)} />
+              <VoteButtons contentType="pothole" contentId={String(pothole.pothole_id)} user={user} />
               <div className="h-5 w-px bg-border" />
-              <ReportButton contentType="pothole" contentId={String(pothole.pothole_id)} />
+              <ReportButton contentType="pothole" contentId={String(pothole.pothole_id)} user={user} />
             </div>
 
             {/* Comments */}
@@ -391,6 +393,7 @@ function PotholeView({ id }: { id: string }) {
 
 function PhotoView({ id }: { id: string }) {
   const { theme, toggle } = useTheme()
+  const { user } = useAuth()
   const params: ProxyParams = {
     table: 'community_photos',
     columns: '*',
@@ -479,14 +482,14 @@ function PhotoView({ id }: { id: string }) {
             {/* Verification */}
             <div className="rounded-2xl border border-border bg-surface p-5 border-l-[3px] border-l-cyan-accent/40">
               <SectionTag>Verification</SectionTag>
-              <VerifyButtons photoId={photo.id} />
+              <VerifyButtons photoId={photo.id} user={user} />
             </div>
 
             {/* Action bar */}
             <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-3">
-              <VoteButtons contentType="photo" contentId={String(photo.id)} />
+              <VoteButtons contentType="photo" contentId={String(photo.id)} user={user} />
               <div className="h-5 w-px bg-border" />
-              <ReportButton contentType="photo" contentId={String(photo.id)} />
+              <ReportButton contentType="photo" contentId={String(photo.id)} user={user} />
             </div>
 
             {/* Comments */}
