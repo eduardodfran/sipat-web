@@ -7,28 +7,13 @@ import HazardSidebar from '@/features/map/components/HazardSidebar'
 import { SeverityDonutChart } from '@/features/dashboard/components/SeverityDonutChart'
 import { DetectionsTimeline } from '@/features/dashboard/components/DetectionsTimeline'
 import { TopHazardsList } from '@/features/dashboard/components/TopHazardsList'
-import { DetectionSourceDonut } from '@/features/dashboard/components/DetectionSourceDonut'
-import { WorstRoadsChart } from '@/features/dashboard/components/WorstRoadsChart'
 import { TimeOfDayArc } from '@/features/dashboard/components/TimeOfDayArc'
-import { HazardsByCity } from '@/features/dashboard/components/HazardsByCity'
-import { HazardsByProvince } from '@/features/dashboard/components/HazardsByProvince'
-import { SeverityByCity } from '@/features/dashboard/components/SeverityByCity'
-import { TopBarangays } from '@/features/dashboard/components/TopBarangays'
-import { TopStreets } from '@/features/dashboard/components/TopStreets'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { GuideCard } from '@/components/ui/GuideCard'
 import { shortAddress } from '@/lib/address'
 import { supabase } from '@/lib/supabase'
 import type { Pothole } from '@/lib/types'
 import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
-
-function getSafetyGrade(hazardCount: number): { grade: string; color: string; description: string } {
-  if (hazardCount === 0) return { grade: 'A', color: 'text-green-400', description: 'No hazards' }
-  if (hazardCount <= 2) return { grade: 'B', color: 'text-green-400', description: 'Low risk' }
-  if (hazardCount <= 5) return { grade: 'C', color: 'text-amber-400', description: 'Moderate' }
-  if (hazardCount <= 10) return { grade: 'D', color: 'text-amber-500', description: 'High risk' }
-  return { grade: 'F', color: 'text-red-400', description: 'Critical' }
-}
 
 function HazardRow({ pothole, onSelect }: { pothole: Pothole; onSelect: (p: Pothole) => void }) {
   const severityColors: Record<string, { dot: string; text: string; border: string }> = {
@@ -139,8 +124,6 @@ export default function Dashboard() {
     moderate: filteredHazards.filter(p => p.worst_severity === 'Moderate').length,
     minor: filteredHazards.filter(p => p.worst_severity === 'Minor').length,
   }
-
-  const safety = getSafetyGrade(stats.totalPotholes)
 
   return (
     <div className="min-h-[calc(100vh-4rem)] px-6 pb-6 pt-6">
@@ -289,9 +272,29 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Detection Sources */}
-          <div className="rounded-xl border border-border bg-surface">
-            <DetectionSourceDonut potholes={allPotholes} />
+          {/* Detection sources (inline stats) */}
+          <div className="rounded-xl border border-border bg-surface p-5">
+            <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Detection Methods</p>
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-cyan-accent" />
+                  <span className="text-xs text-text-secondary">ML Detection</span>
+                </div>
+                <span className="text-xs font-bold text-text-primary">
+                  {allPotholes.filter(p => p.detectors_count > 0).length} of {allPotholes.length}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-amber-warn" />
+                  <span className="text-xs text-text-secondary">Citizen Report</span>
+                </div>
+                <span className="text-xs font-bold text-text-primary">
+                  {allPotholes.filter(p => p.reporter_username !== null).length} of {allPotholes.length}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -308,40 +311,13 @@ export default function Dashboard() {
               <TopHazardsList potholes={allPotholes} />
             </div>
           </div>
-          <div className="rounded-xl border border-border bg-surface">
-            <WorstRoadsChart potholes={allPotholes} />
-          </div>
         </div>
 
-        {/* RIGHT: Time of Day + Safety + Quick Links */}
+        {/* RIGHT: Time of Day + Quick Actions */}
         <div className="space-y-6 lg:col-span-4">
           <div className="rounded-xl border border-border bg-surface">
             <TimeOfDayArc potholes={allPotholes} />
           </div>
-          <div className="rounded-xl border border-border bg-surface p-5">
-            <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Road Safety</p>
-            <div className="mt-3 flex items-center gap-4">
-              <span className={`text-4xl font-black ${safety.color}`}>{safety.grade}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-text-primary">{safety.description}</p>
-                <p className="text-xs text-text-muted">
-                  {stats.totalPotholes} hazard{stats.totalPotholes !== 1 ? 's' : ''} detected
-                </p>
-              </div>
-            </div>
-            {stats.totalPotholes > 0 && (
-              <Link
-                href="/map"
-                className="mt-3 flex items-center gap-1.5 text-xs font-medium text-cyan-accent hover:text-cyan-hover"
-              >
-                View on map
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-            )}
-          </div>
-
           {/* Quick links */}
           <div className="rounded-xl border border-border bg-surface p-5">
             <p className="mb-4 text-base font-bold uppercase tracking-widest text-text-muted">Quick Actions</p>
@@ -364,43 +340,6 @@ export default function Dashboard() {
                 </svg>
                 Ride History
               </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ADDRESS ANALYTICS SECTION */}
-      <div className="mt-8">
-        <div className="mb-5 flex items-center gap-2">
-          <div className="h-px flex-1 bg-border" />
-          <p className="text-base font-bold uppercase tracking-widest text-text-muted">Address Analytics</p>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          {/* Left: City bar + Severity by City */}
-          <div className="space-y-6 lg:col-span-4">
-            <div className="rounded-xl border border-border bg-surface">
-              <HazardsByCity potholes={allPotholes} />
-            </div>
-            <div className="rounded-xl border border-border bg-surface">
-              <SeverityByCity potholes={allPotholes} />
-            </div>
-          </div>
-
-          {/* Center: Province donut + Top Barangays */}
-          <div className="space-y-6 lg:col-span-4">
-            <div className="rounded-xl border border-border bg-surface">
-              <HazardsByProvince potholes={allPotholes} />
-            </div>
-            <div className="rounded-xl border border-border bg-surface">
-              <TopBarangays potholes={allPotholes} />
-            </div>
-          </div>
-
-          {/* Right: Top Streets */}
-          <div className="space-y-6 lg:col-span-4">
-            <div className="rounded-xl border border-border bg-surface">
-              <TopStreets potholes={allPotholes} />
             </div>
           </div>
         </div>
