@@ -1,4 +1,4 @@
-export type DetectionStatus = 'pending' | 'processed' | 'no_detection'
+export type DetectionStatus = 'pending' | 'processed' | 'no_detection' | 'manually_tagged'
 
 export interface CommunityPhoto {
   id: number

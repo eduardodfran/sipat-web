@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,6 +11,7 @@ import { ReportButton } from '@/components/feed/ReportButton'
 import CommentSection from '@/components/feed/CommentSection'
 import VerifyButtons from '@/components/feed/VerifyButtons'
 import { shortAddress } from '@/lib/address'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import type { Pothole, Severity } from '@/lib/types'
@@ -394,6 +395,8 @@ function PotholeView({ id }: { id: string }) {
 function PhotoView({ id }: { id: string }) {
   const { theme, toggle } = useTheme()
   const { user } = useAuth()
+  const [localStatus, setLocalStatus] = useState<string | null>(null)
+  const [tagging, setTagging] = useState(false)
   const params: ProxyParams = {
     table: 'community_photos',
     columns: '*',
@@ -402,6 +405,20 @@ function PhotoView({ id }: { id: string }) {
   }
   const { data, loading, error } = useServerData<Record<string, unknown>[]>(params)
   const photo = data?.[0] ? (data[0] as unknown as CommunityPhoto) : null
+
+  const handleTag = useCallback(async () => {
+    if (!photo || tagging) return
+    setTagging(true)
+    try {
+      const { error } = await supabase
+        .from('community_photos')
+        .update({ detection_status: 'manually_tagged', class_name: 'manually_tagged', confidence: 1.0 })
+        .eq('id', photo.id)
+      if (!error) setLocalStatus('manually_tagged')
+    } finally {
+      setTagging(false)
+    }
+  }, [photo, tagging])
 
   if (loading) {
     return (
@@ -450,22 +467,35 @@ function PhotoView({ id }: { id: string }) {
             </Link>
 
             {/* Detection + severity */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide ${
-                photo.detection_status === 'processed' ? 'bg-green-safe/15 text-green-safe ring-1 ring-green-safe/30'
-                  : photo.detection_status === 'pending' ? 'bg-amber-warn/15 text-amber-warn ring-1 ring-amber-warn/30'
-                    : 'bg-surface-raised text-text-muted ring-1 ring-border'
+                (localStatus ?? photo.detection_status) === 'processed' || (localStatus ?? photo.detection_status) === 'manually_tagged'
+                  ? 'bg-green-safe/15 text-green-safe ring-1 ring-green-safe/30'
+                  : (localStatus ?? photo.detection_status) === 'pending'
+                    ? 'bg-amber-warn/15 text-amber-warn ring-1 ring-amber-warn/30'
+                      : 'bg-surface-raised text-text-muted ring-1 ring-border'
               }`}>
-                {photo.detection_status === 'processed' ? 'Detected' : photo.detection_status === 'pending' ? 'Analyzing...' : 'No Detection'}
+                {(localStatus ?? photo.detection_status) === 'processed' ? 'Detected'
+                  : (localStatus ?? photo.detection_status) === 'manually_tagged' ? 'Tagged by User'
+                  : (localStatus ?? photo.detection_status) === 'pending' ? 'Analyzing...' : 'No Detection'}
               </span>
               {severity && <Badge severity={severity} size="md" />}
+              {(localStatus ?? photo.detection_status) === 'no_detection' && user && (
+                <button
+                  onClick={handleTag}
+                  disabled={tagging}
+                  className="flex items-center gap-1.5 rounded-xl bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400 ring-1 ring-amber-500/20 transition-colors hover:bg-amber-500/20 disabled:opacity-50"
+                >
+                  {tagging ? 'Tagging...' : '⚠ This is a pothole'}
+                </button>
+              )}
             </div>
 
-            {photo.detection_status === 'processed' && photo.class_name && (
+            {((localStatus ?? photo.detection_status) === 'processed' || (localStatus ?? photo.detection_status) === 'manually_tagged') && photo.class_name && (
               <div className="rounded-2xl border border-border bg-surface px-4 py-3">
                 <p className="text-sm text-text-secondary">
-                  <span className="font-bold text-text-primary">{photo.class_name}</span>
-                  {photo.confidence != null && <span className="ml-1 text-cyan-accent">{(photo.confidence * 100).toFixed(0)}% confidence</span>}
+                  <span className="font-bold text-text-primary">{(localStatus ?? photo.detection_status) === 'manually_tagged' ? 'Manually Tagged' : photo.class_name}</span>
+                  {photo.confidence != null && (localStatus ?? photo.detection_status) !== 'manually_tagged' && <span className="ml-1 text-cyan-accent">{(photo.confidence * 100).toFixed(0)}% confidence</span>}
                 </p>
               </div>
             )}

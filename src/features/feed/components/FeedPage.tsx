@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useServerData, type ProxyParams } from '@/hooks/useServerData'
@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { VoteButtons } from '@/components/feed/VoteButtons'
 import { ReportButton } from '@/components/feed/ReportButton'
 import { shortAddress } from '@/lib/address'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Pothole, Severity } from '@/lib/types'
 import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
 
@@ -187,8 +189,25 @@ function CompactHazardCard({ pothole, timestamp }: { pothole: Pothole; timestamp
   )
 }
 
-function CompactCommunityCard({ photo, timestamp }: { photo: CommunityPhoto; timestamp: string }) {
+function CompactCommunityCard({ photo, timestamp, userId }: { photo: CommunityPhoto; timestamp: string; userId?: string }) {
+  const [localStatus, setLocalStatus] = useState(photo.detection_status)
+  const [tagging, setTagging] = useState(false)
   const severity = (photo.worst_severity as Severity) ?? undefined
+
+  const handleTag = useCallback(async () => {
+    if (tagging) return
+    setTagging(true)
+    try {
+      const { error } = await supabase
+        .from('community_photos')
+        .update({ detection_status: 'manually_tagged', class_name: 'manually_tagged', confidence: 1.0 })
+        .eq('id', photo.id)
+      if (!error) setLocalStatus('manually_tagged')
+    } finally {
+      setTagging(false)
+    }
+  }, [photo.id, tagging])
+
   return (
     <Link
       href={`/feed/photo/${photo.id}`}
@@ -206,13 +225,13 @@ function CompactCommunityCard({ photo, timestamp }: { photo: CommunityPhoto; tim
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
           <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold backdrop-blur-sm ${
-            photo.detection_status === 'processed'
+            localStatus === 'processed' || localStatus === 'manually_tagged'
               ? 'bg-green-500/30 text-green-300'
-              : photo.detection_status === 'pending'
+              : localStatus === 'pending'
                 ? 'bg-amber-500/30 text-amber-300'
                 : 'bg-gray-500/30 text-gray-300'
           }`}>
-            {photo.detection_status === 'processed' ? 'Detected' : photo.detection_status === 'pending' ? 'Analyzing' : 'Clear'}
+            {localStatus === 'processed' ? 'Detected' : localStatus === 'manually_tagged' ? 'Tagged' : localStatus === 'pending' ? 'Analyzing' : 'Clear'}
           </span>
           {severity && <Badge severity={severity} size="sm" />}
         </div>
@@ -229,10 +248,21 @@ function CompactCommunityCard({ photo, timestamp }: { photo: CommunityPhoto; tim
         </div>
 
         {/* Detection detail */}
-        {photo.detection_status === 'processed' && photo.class_name && (
+        {(localStatus === 'processed' || localStatus === 'manually_tagged') && photo.class_name && (
           <p className="mt-1 truncate text-[10px] text-text-muted">
-            {photo.class_name}{photo.confidence != null ? ` · ${(photo.confidence * 100).toFixed(0)}%` : ''}
+            {localStatus === 'manually_tagged' ? 'Manually tagged' : photo.class_name}{photo.confidence != null ? ` · ${(photo.confidence * 100).toFixed(0)}%` : ''}
           </p>
+        )}
+
+        {/* Tag as Pothole button */}
+        {localStatus === 'no_detection' && userId && (
+          <button
+            onClick={(e) => { e.preventDefault(); handleTag() }}
+            disabled={tagging}
+            className="mt-1.5 flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-1 text-[9px] font-semibold text-amber-400 border border-amber-500/20 transition-colors hover:bg-amber-500/20 disabled:opacity-50"
+          >
+            {tagging ? 'Tagging...' : '⚠ This is a pothole'}
+          </button>
         )}
 
         {/* Bottom row: votes */}
@@ -297,11 +327,11 @@ function TrendingCard({ item }: { item: FeedItem }) {
       <div className="absolute bottom-0 left-0 right-0 p-3">
         <div className="flex items-center gap-1.5 mb-1.5">
           <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold backdrop-blur-sm ${
-            photo.detection_status === 'processed' ? 'bg-green-500/30 text-green-300'
+            photo.detection_status === 'processed' || photo.detection_status === 'manually_tagged' ? 'bg-green-500/30 text-green-300'
               : photo.detection_status === 'pending' ? 'bg-amber-500/30 text-amber-300'
                 : 'bg-gray-500/30 text-gray-300'
           }`}>
-            {photo.detection_status === 'processed' ? 'Detected' : photo.detection_status === 'pending' ? 'Analyzing' : 'Clear'}
+            {photo.detection_status === 'processed' ? 'Detected' : photo.detection_status === 'manually_tagged' ? 'Tagged' : photo.detection_status === 'pending' ? 'Analyzing' : 'Clear'}
           </span>
         </div>
         <p className="text-[10px] text-white/50">{photo.reporter_username ?? 'Anonymous'} · {formatTime(item.timestamp)}</p>
@@ -313,6 +343,7 @@ function TrendingCard({ item }: { item: FeedItem }) {
 /* ─── main page ─── */
 
 export default function FeedPage() {
+  const { user } = useAuth()
   const [typeFilter, setTypeFilter] = useState<'all' | 'hazard' | 'community'>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most_detected'>('newest')
   const [view, setView] = useState<'grid' | 'list'>('grid')
@@ -534,7 +565,7 @@ export default function FeedPage() {
                       item.type === 'hazard' ? (
                         <CompactHazardCard key={item.id} pothole={item.pothole} timestamp={item.timestamp} />
                       ) : (
-                        <CompactCommunityCard key={item.id} photo={item.photo} timestamp={item.timestamp} />
+                        <CompactCommunityCard key={item.id} photo={item.photo} timestamp={item.timestamp} userId={user?.id} />
                       ),
                     )}
                   </div>
@@ -547,7 +578,7 @@ export default function FeedPage() {
                 item.type === 'hazard' ? (
                   <CompactHazardCard key={item.id} pothole={item.pothole} timestamp={item.timestamp} />
                 ) : (
-                  <CompactCommunityCard key={item.id} photo={item.photo} timestamp={item.timestamp} />
+                  <CompactCommunityCard key={item.id} photo={item.photo} timestamp={item.timestamp} userId={user?.id} />
                 ),
               )}
             </div>

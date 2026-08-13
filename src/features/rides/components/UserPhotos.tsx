@@ -9,6 +9,7 @@ const STATUS_CONFIG: Record<DetectionStatus, { label: string; color: string }> =
   processed: { label: 'Processed', color: 'bg-green-500/15 text-green-400 ring-1 ring-green-500/30' },
   pending: { label: 'Pending', color: 'bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30' },
   no_detection: { label: 'No Detection', color: 'bg-gray-500/15 text-gray-400 ring-1 ring-gray-500/30' },
+  manually_tagged: { label: 'Tagged', color: 'bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/30' },
 }
 
 function PhotoCard({ photo }: { photo: CommunityPhoto }) {
