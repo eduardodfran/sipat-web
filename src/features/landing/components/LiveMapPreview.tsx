@@ -48,9 +48,7 @@ function MapInner({ potholes, theme }: { potholes: { consolidated_latitude: numb
         closePopupOnClick: false,
       })
 
-      const tileUrl = theme === 'dark'
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+      const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
       const tile = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map)
       mapRef.current = map
@@ -69,9 +67,7 @@ function MapInner({ potholes, theme }: { potholes: { consolidated_latitude: numb
         })
     } else {
       // Theme changed — swap tile layer
-      const tileUrl = theme === 'dark'
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+      const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
       if (tileRef.current) {
         mapRef.current.removeLayer(tileRef.current)

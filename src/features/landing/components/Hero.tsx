@@ -53,7 +53,7 @@ export function Hero() {
                 </Link>
               </div>
               <a
-                href="https://expo.dev/accounts/eduardofran/projects/SipatApp/builds/865c880b-07aa-4423-8439-e40f63898e06"
+                href="https://expo.dev/accounts/eduardofran/projects/SipatApp/builds/5c72bfac-4261-4984-930e-5653529ac499"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 flex items-center gap-1.5 text-xs text-text-muted transition-colors hover:text-cyan-accent"

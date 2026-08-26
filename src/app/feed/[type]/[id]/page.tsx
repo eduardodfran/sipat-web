@@ -100,7 +100,7 @@ function ImageZoom({ src, alt }: { src: string; alt: string }) {
 function MiniMap({ lat, lng }: { lat: number; lng: number }) {
   const x = Math.floor(((lng + 180) / 360) * (1 << 15))
   const y = Math.floor((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2 * (1 << 15))
-  const tileUrl = `https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/15/${x}/${y}.png`
+  const tileUrl = `https://tile.openstreetmap.org/15/${x}/${y}.png`
 
   return (
     <a
