@@ -74,12 +74,12 @@ export default function MapPage() {
   return (
     <div className="relative h-screen w-full bg-asphalt">
       {/* Back button */}
-      <div className="absolute left-4 top-4 z-30">
+      <div className="absolute left-3 top-3 z-30 sm:left-4 sm:top-4">
         <Link
           href={user ? '/dashboard' : '/'}
-          className="flex items-center gap-2 rounded-xl border border-border bg-surface/90 px-4 py-2.5 text-sm font-semibold text-text-primary backdrop-blur-md transition-colors hover:bg-surface-hover"
+          className="flex items-center gap-1.5 rounded-xl border border-border bg-surface/90 px-3 py-2 text-xs font-semibold text-text-primary backdrop-blur-md transition-colors hover:bg-surface-hover sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
           {user ? 'Dashboard' : 'Home'}
@@ -87,19 +87,19 @@ export default function MapPage() {
       </div>
 
       {/* Top-right controls */}
-      <div className="absolute right-4 top-4 z-30 flex gap-2">
+      <div className="absolute right-4 top-4 z-30 flex flex-wrap justify-end gap-1.5 sm:gap-2">
         {/* Theme toggle */}
         <button
           onClick={toggle}
-          className="flex items-center justify-center rounded-lg border border-border bg-surface/90 p-1.5 text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary"
+          className="flex items-center justify-center rounded-lg border border-border bg-surface/90 p-1 text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary sm:p-1.5"
           aria-label="Toggle theme"
         >
           {theme === 'dark' ? (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
             </svg>
           ) : (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
             </svg>
           )}
@@ -110,7 +110,7 @@ export default function MapPage() {
             <select
               value={streetFilter ?? ''}
               onChange={(e) => setStreetFilter(e.target.value || null)}
-              className="appearance-none rounded-lg border border-border bg-surface/90 px-3 py-1.5 pr-7 text-xs font-semibold text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary cursor-pointer"
+              className="appearance-none rounded-lg border border-border bg-surface/90 px-2 py-1 pr-6 text-[10px] font-semibold text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary cursor-pointer sm:px-3 sm:py-1.5 sm:pr-7 sm:text-xs"
             >
               <option value="">All Streets</option>
               {uniqueStreets.map((s) => (
@@ -130,7 +130,7 @@ export default function MapPage() {
             <button
               key={s}
               onClick={() => setSourceFilter(s)}
-              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`px-2 py-1 text-[10px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${
                 sourceFilter === s
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
                   : 'text-text-muted hover:text-text-primary'
@@ -144,7 +144,7 @@ export default function MapPage() {
         <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 shadow-lg shadow-black/30 backdrop-blur-md">
             <button
               onClick={() => setVizMode('markers')}
-              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`px-2 py-1 text-[10px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${
                 vizMode === 'markers'
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
                   : 'text-text-muted hover:text-text-primary'
@@ -154,7 +154,7 @@ export default function MapPage() {
             </button>
             <button
               onClick={() => setVizMode('heatmap')}
-              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`px-2 py-1 text-[10px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${
                 vizMode === 'heatmap'
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
                   : 'text-text-muted hover:text-text-primary'
