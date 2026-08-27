@@ -73,78 +73,111 @@ export default function MapPage() {
 
   return (
     <div className="relative h-screen w-full bg-asphalt">
-      {/* Back button */}
-      <div className="absolute left-3 top-3 z-30 sm:left-4 sm:top-4">
+      {/* Top bar */}
+      <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-2 p-2 sm:p-3">
+        {/* Back button */}
         <Link
           href={user ? '/dashboard' : '/'}
-          className="flex items-center gap-1.5 rounded-xl border border-border bg-surface/90 px-3 py-2 text-xs font-semibold text-text-primary backdrop-blur-md transition-colors hover:bg-surface-hover sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+          className="flex shrink-0 items-center gap-1.5 rounded-xl border border-border bg-surface/90 px-3 py-2 text-xs font-semibold text-text-primary backdrop-blur-md transition-colors hover:bg-surface-hover sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
         >
           <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          {user ? 'Dashboard' : 'Home'}
+          <span className="hidden sm:inline">{user ? 'Dashboard' : 'Home'}</span>
         </Link>
-      </div>
 
-      {/* Top-right controls */}
-      <div className="absolute right-4 top-4 z-30 flex flex-wrap justify-end gap-1.5 sm:gap-2">
-        {/* Theme toggle */}
-        <button
-          onClick={toggle}
-          className="flex items-center justify-center rounded-lg border border-border bg-surface/90 p-1 text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary sm:p-1.5"
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? (
-            <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-            </svg>
-          ) : (
-            <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-            </svg>
+        {/* Right controls */}
+        <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+          {/* Theme toggle */}
+          <button
+            onClick={toggle}
+            className="flex items-center justify-center rounded-lg border border-border bg-surface/90 p-1.5 text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? (
+              <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+              </svg>
+            ) : (
+              <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+              </svg>
+            )}
+          </button>
+          {/* Street filter - desktop dropdown, mobile icon */}
+          {uniqueStreets.length > 0 && (
+            <>
+              <div className="relative hidden sm:block">
+                <select
+                  value={streetFilter ?? ''}
+                  onChange={(e) => setStreetFilter(e.target.value || null)}
+                  className="appearance-none rounded-lg border border-border bg-surface/90 px-3 py-1.5 pr-7 text-xs font-semibold text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary cursor-pointer"
+                >
+                  <option value="">All Streets</option>
+                  {uniqueStreets.map((s) => (
+                    <option key={s.street} value={s.street}>
+                      {s.street} ({s.count})
+                    </option>
+                  ))}
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </div>
+              <div className="relative sm:hidden">
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('mobile-street-select')
+                    el?.classList.toggle('hidden')
+                  }}
+                  className="flex items-center justify-center rounded-lg border border-border bg-surface/90 p-1.5 text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  aria-label="Filter by street"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                  </svg>
+                </button>
+                <div id="mobile-street-select" className="hidden absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-lg border border-border bg-surface shadow-lg">
+                  <button
+                    onClick={() => { setStreetFilter(null); document.getElementById('mobile-street-select')?.classList.add('hidden') }}
+                    className={`w-full px-3 py-2 text-left text-xs font-semibold ${!streetFilter ? 'bg-cyan-dim text-cyan-accent' : 'text-text-muted hover:bg-surface-hover'}`}
+                  >
+                    All Streets
+                  </button>
+                  {uniqueStreets.map((s) => (
+                    <button
+                      key={s.street}
+                      onClick={() => { setStreetFilter(s.street); document.getElementById('mobile-street-select')?.classList.add('hidden') }}
+                      className={`w-full px-3 py-2 text-left text-xs font-semibold border-t border-border ${streetFilter === s.street ? 'bg-cyan-dim text-cyan-accent' : 'text-text-muted hover:bg-surface-hover'}`}
+                    >
+                      {s.street} ({s.count})
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
-        </button>
-        {/* Street filter */}
-        {uniqueStreets.length > 0 && (
-          <div className="relative">
-            <select
-              value={streetFilter ?? ''}
-              onChange={(e) => setStreetFilter(e.target.value || null)}
-              className="appearance-none rounded-lg border border-border bg-surface/90 px-2 py-1 pr-6 text-[10px] font-semibold text-text-muted backdrop-blur-md transition-colors hover:bg-surface-hover hover:text-text-primary cursor-pointer sm:px-3 sm:py-1.5 sm:pr-7 sm:text-xs"
-            >
-              <option value="">All Streets</option>
-              {uniqueStreets.map((s) => (
-                <option key={s.street} value={s.street}>
-                  {s.street} ({s.count})
-                </option>
-              ))}
-            </select>
-            <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-            </svg>
+          {/* Source filter */}
+          <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 backdrop-blur-md">
+            {(['all', 'hazard', 'community'] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSourceFilter(s)}
+                className={`px-2 py-1.5 text-[10px] font-semibold transition-colors sm:px-3 sm:text-xs ${
+                  sourceFilter === s
+                    ? 'bg-cyan-accent text-asphalt shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                {s === 'all' ? 'All' : s === 'hazard' ? 'Video' : 'Photo'}
+              </button>
+            ))}
           </div>
-        )}
-        {/* Source filter */}
-        <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 shadow-lg shadow-black/30 backdrop-blur-md">
-          {(['all', 'hazard', 'community'] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setSourceFilter(s)}
-              className={`px-2 py-1 text-[10px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${
-                sourceFilter === s
-                  ? 'bg-cyan-accent text-asphalt shadow-sm'
-                  : 'text-text-muted hover:text-text-primary'
-              }`}
-            >
-              {s === 'all' ? 'All' : s === 'hazard' ? 'Video' : 'Photo'}
-            </button>
-          ))}
-        </div>
-        {/* Viz mode toggle */}
-        <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 shadow-lg shadow-black/30 backdrop-blur-md">
+          {/* Viz mode toggle */}
+          <div className="inline-flex overflow-hidden rounded-lg border border-border bg-surface/90 backdrop-blur-md">
             <button
               onClick={() => setVizMode('markers')}
-              className={`px-2 py-1 text-[10px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${
+              className={`px-2 py-1.5 text-[10px] font-semibold transition-colors sm:px-3 sm:text-xs ${
                 vizMode === 'markers'
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
                   : 'text-text-muted hover:text-text-primary'
@@ -154,7 +187,7 @@ export default function MapPage() {
             </button>
             <button
               onClick={() => setVizMode('heatmap')}
-              className={`px-2 py-1 text-[10px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${
+              className={`px-2 py-1.5 text-[10px] font-semibold transition-colors sm:px-3 sm:text-xs ${
                 vizMode === 'heatmap'
                   ? 'bg-cyan-accent text-asphalt shadow-sm'
                   : 'text-text-muted hover:text-text-primary'
@@ -163,6 +196,7 @@ export default function MapPage() {
               Heatmap
             </button>
           </div>
+        </div>
       </div>
 
       {/* Map */}
