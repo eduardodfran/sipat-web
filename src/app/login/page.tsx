@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
@@ -9,7 +9,7 @@ import { RoadBackground } from '@/components/ui/RoadBackground'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { user, loading: authLoading, error, signIn, signUp, clearError } = useAuth()
+  const { user, loading: authLoading, error, signIn, signUp, resendVerification, clearError } = useAuth()
   const { theme, toggle } = useTheme()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
@@ -18,16 +18,40 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [signedUp, setSignedUp] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resendMsg, setResendMsg] = useState<string | null>(null)
+  const lastSubmitRef = useRef(0)
 
   useEffect(() => {
     if (!authLoading && user) router.push('/dashboard')
   }, [user, authLoading, router])
 
+  const handleResend = async () => {
+    if (!email.trim()) return
+    setResending(true)
+    setResendMsg(null)
+    const { error: resendErr } = await resendVerification(email.trim())
+    setResending(false)
+    if (resendErr) {
+      if (resendErr.toLowerCase().includes('rate limit')) {
+        setResendMsg('Still rate limited — wait a minute and check your inbox/spam for the earlier email.')
+      } else {
+        setResendMsg(resendErr)
+      }
+    } else {
+      setResendMsg(`Verification email resent to ${email.trim()}. Check inbox and spam.`)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const now = Date.now()
+    if (now - lastSubmitRef.current < 2000) return
+    lastSubmitRef.current = now
     clearError()
+    setResendMsg(null)
     setSubmitting(true)
-        const result =
+    const result =
       mode === 'login'
         ? await signIn(email, password)
         : await signUp(email, password, { fullName: '', username })
@@ -184,9 +208,24 @@ export default function LoginPage() {
               <div className="rounded-lg border border-red-hazard/20 bg-red-hazard/5 px-3 py-2">
                 <p className="text-sm text-red-hazard">
                   {error.toLowerCase().includes('rate limit')
-                    ? 'Too many attempts. Please wait about an hour and try again, or check your email for a previous verification link.'
+                    ? 'Too many attempts. Email rate limit exceeded (2-4/hour per email, 30/hour per project). Check your inbox/spam for the previous verification link, or wait a minute and use Resend below.'
                     : error}
                 </p>
+                {error.toLowerCase().includes('rate limit') && (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resending || !email.trim()}
+                    className="mt-2 text-sm font-medium text-cyan-accent hover:text-cyan-hover disabled:opacity-50"
+                  >
+                    {resending ? 'Resending...' : 'Resend verification email'}
+                  </button>
+                )}
+              </div>
+            )}
+            {resendMsg && (
+              <div className="rounded-lg border border-cyan-accent/20 bg-cyan-accent/5 px-3 py-2">
+                <p className="text-sm text-cyan-accent">{resendMsg}</p>
               </div>
             )}
 
@@ -201,6 +240,16 @@ export default function LoginPage() {
                   ? 'Sign In'
                   : 'Create Account'}
             </button>
+            {signedUp && (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending || !email.trim()}
+                className="w-full rounded-xl border border-cyan-accent/20 bg-cyan-accent/5 py-2.5 text-sm font-medium text-cyan-accent hover:bg-cyan-accent/10 disabled:opacity-50"
+              >
+                {resending ? 'Resending...' : 'Resend verification email'}
+              </button>
+            )}
           </form>
 
           {signedUp && (

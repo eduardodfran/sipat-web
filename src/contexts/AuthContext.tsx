@@ -18,6 +18,7 @@ interface SignUpFields {
 interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signUp: (email: string, password: string, fields: SignUpFields) => Promise<{ error: string | null }>
+  resendVerification: (email: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   clearError: () => void
 }
@@ -65,14 +66,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: error.message }
     }
 
+    if (data.user?.identities?.length === 0) {
+      const msg = 'An account with this email already exists. Please sign in.'
+      setState((prev) => ({ ...prev, error: msg }))
+      return { error: msg }
+    }
+
     if (data.user) {
-      await supabase.from('profiles').insert({
+      const { error: profileError } = await supabase.from('profiles').insert({
         id: data.user.id,
         full_name: fields.fullName,
         username: fields.username,
       })
+      if (profileError) console.warn('[AuthContext] profile insert deferred (after confirmation):', profileError.message)
     }
 
+    return { error: null }
+  }, [])
+
+  const resendVerification = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resend({ type: 'signup', email })
+    if (error) return { error: error.message }
     return { error: null }
   }, [])
 
@@ -83,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ ...state, signIn, signUp, signOut, clearError }}
+      value={{ ...state, signIn, signUp, resendVerification, signOut, clearError }}
     >
       {children}
     </AuthContext.Provider>
