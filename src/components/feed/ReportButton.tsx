@@ -85,6 +85,18 @@ export function ReportButton({
       </button>
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border px-3 py-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-text-primary">Report</span>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+              className="rounded-md p-1 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
           {REASONS.map((r) => (
             <button
               key={r.value}
