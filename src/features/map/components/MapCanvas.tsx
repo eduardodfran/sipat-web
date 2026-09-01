@@ -246,22 +246,52 @@ export default function MapCanvas({
 
     const LObj = L
 
-    // Draw route polylines
+    // Draw route polylines - concatenate sequential segments of same session
     if (showRoutes) {
-      routes.forEach((route) => {
-        if (route.points.length < 2) return
-
+      const sorted = [...routes].sort((a, b) => {
+        if (a.createdAt && b.createdAt) return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        return 0
+      })
+      type Group = { points: [number, number][]; status: string; ids: string[] }
+      const groups: Group[] = []
+      const haversineM = (a: [number, number], b: [number, number]) => {
+        const R = 6371008.8
+        const dLat = ((b[0] - a[0]) * Math.PI) / 180
+        const dLng = ((b[1] - a[1]) * Math.PI) / 180
+        const s1 = Math.sin(dLat / 2) ** 2 + Math.cos((a[0] * Math.PI) / 180) * Math.cos((b[0] * Math.PI) / 180) * Math.sin(dLng / 2) ** 2
+        return 2 * R * Math.asin(Math.sqrt(s1))
+      }
+      for (const route of sorted) {
+        if (route.points.length < 2) continue
         const latlngs = route.points.map((p) => [p.lat, p.lng] as [number, number])
-        const color = getRouteColor(route.status)
-
-        LObj.polyline(latlngs, {
+        const lastGroup = groups[groups.length - 1]
+        if (lastGroup) {
+          const lastPt = lastGroup.points[lastGroup.points.length - 1]
+          const firstPt = latlngs[0]
+          const prevRoute = sorted.find((r) => lastGroup.ids.includes(r.rideId))
+          const timeGap = route.createdAt && prevRoute?.createdAt ? new Date(route.createdAt).getTime() - new Date(prevRoute.createdAt).getTime() : Infinity
+          const distGap = haversineM(lastPt, firstPt)
+          if (timeGap < 10 * 60 * 1000 && distGap < 500) {
+            lastGroup.points.push(...latlngs)
+            lastGroup.ids.push(route.rideId)
+            continue
+          }
+        }
+        groups.push({ points: latlngs, status: route.status, ids: [route.rideId] })
+      }
+      const renderGroups = groups.length > 0 ? groups : sorted.filter((r) => r.points.length >= 2).map((r) => ({ points: r.points.map((p) => [p.lat, p.lng] as [number, number]), status: r.status, ids: [r.rideId] }))
+      renderGroups.forEach((group) => {
+        const color = getRouteColor(group.status)
+        LObj.polyline(group.points, {
           color,
           weight: 3,
           opacity: 0.7,
-          dashArray: route.status === 'queued' ? '6, 8' : undefined,
+          dashArray: group.status === 'queued' ? '6, 8' : undefined,
         }).addTo(routeLayerRef.current)
-
-        bounds.push(latlngs[0], latlngs[latlngs.length - 1])
+        bounds.push(group.points[0], group.points[group.points.length - 1])
+        if (group.points.length > 50) {
+          for (let i = 0; i < group.points.length; i += Math.floor(group.points.length / 4)) bounds.push(group.points[i])
+        }
       })
     }
 

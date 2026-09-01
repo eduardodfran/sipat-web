@@ -22,6 +22,34 @@ function findColumnIndex(headers: string[], aliases: string[]): number {
   return -1
 }
 
+export function parseGpsJson(raw: string): GpsPoint[] | null {
+  const trimmed = raw.trim()
+  if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) return null
+  try {
+    const data = JSON.parse(trimmed)
+    const arr = Array.isArray(data) ? data : [data]
+    const points: GpsPoint[] = []
+    for (const item of arr) {
+      if (!item || typeof item !== 'object') continue
+      const lat = parseFloat((item as Record<string, unknown>).lat as string ?? (item as Record<string, unknown>).latitude as string)
+      const lng = parseFloat((item as Record<string, unknown>).lng as string ?? (item as Record<string, unknown>).longitude as string ?? (item as Record<string, unknown>).lon as string)
+      const latVal = Number((item as Record<string, unknown>).lat ?? (item as Record<string, unknown>).latitude)
+      const lngVal = Number((item as Record<string, unknown>).lng ?? (item as Record<string, unknown>).longitude ?? (item as Record<string, unknown>).lon)
+      if (!isNaN(latVal) && !isNaN(lngVal)) points.push({ lat: latVal, lng: lngVal })
+      else if (!isNaN(lat) && !isNaN(lng)) points.push({ lat, lng })
+    }
+    return points.length > 0 ? points : null
+  } catch {
+    return null
+  }
+}
+
+export function parseGpsText(raw: string): GpsPoint[] {
+  const jsonPoints = parseGpsJson(raw)
+  if (jsonPoints) return jsonPoints
+  return parseGpsCsv(raw)
+}
+
 export function parseGpsCsv(raw: string): GpsPoint[] {
   const lines = raw.trim().split(/\r?\n/)
   if (lines.length < 2) return []
