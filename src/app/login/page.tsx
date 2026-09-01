@@ -20,7 +20,14 @@ export default function LoginPage() {
   const [signedUp, setSignedUp] = useState(false)
   const [resending, setResending] = useState(false)
   const [resendMsg, setResendMsg] = useState<string | null>(null)
+  const [cooldown, setCooldown] = useState(0)
   const lastSubmitRef = useRef(0)
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [cooldown])
 
   useEffect(() => {
     if (!authLoading && user) router.push('/dashboard')
@@ -28,18 +35,22 @@ export default function LoginPage() {
 
   const handleResend = async () => {
     if (!email.trim()) return
+    if (cooldown > 0) return
     setResending(true)
     setResendMsg(null)
     const { error: resendErr } = await resendVerification(email.trim())
     setResending(false)
     if (resendErr) {
       if (resendErr.toLowerCase().includes('rate limit')) {
-        setResendMsg('Still rate limited — wait a minute and check your inbox/spam for the earlier email.')
+        setResendMsg('Still rate limited — wait 60s and check inbox/spam. Project limit is 30 emails/hour shared by all testers.')
+        setCooldown(60)
       } else {
         setResendMsg(resendErr)
       }
     } else {
       setResendMsg(`Verification email resent to ${email.trim()}. Check inbox and spam.`)
+      clearError()
+      setSignedUp(true)
     }
   }
 
@@ -48,6 +59,10 @@ export default function LoginPage() {
     const now = Date.now()
     if (now - lastSubmitRef.current < 2000) return
     lastSubmitRef.current = now
+    if (cooldown > 0 && mode === 'signup') {
+      setResendMsg(`Please wait ${cooldown}s before trying again. Check inbox/spam or use Resend.`)
+      return
+    }
     clearError()
     setResendMsg(null)
     setSubmitting(true)
@@ -56,6 +71,9 @@ export default function LoginPage() {
         ? await signIn(email, password)
         : await signUp(email, password, { fullName: '', username })
     setSubmitting(false)
+    if (result.error?.toLowerCase().includes('rate limit')) {
+      setCooldown(60)
+    }
     if (!result.error && mode === 'login') {
       router.push('/dashboard')
     }
@@ -208,17 +226,17 @@ export default function LoginPage() {
               <div className="rounded-lg border border-red-hazard/20 bg-red-hazard/5 px-3 py-2">
                 <p className="text-sm text-red-hazard">
                   {error.toLowerCase().includes('rate limit')
-                    ? 'Too many attempts. Email rate limit exceeded (2-4/hour per email, 30/hour per project). Check your inbox/spam for the previous verification link, or wait a minute and use Resend below.'
+                    ? `Too many attempts. Supabase email limit hit (30/hour per project, shared by all testers). ${cooldown > 0 ? `Wait ${cooldown}s — ` : ''}Check inbox/spam for earlier link, or use Resend. If testing, try a different email or wait an hour. Admin: add custom SMTP in Supabase Dashboard → Auth → Email.`
                     : error}
                 </p>
                 {error.toLowerCase().includes('rate limit') && (
                   <button
                     type="button"
                     onClick={handleResend}
-                    disabled={resending || !email.trim()}
+                    disabled={resending || !email.trim() || cooldown > 0}
                     className="mt-2 text-sm font-medium text-cyan-accent hover:text-cyan-hover disabled:opacity-50"
                   >
-                    {resending ? 'Resending...' : 'Resend verification email'}
+                    {cooldown > 0 ? `Wait ${cooldown}s` : resending ? 'Resending...' : 'Resend verification email'}
                   </button>
                 )}
               </div>
@@ -231,14 +249,16 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || (cooldown > 0 && mode === 'signup')}
               className="w-full rounded-xl bg-cyan-accent py-2.5 text-sm font-semibold text-white transition-colors hover:bg-cyan-hover disabled:opacity-50"
             >
               {submitting
                 ? 'Please wait...'
-                : mode === 'login'
-                  ? 'Sign In'
-                  : 'Create Account'}
+                : cooldown > 0 && mode === 'signup'
+                  ? `Wait ${cooldown}s`
+                  : mode === 'login'
+                    ? 'Sign In'
+                    : 'Create Account'}
             </button>
             {signedUp && (
               <button
