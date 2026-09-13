@@ -25,13 +25,35 @@ export default function VerifyButtons({ potholeId, photoId, user }: VerifyButton
     )
   }
 
+  const contentType = isPothole ? 'pothole' : 'photo'
+  const contentId = String(isPothole ? potholeId : photoId)
+
   const fetchCounts = useCallback(async () => {
-    const { data } = await supabase.rpc(rpcGet, idParam)
-    if (!data) return
-    const rows = data as { body: string }[]
-    setStillHereCount(rows.filter((r) => r.body === '✅ Still here').length)
-    setFixedCount(rows.filter((r) => r.body === '✅ Fixed').length)
-  }, [rpcGet, JSON.stringify(idParam)])
+    const { data } = await supabase.rpc('get_hazard_verification', {
+      p_content_type: contentType,
+      p_content_id: contentId,
+    })
+    const row = (Array.isArray(data) ? data[0] : data) as
+      | { fixed_count: number; still_count: number }
+      | undefined
+    if (row) {
+      setStillHereCount(Number(row.still_count ?? 0))
+      setFixedCount(Number(row.fixed_count ?? 0))
+      return
+    }
+    // Fallback to legacy comment counts if verifications table not migrated yet
+    const { data: legacy } = await supabase.rpc(rpcGet, idParam)
+    if (!legacy) return
+    const rows = legacy as { body: string }[]
+    const still = rows.filter((r) => r.body === '✅ Still here').length
+    // Distinct users when available, else raw count
+    const fixedRows = rows.filter((r) => r.body === '✅ Fixed')
+    const distinctFixed = new Set(
+      (fixedRows as unknown as { user_id?: string }[]).map((r) => r.user_id ?? ''),
+    )
+    setStillHereCount(still)
+    setFixedCount(distinctFixed.has('') ? fixedRows.length : distinctFixed.size)
+  }, [rpcGet, JSON.stringify(idParam), contentType, contentId])
 
   useEffect(() => {
     fetchCounts()
@@ -39,6 +61,19 @@ export default function VerifyButtons({ potholeId, photoId, user }: VerifyButton
 
   const postVerify = async (body: string) => {
     setPosting(body)
+    const signal = body === '✅ Fixed' ? 'fixed' : 'still'
+    // Consensus vote (last-wins per user, F>=3 && F>S => fixed). Ignore error if migration not applied yet.
+    await supabase
+      .rpc('mark_hazard_signal', {
+        p_content_type: contentType,
+        p_content_id: contentId,
+        p_signal: signal,
+      })
+      .then(
+        () => {},
+        () => {},
+      )
+    // Keep discussion thread for transparency
     await supabase.rpc(rpcPost, { ...idParam, p_body: body })
     await fetchCounts()
     setPosting(null)
