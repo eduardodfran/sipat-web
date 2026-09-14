@@ -16,6 +16,10 @@ type Row = {
   is_hidden: boolean
   created_at: string
   image_url: string | null
+  lat: number | null
+  lng: number | null
+  nearby_image_url: string | null
+  nearby_m: number | null
 }
 
 export default function HiddenAdminHidePage() {
@@ -25,6 +29,16 @@ export default function HiddenAdminHidePage() {
   const [busy, setBusy] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [zoom, setZoom] = useState<Row | null>(null)
+
+  useEffect(() => {
+    if (!zoom) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setZoom(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [zoom])
 
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL
 
@@ -129,6 +143,8 @@ export default function HiddenAdminHidePage() {
         <div className="mt-4 space-y-2">
           {filtered.map((r) => {
             const key = `${r.content_type}:${r.content_id}`
+            const thumb = r.image_url ?? r.nearby_image_url
+            const isNearby = !r.image_url && !!r.nearby_image_url
             return (
               <div
                 key={key}
@@ -136,9 +152,15 @@ export default function HiddenAdminHidePage() {
                   r.is_hidden ? 'border-white/5 bg-white/[0.02] opacity-60' : 'border-white/10 bg-white/[0.04]'
                 }`}
               >
-                {r.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={r.image_url} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                {thumb ? (
+                  <button
+                    onClick={() => setZoom(r)}
+                    title={isNearby ? `Nearest community photo ~${Math.round(r.nearby_m ?? 0)}m away — click to enlarge` : 'Click to enlarge'}
+                    className="shrink-0"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={thumb} alt="" className="h-12 w-12 rounded-lg object-cover transition-transform hover:scale-105" />
+                  </button>
                 ) : (
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/5 text-[10px] text-text-muted">
                     {r.content_type}
@@ -151,7 +173,18 @@ export default function HiddenAdminHidePage() {
                   </p>
                   <p className="truncate text-[11px] text-text-muted">
                     {r.content_type} #{r.content_id} · {r.severity ?? '—'} · {r.caption ?? 'no caption'}
+                    {isNearby && <span> · nearby photo ~{Math.round(r.nearby_m ?? 0)}m</span>}
                   </p>
+                  {r.lat != null && r.lng != null && (
+                    <a
+                      href={`https://www.google.com/maps?q=${r.lat},${r.lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-cyan-accent underline"
+                    >
+                      Open location in Maps
+                    </a>
+                  )}
                 </div>
                 <button
                   onClick={() => toggle(r)}
@@ -172,6 +205,74 @@ export default function HiddenAdminHidePage() {
           )}
         </div>
       </div>
+
+      {zoom && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setZoom(null)}
+        >
+          <div
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-asphalt p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-text-primary">
+                  {zoom.street || zoom.caption || `#${zoom.content_id}`}
+                </p>
+                <p className="text-[11px] text-text-muted">
+                  {zoom.content_type} #{zoom.content_id} · {zoom.severity ?? '—'}
+                  {!zoom.image_url && zoom.nearby_image_url && (
+                    <span> · nearest community photo ~{Math.round(zoom.nearby_m ?? 0)}m away</span>
+                  )}
+                </p>
+              </div>
+              <button
+                onClick={() => setZoom(null)}
+                className="shrink-0 rounded-lg border border-white/10 px-2.5 py-1 text-sm text-text-primary hover:bg-white/5"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            {(zoom.image_url ?? zoom.nearby_image_url) && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={(zoom.image_url ?? zoom.nearby_image_url) as string}
+                alt=""
+                className="max-h-[60vh] w-full rounded-xl object-contain bg-black"
+              />
+            )}
+            <p className="mt-2 truncate text-[11px] text-text-muted">{zoom.caption ?? 'no caption'}</p>
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                onClick={() => {
+                  toggle(zoom)
+                  setZoom(null)
+                }}
+                disabled={busy === `${zoom.content_type}:${zoom.content_id}`}
+                className={`rounded-lg px-4 py-2 text-xs font-bold disabled:opacity-50 ${
+                  zoom.is_hidden
+                    ? 'bg-green-500/15 text-green-400 hover:bg-green-500/25'
+                    : 'bg-red-500/15 text-red-400 hover:bg-red-500/25'
+                }`}
+              >
+                {zoom.is_hidden ? 'Unhide this item' : 'Hide this item'}
+              </button>
+              {zoom.lat != null && zoom.lng != null && (
+                <a
+                  href={`https://www.google.com/maps?q=${zoom.lat},${zoom.lng}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-lg border border-white/10 px-4 py-2 text-xs text-text-primary hover:bg-white/5"
+                >
+                  Open location in Maps
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
