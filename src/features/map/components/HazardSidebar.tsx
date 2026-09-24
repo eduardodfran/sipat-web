@@ -8,6 +8,7 @@ import { useDetectionComments } from '@/hooks/useDetectionComments'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Pothole, HazardStatus } from '@/lib/types'
 import { fullAddress } from '@/lib/address'
+import { supabase } from '@/lib/supabase'
 
 const STATUS_CONFIG: Record<HazardStatus, { label: string; color: string }> = {
   reported: { label: 'Reported', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
@@ -89,6 +90,15 @@ export default function HazardSidebar({
     pothole?.pothole_id ?? null,
   )
   const { user } = useAuth()
+
+  const verify = (signal: 'still' | 'fixed') => {
+    if (!user || !pothole) return
+    void supabase.rpc('mark_hazard_signal', {
+      p_content_type: 'pothole',
+      p_content_id: String(pothole.pothole_id),
+      p_signal: signal,
+    })
+  }
 
   useEffect(() => {
     if (pothole) {
@@ -276,13 +286,19 @@ export default function HazardSidebar({
                 </p>
                 {user ? (
                   <div className="flex gap-2">
-                    <button className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-green-500/20 bg-green-500/5 px-3 py-2 text-xs font-semibold text-green-400 transition-colors hover:bg-green-500/10">
+                    <button
+                      onClick={() => verify('still')}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-green-500/20 bg-green-500/5 px-3 py-2 text-xs font-semibold text-green-400 transition-colors hover:bg-green-500/10"
+                    >
                       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                       Still here
                     </button>
-                    <button className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs font-semibold text-red-400 transition-colors hover:bg-red-500/10">
+                    <button
+                      onClick={() => verify('fixed')}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs font-semibold text-red-400 transition-colors hover:bg-red-500/10"
+                    >
                       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                       </svg>

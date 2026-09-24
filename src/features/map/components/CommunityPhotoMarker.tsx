@@ -172,6 +172,13 @@ export default function CommunityPhotoMarker({ photos, map, onSelect, user }: Pr
             const commentSend = document.getElementById(`photo-comment-send-${pid}`)
 
             const doVerify = async (body: string) => {
+              try {
+                await supabase.rpc('mark_hazard_signal', {
+                  p_content_type: 'photo',
+                  p_content_id: String(pid),
+                  p_signal: body === '✅ Fixed' ? 'fixed' : 'still',
+                })
+              } catch {}
               await supabase.rpc('create_community_photo_comment', {
                 p_photo_id: pid,
                 p_body: body,

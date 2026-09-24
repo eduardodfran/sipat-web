@@ -57,6 +57,7 @@ export default function Dashboard() {
     supabase
       .from('community_photos')
       .select('*')
+      .eq('activity_status', 'active')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         setCommunityPhotos((data ?? []) as CommunityPhoto[])

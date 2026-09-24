@@ -155,12 +155,14 @@ export default function PublicProfilePage() {
           .from('community_photos')
           .select('*')
           .eq('user_id', prof.id)
+          .eq('activity_status', 'active')
           .order('created_at', { ascending: false })
           .limit(50),
         supabase
           .from('v_unified_potholes')
           .select('pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, detectors_count, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, street, barangay, city, province, region, country, formatted_address')
           .eq('reporter_username', prof.username ?? '')
+          .eq('activity_status', 'active')
           .order('latest_activity_at', { ascending: false })
           .limit(50),
       ])

@@ -354,6 +354,13 @@ export default function MapCanvas({
                 const commentSend = document.getElementById(`comment-send-${pid}`)
 
                 const doVerify = async (body: string) => {
+                  try {
+                    await supabase.rpc('mark_hazard_signal', {
+                      p_content_type: 'pothole',
+                      p_content_id: String(pid),
+                      p_signal: body === '✅ Fixed' ? 'fixed' : 'still',
+                    })
+                  } catch {}
                   await supabase.rpc('create_detection_comment', { p_pothole_id: pid, p_body: body })
                   loadAndRender()
                 }
