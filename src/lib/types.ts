@@ -22,6 +22,11 @@ export interface Pothole {
   country: string | null
   formatted_address: string | null
   address_geocoded_at: string | null
+  hot_score: number | null
+  vote_score: number
+  upvote_count: number
+  downvote_count: number
+  user_vote: 0 | 1 | -1
 }
 
 export interface Detector {

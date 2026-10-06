@@ -3,7 +3,7 @@
 import { useMemo, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useServerData, type ProxyParams } from '@/hooks/useServerData'
+import { useFeedData, type SortBy, type TypeFilter } from '@/hooks/useFeedData'
 import { Badge } from '@/components/ui/Badge'
 import { GuideCard } from '@/components/ui/GuideCard'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -14,36 +14,6 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Pothole, Severity } from '@/lib/types'
 import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
-
-/* ─── data mapping ─── */
-
-function mapPothole(row: Record<string, unknown>): Pothole {
-  return {
-    pothole_id: row.pothole_id as number,
-    consolidated_latitude: row.consolidated_latitude as number,
-    consolidated_longitude: row.consolidated_longitude as number,
-    worst_severity: (row.worst_severity as Severity) ?? 'Unknown',
-    total_detection_hits: (row.total_detection_hits as number) ?? 0,
-    citizen_first_reported_at: (row.citizen_first_reported_at as string) ?? '',
-    latest_activity_at: (row.latest_activity_at as string) ?? '',
-    image_url: (row.image_url as string | null) ?? null,
-    reporter_username: (row.reporter_username as string | null) ?? null,
-    reporter_avatar: (row.reporter_avatar as string | null) ?? null,
-    detectors_count: (row.detectors_count as number) ?? 0,
-    street: (row.street as string | null) ?? null,
-    barangay: (row.barangay as string | null) ?? null,
-    city: (row.city as string | null) ?? null,
-    province: (row.province as string | null) ?? null,
-    region: (row.region as string | null) ?? null,
-    country: (row.country as string | null) ?? null,
-    formatted_address: (row.formatted_address as string | null) ?? null,
-    address_geocoded_at: (row.address_geocoded_at as string | null) ?? null,
-  }
-}
-
-function mapPhoto(row: Record<string, unknown>): CommunityPhoto {
-  return row as unknown as CommunityPhoto
-}
 
 /* ─── types ─── */
 
@@ -65,25 +35,12 @@ interface CommunityFeedItem extends FeedItemBase {
 
 type FeedItem = HazardFeedItem | CommunityFeedItem
 
-/* ─── query params ─── */
-
-const HAZARD_PARAMS: ProxyParams = {
-  table: 'v_unified_potholes',
-  columns:
-    'pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, reporter_avatar, detectors_count, street, barangay, city, province, region, country, formatted_address, address_geocoded_at',
-  order: { column: 'latest_activity_at', ascending: false },
-  limit: 50,
-  filters: [{ column: 'caption', operator: 'not.like', value: '[HIDDEN]%' }],
-}
-
-const PHOTO_PARAMS: ProxyParams = {
-  table: 'community_photos',
-  columns: '*',
-  order: { column: 'created_at', ascending: false },
-  limit: 50,
-}
-
 /* ─── helpers ─── */
+
+function hotScoreOf(item: FeedItem): number {
+  if (item.type === 'hazard') return item.pothole.hot_score ?? 0
+  return item.photo.hot_score ?? 0
+}
 
 function formatTime(ts: string): string {
   const d = new Date(ts)
@@ -176,7 +133,15 @@ function CompactHazardCard({ pothole, timestamp }: { pothole: Pothole; timestamp
 
         {/* Bottom row: votes + detectors */}
         <div className="mt-2 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
-          <VoteButtons contentType="pothole" contentId={String(pothole.pothole_id)} />
+          <VoteButtons
+            contentType="pothole"
+            contentId={String(pothole.pothole_id)}
+            initialVotes={{
+              upvotes: pothole.upvote_count ?? 0,
+              downvotes: pothole.downvote_count ?? 0,
+              userVote: pothole.user_vote ?? 0,
+            }}
+          />
           <span className="inline-flex items-center gap-0.5 text-[9px] text-text-muted">
             <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
@@ -267,7 +232,15 @@ function CompactCommunityCard({ photo, timestamp, userId }: { photo: CommunityPh
 
         {/* Bottom row: votes */}
         <div className="mt-2 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
-          <VoteButtons contentType="photo" contentId={String(photo.id)} />
+          <VoteButtons
+            contentType="photo"
+            contentId={String(photo.id)}
+            initialVotes={{
+              upvotes: photo.upvote_count ?? 0,
+              downvotes: photo.downvote_count ?? 0,
+              userVote: photo.user_vote ?? 0,
+            }}
+          />
           <ReportButton contentType="photo" contentId={String(photo.id)} />
         </div>
       </div>
@@ -344,44 +317,33 @@ function TrendingCard({ item }: { item: FeedItem }) {
 
 export default function FeedPage() {
   const { user } = useAuth()
-  const [typeFilter, setTypeFilter] = useState<'all' | 'hazard' | 'community'>('all')
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most_detected'>('newest')
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
+  const [sortBy, setSortBy] = useState<SortBy>('hot')
   const [view, setView] = useState<'grid' | 'list'>('grid')
 
-  const {
-    data: hazards,
-    loading: hazardsLoading,
-    error: hazardsError,
-  } = useServerData<Record<string, unknown>[]>(HAZARD_PARAMS)
-
-  const {
-    data: photos,
-    loading: photosLoading,
-    error: photosError,
-  } = useServerData<Record<string, unknown>[]>(PHOTO_PARAMS)
+  const { potholes, photos, loading, loadingMore, error, hasMore, loadMore } = useFeedData()
 
   const allItems = useMemo<FeedItem[]>(() => {
     const result: FeedItem[] = []
 
-    if ((typeFilter === 'all' || typeFilter === 'hazard') && hazards) {
-      for (const row of hazards) {
+    if (typeFilter === 'all' || typeFilter === 'hazard') {
+      for (const pothole of potholes) {
         result.push({
-          id: `hazard-${(row.pothole_id as number)}`,
+          id: `hazard-${pothole.pothole_id}`,
           type: 'hazard',
-          timestamp: (row.latest_activity_at as string) || (row.citizen_first_reported_at as string),
-          pothole: mapPothole(row),
+          timestamp: pothole.latest_activity_at || pothole.citizen_first_reported_at || '',
+          pothole,
         })
       }
     }
 
-    if ((typeFilter === 'all' || typeFilter === 'community') && photos) {
-      for (const row of photos) {
-        const p = mapPhoto(row)
+    if (typeFilter === 'all' || typeFilter === 'community') {
+      for (const photo of photos) {
         result.push({
-          id: `photo-${p.id}`,
+          id: `photo-${photo.id}`,
           type: 'community',
-          timestamp: p.created_at,
-          photo: p,
+          timestamp: photo.created_at,
+          photo,
         })
       }
     }
@@ -390,29 +352,27 @@ export default function FeedPage() {
       case 'oldest':
         result.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
         break
-      case 'most_detected':
-        result.sort((a, b) => {
-          const aHits = a.type === 'hazard' ? a.pothole.total_detection_hits : 0
-          const bHits = b.type === 'hazard' ? b.pothole.total_detection_hits : 0
-          return bHits - aHits
-        })
-        break
       case 'newest':
-      default:
         result.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        break
+      case 'hot':
+      default:
+        result.sort(
+          (a, b) =>
+            hotScoreOf(b) - hotScoreOf(a) ||
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        )
         break
     }
 
-    return result.slice(0, 50)
-  }, [hazards, photos, typeFilter, sortBy])
+    return result
+  }, [potholes, photos, typeFilter, sortBy])
 
-  // Trending: top 3 by detection hits (hazards only)
-  const trending = useMemo(() => {
-    const hazardsOnly = allItems
-      .filter((i) => i.type === 'hazard')
-      .sort((a, b) => b.pothole.total_detection_hits - a.pothole.total_detection_hits)
-    return hazardsOnly.slice(0, 3)
-  }, [allItems])
+  // Trending: top 3 by hot score across both content types
+  const trending = useMemo(
+    () => [...allItems].sort((a, b) => hotScoreOf(b) - hotScoreOf(a)).slice(0, 3),
+    [allItems],
+  )
 
   // Group by location
   const grouped = useMemo(() => {
@@ -425,10 +385,10 @@ export default function FeedPage() {
     return Array.from(map.entries())
   }, [allItems])
 
-  const loading = hazardsLoading && photosLoading
-  const error = hazardsError || photosError
+  const hasMoreVisible =
+    (typeFilter !== 'community' && hasMore.potholes) || (typeFilter !== 'hazard' && hasMore.photos)
 
-  if (error) {
+  if (error && allItems.length === 0) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
         <div className="border border-red-hazard/20 bg-red-hazard/5 p-6 text-center">
@@ -451,9 +411,9 @@ export default function FeedPage() {
           {/* Sort */}
           <div className="flex items-center gap-0.5 rounded-lg border border-border bg-surface p-0.5">
             {([
+              { key: 'hot' as const, label: 'Hot', icon: '🔥' },
               { key: 'newest' as const, label: 'New', icon: '↓' },
               { key: 'oldest' as const, label: 'Old', icon: '↑' },
-              { key: 'most_detected' as const, label: 'Top', icon: '⚡' },
             ]).map((opt) => (
               <button
                 key={opt.key}
@@ -497,7 +457,7 @@ export default function FeedPage() {
                   typeFilter === t ? 'bg-cyan-accent text-asphalt' : 'text-text-muted hover:text-text-secondary'
                 }`}
               >
-                {t === 'all' ? 'All' : t === 'hazard' ? 'Video' : 'Photo'}
+                {t === 'all' ? 'All' : t === 'hazard' ? 'Detected' : 'Photos'}
               </button>
             ))}
           </div>
@@ -581,6 +541,31 @@ export default function FeedPage() {
                   <CompactCommunityCard key={item.id} photo={item.photo} timestamp={item.timestamp} userId={user?.id} />
                 ),
               )}
+            </div>
+          )}
+
+          {/* Load more */}
+          {error && (
+            <p className="mt-6 text-center text-xs text-red-400" role="alert">
+              Couldn&apos;t load all content — {error}
+            </p>
+          )}
+          {hasMoreVisible && (
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="rounded-lg border border-border bg-surface px-5 py-2 text-xs font-semibold text-text-secondary transition-colors hover:border-cyan-accent/30 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loadingMore ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-text-muted border-t-transparent" />
+                    Loading…
+                  </span>
+                ) : (
+                  'Load more'
+                )}
+              </button>
             </div>
           )}
         </>

@@ -22,4 +22,11 @@ export interface CommunityPhoto {
   updated_at: string
   reporter_username: string | null
   reporter_avatar: string | null
+  hot_score?: number | null
+  vote_score?: number
+  upvote_count?: number
+  downvote_count?: number
+  user_vote?: 0 | 1 | -1
+  visibility_status?: string
+  activity_status?: string
 }

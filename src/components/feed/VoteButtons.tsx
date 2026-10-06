@@ -14,16 +14,19 @@ export function VoteButtons({
   contentType,
   contentId,
   user,
+  initialVotes,
 }: {
   contentType: 'photo' | 'pothole'
   contentId: string
   user?: { email?: string } | null
+  initialVotes?: VoteState
 }) {
   const { user: authUser, loading: authLoading } = useAuth()
   const activeUser = user ?? authUser
 
-  const [votes, setVotes] = useState<VoteState>({ upvotes: 0, downvotes: 0, userVote: 0 })
-  const [loading, setLoading] = useState(true)
+  const seeded = useRef(initialVotes !== undefined)
+  const [votes, setVotes] = useState<VoteState>(initialVotes ?? { upvotes: 0, downvotes: 0, userVote: 0 })
+  const [loading, setLoading] = useState(initialVotes === undefined)
   const [voting, setVoting] = useState(false)
   const [voteError, setVoteError] = useState<string | null>(null)
   const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -35,6 +38,7 @@ export function VoteButtons({
   }, [])
 
   useEffect(() => {
+    if (seeded.current) return
     let cancelled = false
     ;(async () => {
       const { data } = await supabase.rpc('get_content_votes', {

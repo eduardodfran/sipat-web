@@ -66,6 +66,11 @@ function mapRow(row: Record<string, unknown>): Pothole {
     country: (row.country as string | null) ?? null,
     formatted_address: (row.formatted_address as string | null) ?? null,
     address_geocoded_at: (row.address_geocoded_at as string | null) ?? null,
+    hot_score: (row.hot_score as number | null) ?? null,
+    vote_score: (row.vote_score as number) ?? 0,
+    upvote_count: (row.upvote_count as number) ?? 0,
+    downvote_count: (row.downvote_count as number) ?? 0,
+    user_vote: (row.user_vote as 0 | 1 | -1) ?? 0,
   }
 }
 
