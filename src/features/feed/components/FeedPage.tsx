@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { VoteButtons } from '@/components/feed/VoteButtons'
 import { ReportButton } from '@/components/feed/ReportButton'
 import { shortAddress } from '@/lib/address'
+import { formatRelativeTime as formatTime } from '@/lib/time'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Pothole, Severity } from '@/lib/types'
@@ -40,17 +41,6 @@ type FeedItem = HazardFeedItem | CommunityFeedItem
 function hotScoreOf(item: FeedItem): number {
   if (item.type === 'hazard') return item.pothole.hot_score ?? 0
   return item.photo.hot_score ?? 0
-}
-
-function formatTime(ts: string): string {
-  const d = new Date(ts)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  if (diff < 60000) return 'now'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`
-  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d`
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
 function getLocationKey(item: FeedItem): string {

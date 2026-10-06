@@ -9,6 +9,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 const NAV_LINKS = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/feed', label: 'Feed' },
+  { href: '/review', label: 'Review' },
   { href: '/map', label: 'Map' },
   { href: '/rides', label: 'Rides' },
   { href: '/about', label: 'About' },

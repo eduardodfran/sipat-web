@@ -1,14 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
-
-interface VoteState {
-  upvotes: number
-  downvotes: number
-  userVote: 0 | 1 | -1
-}
+import { useVote, type VoteState } from '@/hooks/useVote'
 
 export function VoteButtons({
   contentType,
@@ -24,72 +17,11 @@ export function VoteButtons({
   const { user: authUser, loading: authLoading } = useAuth()
   const activeUser = user ?? authUser
 
-  const seeded = useRef(initialVotes !== undefined)
-  const [votes, setVotes] = useState<VoteState>(initialVotes ?? { upvotes: 0, downvotes: 0, userVote: 0 })
-  const [loading, setLoading] = useState(initialVotes === undefined)
-  const [voting, setVoting] = useState(false)
-  const [voteError, setVoteError] = useState<string | null>(null)
-  const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (errorTimer.current) clearTimeout(errorTimer.current)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (seeded.current) return
-    let cancelled = false
-    ;(async () => {
-      const { data } = await supabase.rpc('get_content_votes', {
-        p_content_type: contentType,
-        p_content_id: contentId,
-      })
-      if (!cancelled && data) {
-        const row = Array.isArray(data) ? data[0] : data
-        setVotes({
-          upvotes: row.upvotes ?? 0,
-          downvotes: row.downvotes ?? 0,
-          userVote: row.user_vote ?? 0,
-        })
-      }
-      if (!cancelled) setLoading(false)
-    })()
-    return () => { cancelled = true }
-  }, [contentType, contentId])
-
-  const showVoteError = useCallback((message: string) => {
-    setVoteError(message)
-    if (errorTimer.current) clearTimeout(errorTimer.current)
-    errorTimer.current = setTimeout(() => setVoteError(null), 3000)
-  }, [])
-
-  const vote = useCallback(
-    async (value: 1 | -1) => {
-      if (voting) return
-      const sameVote = votes.userVote === value
-      const rpc = sameVote ? 'unvote_content' : 'vote_content'
-      const params = sameVote
-        ? { p_content_type: contentType, p_content_id: contentId }
-        : { p_content_type: contentType, p_content_id: contentId, p_vote_value: value }
-      setVoting(true)
-      const { data, error } = await supabase.rpc(rpc, params)
-      setVoting(false)
-      if (error) {
-        showVoteError('Vote failed')
-        return
-      }
-      if (data) {
-        const row = Array.isArray(data) ? data[0] : data
-        setVotes({
-          upvotes: row.upvotes ?? 0,
-          downvotes: row.downvotes ?? 0,
-          userVote: sameVote ? 0 : value,
-        })
-      }
-    },
-    [contentType, contentId, votes.userVote, voting, showVoteError],
-  )
+  const { votes, loading, voting, error: voteError, vote } = useVote({
+    contentType,
+    contentId,
+    initialVotes,
+  })
 
   const score = votes.upvotes - votes.downvotes
 

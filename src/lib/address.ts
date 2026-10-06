@@ -1,7 +1,22 @@
 import type { Pothole } from '@/lib/types'
 
+/** Structural type so shortAddress works for potholes and community photos alike. */
+export interface Addressable {
+  formatted_address?: string | null
+  street?: string | null
+  barangay?: string | null
+  city?: string | null
+  province?: string | null
+  region?: string | null
+  country?: string | null
+  consolidated_latitude?: number | null
+  consolidated_longitude?: number | null
+  latitude?: number | null
+  longitude?: number | null
+}
+
 /** Short address for compact displays (dashboard rows, map labels). */
-export function shortAddress(p: Pothole): string {
+export function shortAddress(p: Addressable): string {
   if (p.formatted_address) {
     // Take first part before the first comma (usually street + barangay)
     const parts = p.formatted_address.split(',')
@@ -11,7 +26,10 @@ export function shortAddress(p: Pothole): string {
   if (p.city && p.province) return `${p.city}, ${p.province}`
   if (p.city) return p.city
   if (p.barangay) return p.barangay
-  return `${p.consolidated_latitude?.toFixed(3)}, ${p.consolidated_longitude?.toFixed(3)}`
+  const lat = p.consolidated_latitude ?? p.latitude
+  const lng = p.consolidated_longitude ?? p.longitude
+  if (lat != null && lng != null) return `${lat.toFixed(3)}, ${lng.toFixed(3)}`
+  return 'Location pending'
 }
 
 /** Full address for detail views (sidebar, modal). */

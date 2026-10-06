@@ -1,16 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-
-const REASONS = [
-  { label: 'Spam', value: 'spam' },
-  { label: 'Inappropriate content', value: 'inappropriate' },
-  { label: 'Not a pothole', value: 'not_pothole' },
-  { label: 'Duplicate', value: 'duplicate' },
-  { label: 'Other', value: 'other' },
-] as const
+import { useReport, REASONS } from '@/hooks/useReport'
 
 export function ReportButton({
   contentType,
@@ -24,33 +16,12 @@ export function ReportButton({
   const { user: authUser } = useAuth()
   const activeUser = user ?? authUser
 
-  const [reported, setReported] = useState(false)
+  const { reported, loading, error: reportError, report, unreport } = useReport({
+    contentType,
+    contentId,
+  })
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [reportError, setReportError] = useState<string | null>(null)
   const ref = useRef<HTMLDivElement>(null)
-  const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (errorTimer.current) clearTimeout(errorTimer.current)
-    }
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      const { data } = await supabase.rpc('has_user_reported', {
-        p_content_type: contentType,
-        p_content_id: contentId,
-      })
-      if (!cancelled) {
-        setReported(!!data)
-        setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
-  }, [contentType, contentId])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -60,35 +31,9 @@ export function ReportButton({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
-  const showReportError = useCallback((message: string) => {
-    setReportError(message)
-    if (errorTimer.current) clearTimeout(errorTimer.current)
-    errorTimer.current = setTimeout(() => setReportError(null), 3000)
-  }, [])
-
   const submit = async (reason: string) => {
-    if (reported) {
-      const { error } = await supabase.rpc('unreport_content', {
-        p_content_type: contentType,
-        p_content_id: contentId,
-      })
-      if (error) {
-        showReportError('Report failed')
-        return
-      }
-      setReported(false)
-    } else {
-      const { error } = await supabase.rpc('report_content', {
-        p_content_type: contentType,
-        p_content_id: contentId,
-        p_reason: reason,
-      })
-      if (error) {
-        showReportError('Report failed')
-        return
-      }
-      setReported(true)
-    }
+    const ok = reported ? await unreport() : await report(reason)
+    if (!ok) return
     setOpen(false)
   }
 

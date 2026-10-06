@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import { useVerify } from '@/hooks/useVerify'
 
 interface VerifyButtonsProps {
   potholeId?: number | null
@@ -14,68 +13,10 @@ export default function VerifyButtons({ potholeId, photoId, user }: VerifyButton
   const { user: authUser } = useAuth()
   const activeUser = user ?? authUser
 
-  const [stillHereCount, setStillHereCount] = useState(0)
-  const [fixedCount, setFixedCount] = useState(0)
-  const [posting, setPosting] = useState<string | null>(null)
+  const contentType = potholeId != null ? 'pothole' : 'photo'
+  const contentId = String(potholeId ?? photoId)
 
-  const isPothole = potholeId != null
-  const rpcGet = isPothole ? 'get_detection_comments' : 'get_community_photo_comments'
-  const rpcPost = isPothole ? 'create_detection_comment' : 'create_community_photo_comment'
-  const idParam = isPothole ? { p_pothole_id: potholeId } : { p_photo_id: photoId }
-
-  const contentType = isPothole ? 'pothole' : 'photo'
-  const contentId = String(isPothole ? potholeId : photoId)
-
-  const fetchCounts = useCallback(async () => {
-    const { data } = await supabase.rpc('get_hazard_verification', {
-      p_content_type: contentType,
-      p_content_id: contentId,
-    })
-    const row = (Array.isArray(data) ? data[0] : data) as
-      | { fixed_count: number; still_count: number }
-      | undefined
-    if (row) {
-      setStillHereCount(Number(row.still_count ?? 0))
-      setFixedCount(Number(row.fixed_count ?? 0))
-      return
-    }
-    // Fallback to legacy comment counts if verifications table not migrated yet
-    const { data: legacy } = await supabase.rpc(rpcGet, idParam)
-    if (!legacy) return
-    const rows = legacy as { body: string }[]
-    const still = rows.filter((r) => r.body === '✅ Still here').length
-    // Distinct users when available, else raw count
-    const fixedRows = rows.filter((r) => r.body === '✅ Fixed')
-    const distinctFixed = new Set(
-      (fixedRows as unknown as { user_id?: string }[]).map((r) => r.user_id ?? ''),
-    )
-    setStillHereCount(still)
-    setFixedCount(distinctFixed.has('') ? fixedRows.length : distinctFixed.size)
-  }, [rpcGet, JSON.stringify(idParam), contentType, contentId])
-
-  useEffect(() => {
-    fetchCounts()
-  }, [fetchCounts])
-
-  const postVerify = async (body: string) => {
-    setPosting(body)
-    const signal = body === '✅ Fixed' ? 'fixed' : 'still'
-    // Consensus vote (last-wins per user, F>=3 && F>S => fixed). Ignore error if migration not applied yet.
-    await supabase
-      .rpc('mark_hazard_signal', {
-        p_content_type: contentType,
-        p_content_id: contentId,
-        p_signal: signal,
-      })
-      .then(
-        () => {},
-        () => {},
-      )
-    // Keep discussion thread for transparency
-    await supabase.rpc(rpcPost, { ...idParam, p_body: body })
-    await fetchCounts()
-    setPosting(null)
-  }
+  const { stillCount, fixedCount, posting, verify } = useVerify({ contentType, contentId })
 
   if (!activeUser) {
     return (
@@ -86,7 +27,7 @@ export default function VerifyButtons({ potholeId, photoId, user }: VerifyButton
   return (
     <div className="flex items-center gap-2">
       <button
-        onClick={() => postVerify('✅ Still here')}
+        onClick={() => verify('still')}
         disabled={posting !== null}
         className="flex items-center gap-1 rounded-lg border border-green-safe/20 bg-green-safe/10 px-2.5 py-1 text-[11px] font-semibold text-green-safe transition-colors hover:bg-green-safe/20 disabled:opacity-50"
       >
@@ -94,10 +35,10 @@ export default function VerifyButtons({ potholeId, photoId, user }: VerifyButton
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
         Still here
-        {stillHereCount > 0 && <span className="text-green-safe/70">{stillHereCount}</span>}
+        {stillCount > 0 && <span className="text-green-safe/70">{stillCount}</span>}
       </button>
       <button
-        onClick={() => postVerify('✅ Fixed')}
+        onClick={() => verify('fixed')}
         disabled={posting !== null}
         className="flex items-center gap-1 rounded-lg border border-red-hazard/20 bg-red-hazard/10 px-2.5 py-1 text-[11px] font-semibold text-red-hazard transition-colors hover:bg-red-hazard/20 disabled:opacity-50"
       >
