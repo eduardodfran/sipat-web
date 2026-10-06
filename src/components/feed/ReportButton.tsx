@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 const REASONS = [
   { label: 'Spam', value: 'spam' },
@@ -20,11 +21,21 @@ export function ReportButton({
   contentId: string
   user?: { email?: string } | null
 }) {
-  if (!user) return null
+  const { user: authUser } = useAuth()
+  const activeUser = user ?? authUser
+
   const [reported, setReported] = useState(false)
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [reportError, setReportError] = useState<string | null>(null)
   const ref = useRef<HTMLDivElement>(null)
+  const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (errorTimer.current) clearTimeout(errorTimer.current)
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -49,12 +60,22 @@ export function ReportButton({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
+  const showReportError = useCallback((message: string) => {
+    setReportError(message)
+    if (errorTimer.current) clearTimeout(errorTimer.current)
+    errorTimer.current = setTimeout(() => setReportError(null), 3000)
+  }, [])
+
   const submit = async (reason: string) => {
     if (reported) {
-      await supabase.rpc('unreport_content', {
+      const { error } = await supabase.rpc('unreport_content', {
         p_content_type: contentType,
         p_content_id: contentId,
       })
+      if (error) {
+        showReportError('Report failed')
+        return
+      }
       setReported(false)
     } else {
       const { error } = await supabase.rpc('report_content', {
@@ -62,10 +83,16 @@ export function ReportButton({
         p_content_id: contentId,
         p_reason: reason,
       })
-      if (!error) setReported(true)
+      if (error) {
+        showReportError('Report failed')
+        return
+      }
+      setReported(true)
     }
     setOpen(false)
   }
+
+  if (!activeUser) return null
 
   return (
     <div className="relative" ref={ref}>
@@ -83,6 +110,14 @@ export function ReportButton({
         </svg>
         {reported ? 'Reported' : 'Report'}
       </button>
+      {reportError && (
+        <span
+          className="absolute bottom-full right-0 z-50 mb-1 whitespace-nowrap rounded-md border border-red-hazard/30 bg-surface px-1.5 py-0.5 text-[10px] font-medium text-red-hazard shadow-lg"
+          role="alert"
+        >
+          {reportError}
+        </span>
+      )}
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-3 py-2">

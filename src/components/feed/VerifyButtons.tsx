@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface VerifyButtonsProps {
   potholeId?: number | null
@@ -10,6 +11,9 @@ interface VerifyButtonsProps {
 }
 
 export default function VerifyButtons({ potholeId, photoId, user }: VerifyButtonsProps) {
+  const { user: authUser } = useAuth()
+  const activeUser = user ?? authUser
+
   const [stillHereCount, setStillHereCount] = useState(0)
   const [fixedCount, setFixedCount] = useState(0)
   const [posting, setPosting] = useState<string | null>(null)
@@ -18,12 +22,6 @@ export default function VerifyButtons({ potholeId, photoId, user }: VerifyButton
   const rpcGet = isPothole ? 'get_detection_comments' : 'get_community_photo_comments'
   const rpcPost = isPothole ? 'create_detection_comment' : 'create_community_photo_comment'
   const idParam = isPothole ? { p_pothole_id: potholeId } : { p_photo_id: photoId }
-
-  if (!user) {
-    return (
-      <p className="text-[11px] text-text-muted">Sign in to verify this hazard</p>
-    )
-  }
 
   const contentType = isPothole ? 'pothole' : 'photo'
   const contentId = String(isPothole ? potholeId : photoId)
@@ -77,6 +75,12 @@ export default function VerifyButtons({ potholeId, photoId, user }: VerifyButton
     await supabase.rpc(rpcPost, { ...idParam, p_body: body })
     await fetchCounts()
     setPosting(null)
+  }
+
+  if (!activeUser) {
+    return (
+      <p className="text-[11px] text-text-muted">Sign in to verify this hazard</p>
+    )
   }
 
   return (
