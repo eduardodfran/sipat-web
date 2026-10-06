@@ -4,7 +4,7 @@ import { useCallback, useEffect, useSyncExternalStore, useRef, useState } from '
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useReviewQueue } from '@/hooks/useReviewQueue'
-import { ReviewCard } from '@/features/review/ReviewCard'
+import { ReviewCard, type ReviewSheet } from '@/features/review/ReviewCard'
 import { Skeleton } from '@/components/ui/Skeleton'
 
 const COACH_KEY = 'sipat_review_coach_seen'
@@ -49,6 +49,7 @@ export default function ReviewPage() {
   const { items, loading, error, hasMore, loadMore, retry } = useReviewQueue(signedIn)
 
   const [activeIndex, setActiveIndex] = useState(0)
+  const [sheet, setSheet] = useState<ReviewSheet>(null)
   const coachSeen = useSyncExternalStore(subscribeCoach, readCoachSeen, () => true)
   const [toast, setToast] = useState<string | null>(null)
 
@@ -87,21 +88,27 @@ export default function ReviewPage() {
   )
 
   const goTo = useCallback((index: number) => {
+    setSheet(null)
     const el = cardRefs.current[index]
     el?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
   }, [])
 
-  // Track the active card while the user swipes / scrolls the deck
+  // Track the active card while the user swipes / scrolls the deck.
+  // While a sheet is open the deck must not advance — arrow keys belong to the
+  // comment input, and a swipe over the backdrop must not change cards.
   const onScroll = useCallback(() => {
+    if (sheet) return
     if (scrollRaf.current != null) return
     scrollRaf.current = requestAnimationFrame(() => {
       scrollRaf.current = null
       const el = containerRef.current
       if (!el || el.clientHeight === 0) return
       const idx = Math.round(el.scrollTop / el.clientHeight)
-      setActiveIndex(Math.min(Math.max(idx, 0), Math.max(items.length - 1, 0)))
+      const clamped = Math.min(Math.max(idx, 0), Math.max(items.length - 1, 0))
+      if (clamped !== activeIndex) setSheet(null)
+      setActiveIndex(clamped)
     })
-  }, [items.length])
+  }, [items.length, activeIndex, sheet])
 
   // On card change: count skips, nudge, prefetch, keyboard-driven navigation side effects
   useEffect(() => {
@@ -125,6 +132,7 @@ export default function ReviewPage() {
   useEffect(() => {
     if (!signedIn) return
     const onKey = (e: KeyboardEvent) => {
+      if (sheet) return
       if (e.key === 'ArrowDown') {
         e.preventDefault()
         goTo(activeIndex + 1)
@@ -135,7 +143,7 @@ export default function ReviewPage() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [signedIn, activeIndex, goTo])
+  }, [signedIn, activeIndex, goTo, sheet])
 
   // Signed-out wall (after auth has resolved)
   if (!authLoading && !signedIn) {
@@ -212,6 +220,8 @@ export default function ReviewPage() {
                   sectionRef={(el) => {
                     cardRefs.current[i] = el
                   }}
+                  sheet={i === activeIndex ? sheet : null}
+                  onSheetChange={setSheet}
                 />
               ))}
 

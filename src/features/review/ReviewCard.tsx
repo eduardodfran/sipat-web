@@ -7,7 +7,10 @@ import { useVote } from '@/hooks/useVote'
 import { useReport, REASONS } from '@/hooks/useReport'
 import { useVerify } from '@/hooks/useVerify'
 import { formatRelativeTime } from '@/lib/time'
+import ReviewCommentsSheet from '@/features/review/ReviewCommentsSheet'
 import type { ReviewItem } from '@/hooks/useReviewQueue'
+
+export type ReviewSheet = 'comments' | 'report' | null
 
 interface Stamp {
   id: number
@@ -29,6 +32,7 @@ function RailButton({
   count,
   active,
   activeClass,
+  activeCaptionClass,
   disabled,
   onClick,
   children,
@@ -36,13 +40,14 @@ function RailButton({
   label: string
   count?: number
   active?: boolean
-  activeClass: string
+  activeClass?: string
+  activeCaptionClass?: string
   disabled?: boolean
   onClick: () => void
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center gap-0.5">
+    <div className="flex flex-col items-center gap-1">
       <button
         type="button"
         aria-label={label}
@@ -50,14 +55,23 @@ function RailButton({
         disabled={disabled}
         onClick={onClick}
         className={`flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur-sm transition-all hover:scale-105 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50 ${
-          active ? activeClass : 'border-white/15 bg-black/45 text-white/85 hover:bg-black/65'
+          active && activeClass
+            ? activeClass
+            : 'border-white/15 bg-black/45 text-white/85 hover:bg-black/65'
         }`}
       >
         {children}
       </button>
-      {count != null && count > 0 && (
-        <span className="font-mono text-[10px] font-semibold text-white/70">{count}</span>
-      )}
+      <span
+        className={`flex items-baseline gap-1 font-mono text-[8px] font-medium uppercase leading-none tracking-[0.14em] ${
+          active && activeCaptionClass ? activeCaptionClass : 'text-white/55'
+        } ${disabled ? 'opacity-50' : ''}`}
+      >
+        {label}
+        {count != null && count > 0 && (
+          <span className="text-[10px] font-semibold tracking-normal">{count}</span>
+        )}
+      </span>
     </div>
   )
 }
@@ -67,11 +81,15 @@ export function ReviewCard({
   active,
   onAction,
   sectionRef,
+  sheet,
+  onSheetChange,
 }: {
   item: ReviewItem
   active: boolean
   onAction: () => void
   sectionRef?: (el: HTMLElement | null) => void
+  sheet: ReviewSheet
+  onSheetChange: (s: ReviewSheet) => void
 }) {
   const contentType = item.kind
   const contentId = String(item.id)
@@ -95,7 +113,6 @@ export function ReviewCard({
   })
 
   const [stamp, setStamp] = useState<Stamp | null>(null)
-  const [sheetOpen, setSheetOpen] = useState(false)
   const stampTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -127,7 +144,7 @@ export function ReviewCard({
   const submitReport = async (reason: string) => {
     const ok = await report(reason)
     if (ok) {
-      setSheetOpen(false)
+      onSheetChange(null)
       flash('Reported', 'reported')
     }
   }
@@ -137,19 +154,19 @@ export function ReviewCard({
       const ok = await unreport()
       if (ok) onAction()
     } else {
-      setSheetOpen(true)
+      onSheetChange('report')
     }
   }
 
-  // Keyboard: ← downvote, ↑↓ handled by the page, Escape closes the sheet
+  // Keyboard: ← downvote, ↑↓ handled by the page, Escape closes any sheet
   useEffect(() => {
     if (!active) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && sheetOpen) {
-        setSheetOpen(false)
+      if (e.key === 'Escape' && sheet) {
+        onSheetChange(null)
         return
       }
-      if (sheetOpen) return
+      if (sheet) return
       if (e.key === 'ArrowRight') {
         e.preventDefault()
         doVote(1)
@@ -161,7 +178,7 @@ export function ReviewCard({
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, sheetOpen, votes.userVote, voting])
+  }, [active, sheet, votes.userVote, voting, onSheetChange])
 
   const reporterName =
     item.reporter ?? (item.kind === 'pothole' ? 'Auto-detected' : 'Anonymous')
@@ -200,12 +217,13 @@ export function ReviewCard({
         </div>
 
         {/* Action rail */}
-        <div className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-3">
+        <div className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-2.5">
           <RailButton
             label="Upvote"
             count={votes.upvotes}
             active={votes.userVote === 1}
             activeClass="border-green-safe/60 bg-green-safe/25 text-green-safe"
+            activeCaptionClass="text-green-safe"
             disabled={voteLoading || voting}
             onClick={() => doVote(1)}
           >
@@ -218,11 +236,20 @@ export function ReviewCard({
             count={votes.downvotes}
             active={votes.userVote === -1}
             activeClass="border-red-hazard/60 bg-red-hazard/25 text-red-hazard"
+            activeCaptionClass="text-red-hazard"
             disabled={voteLoading || voting}
             onClick={() => doVote(-1)}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </RailButton>
+          <RailButton
+            label="Comment"
+            onClick={() => onSheetChange('comments')}
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
             </svg>
           </RailButton>
           <RailButton
@@ -253,6 +280,7 @@ export function ReviewCard({
             label={reported ? 'Undo report' : 'Report'}
             active={reported}
             activeClass="border-red-hazard/60 bg-red-hazard/25 text-red-hazard"
+            activeCaptionClass="text-red-hazard"
             disabled={reportLoading}
             onClick={toggleReport}
           >
@@ -309,10 +337,12 @@ export function ReviewCard({
         </div>
 
         {/* Report sheet */}
-        {sheetOpen && (
+        {sheet === 'report' && (
           <div
             className="absolute inset-0 z-30 flex items-end bg-black/60"
-            onClick={() => setSheetOpen(false)}
+            onClick={() => onSheetChange(null)}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
             role="presentation"
           >
             <div
@@ -327,7 +357,7 @@ export function ReviewCard({
                 </span>
                 <button
                   type="button"
-                  onClick={() => setSheetOpen(false)}
+                  onClick={() => onSheetChange(null)}
                   aria-label="Close report sheet"
                   className="rounded-md p-1 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
                 >
@@ -356,6 +386,15 @@ export function ReviewCard({
             </div>
           </div>
         )}
+
+        {/* Comments sheet */}
+        <ReviewCommentsSheet
+          open={sheet === 'comments'}
+          potholeId={item.kind === 'pothole' ? item.id : null}
+          photoId={item.kind === 'photo' ? item.id : null}
+          onClose={() => onSheetChange(null)}
+          onCommented={onAction}
+        />
       </div>
     </section>
   )
