@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useDetectionComments } from '@/hooks/useDetectionComments'
 import { useCommunityPhotoComments } from '@/hooks/useCommunityPhotoComments'
 import { validateComment, MAX_COMMENT_LENGTH, COMMENT_COOLDOWN_MS } from '@/lib/spamDetection'
@@ -17,20 +18,33 @@ interface ReviewCommentsSheetProps {
 function SheetCommentItem({
   comment,
 }: {
-  comment: { body: string; created_at: string; username: string | null }
+  comment: { body: string; created_at: string; username: string | null; user_id?: string | null }
 }) {
   const isVerify = comment.body.startsWith('✅')
   const initial = (comment.username ?? '?')[0].toUpperCase()
+  const profileHref = comment.user_id ? `/profile/${comment.user_id}` : null
   return (
     <div className={`flex gap-2.5 ${isVerify ? 'opacity-70' : ''}`}>
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-text-muted">
-        {initial}
-      </div>
+      {profileHref ? (
+        <Link href={profileHref} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-text-muted transition-colors hover:text-text-primary">
+          {initial}
+        </Link>
+      ) : (
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-text-muted">
+          {initial}
+        </div>
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
-          <span className="text-[11px] font-semibold text-text-primary">
-            {comment.username ?? 'Anonymous'}
-          </span>
+          {profileHref ? (
+            <Link href={profileHref} className="text-[11px] font-semibold text-text-primary hover:underline">
+              {comment.username ?? 'Anonymous'}
+            </Link>
+          ) : (
+            <span className="text-[11px] font-semibold text-text-primary">
+              {comment.username ?? 'Anonymous'}
+            </span>
+          )}
           <span className="font-mono text-[10px] text-text-muted">
             {formatRelativeTime(comment.created_at)}
           </span>

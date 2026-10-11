@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useDetectionComments } from '@/hooks/useDetectionComments'
 import { useCommunityPhotoComments } from '@/hooks/useCommunityPhotoComments'
 import { useAuth } from '@/contexts/AuthContext'
@@ -22,17 +23,30 @@ function formatTime(ts: string): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-function CommentItem({ comment }: { comment: { body: string; created_at: string; username: string | null } }) {
+function CommentItem({ comment }: { comment: { body: string; created_at: string; username: string | null; user_id?: string | null } }) {
   const isVerify = comment.body.startsWith('✅')
   const initial = (comment.username ?? '?')[0].toUpperCase()
+  const profileHref = comment.user_id ? `/profile/${comment.user_id}` : null
   return (
     <div className={`flex gap-2.5 ${isVerify ? 'opacity-70' : ''}`}>
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-text-muted">
-        {initial}
-      </div>
+      {profileHref ? (
+        <Link href={profileHref} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-text-muted transition-colors hover:text-text-primary">
+          {initial}
+        </Link>
+      ) : (
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-text-muted">
+          {initial}
+        </div>
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
-          <span className="text-[11px] font-semibold text-text-primary">{comment.username ?? 'Anonymous'}</span>
+          {profileHref ? (
+            <Link href={profileHref} className="text-[11px] font-semibold text-text-primary hover:underline">
+              {comment.username ?? 'Anonymous'}
+            </Link>
+          ) : (
+            <span className="text-[11px] font-semibold text-text-primary">{comment.username ?? 'Anonymous'}</span>
+          )}
           <span className="text-[10px] text-text-muted">{formatTime(comment.created_at)}</span>
         </div>
         <p className={`mt-0.5 text-[12px] leading-relaxed ${isVerify ? 'text-green-safe' : 'text-text-secondary'}`}>

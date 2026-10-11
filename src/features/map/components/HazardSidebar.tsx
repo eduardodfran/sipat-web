@@ -1,7 +1,8 @@
 'use client'
-
 import { useEffect, useState } from 'react'
+
 import Image from 'next/image'
+import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { usePotholeDetectors } from '@/hooks/usePotholeDetectors'
 import { useDetectionComments } from '@/hooks/useDetectionComments'
@@ -329,14 +330,26 @@ export default function HazardSidebar({
                   <div className="mb-3 space-y-2">
                     {comments.map((c) => (
                       <div key={c.id} className="flex gap-2">
-                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-accent/15 text-[10px] font-bold text-cyan-accent">
-                          {(c.username ?? '?').charAt(0).toUpperCase()}
-                        </div>
+                        {c.user_id ? (
+                          <Link href={`/profile/${c.user_id}`} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-accent/15 text-[10px] font-bold text-cyan-accent">
+                            {(c.username ?? '?').charAt(0).toUpperCase()}
+                          </Link>
+                        ) : (
+                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-accent/15 text-[10px] font-bold text-cyan-accent">
+                            {(c.username ?? '?').charAt(0).toUpperCase()}
+                          </div>
+                        )}
                         <div className="min-w-0 flex-1">
                           <div className="flex items-baseline gap-2">
-                            <span className="text-xs font-semibold text-white">
-                              {c.username ?? 'Unknown'}
-                            </span>
+                            {c.user_id ? (
+                              <Link href={`/profile/${c.user_id}`} className="text-xs font-semibold text-white hover:underline">
+                                {c.username ?? 'Unknown'}
+                              </Link>
+                            ) : (
+                              <span className="text-xs font-semibold text-white">
+                                {c.username ?? 'Unknown'}
+                              </span>
+                            )}
                             <span className="text-[10px] text-text-muted">
                               {new Date(c.created_at).toLocaleDateString(undefined, {
                                 month: 'short',
