@@ -8,6 +8,7 @@ import { useServerData, type ProxyParams } from '@/hooks/useServerData'
 import { Badge } from '@/components/ui/Badge'
 import { VoteButtons } from '@/components/feed/VoteButtons'
 import { ReportButton } from '@/components/feed/ReportButton'
+import { TextEdit } from '@/components/feed/TextEdit'
 import CommentSection from '@/components/feed/CommentSection'
 import VerifyButtons from '@/components/feed/VerifyButtons'
 import { shortAddress } from '@/lib/address'
@@ -254,6 +255,7 @@ function PotholeView({ id }: { id: string }) {
   }
   const { data, loading, error } = useServerData<Record<string, unknown>[]>(params)
   const pothole = data?.[0] ? (data[0] as unknown as Pothole) : null
+  const [text, setText] = useState<{ title: string | null; description: string | null } | null>(null)
 
   if (loading) {
     return (
@@ -313,6 +315,17 @@ function PotholeView({ id }: { id: string }) {
                 <p className="text-sm text-text-secondary leading-relaxed">{address}</p>
               </div>
             )}
+
+            {/* Owner-editable title & description */}
+            <TextEdit
+              kind="pothole"
+              id={pothole.pothole_id}
+              title={text?.title ?? pothole.title ?? null}
+              description={text?.description ?? pothole.description ?? null}
+              caption={pothole.caption ?? null}
+              isOwner={!!user && pothole.reporter_user_id === user.id}
+              onSaved={(title, description) => setText({ title, description })}
+            />
 
             {/* Stats */}
             <div>
@@ -405,6 +418,7 @@ function PhotoView({ id }: { id: string }) {
   }
   const { data, loading, error } = useServerData<Record<string, unknown>[]>(params)
   const photo = data?.[0] ? (data[0] as unknown as CommunityPhoto) : null
+  const [text, setText] = useState<{ title: string | null; description: string | null } | null>(null)
 
   const handleTag = useCallback(async () => {
     if (!photo || tagging) return
@@ -465,6 +479,17 @@ function PhotoView({ id }: { id: string }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
               </svg>
             </Link>
+
+            {/* Owner-editable title & description */}
+            <TextEdit
+              kind="photo"
+              id={photo.id}
+              title={text?.title ?? photo.title ?? null}
+              description={text?.description ?? photo.description ?? null}
+              caption={photo.caption ?? null}
+              isOwner={!!user && photo.user_id === user.id}
+              onSaved={(title, description) => setText({ title, description })}
+            />
 
             {/* Detection + severity */}
             <div className="flex flex-wrap items-center gap-2">

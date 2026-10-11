@@ -18,6 +18,9 @@ export interface CommunityPhoto {
   worst_severity: string | null
   confidence: number | null
   class_name: string | null
+  caption?: string | null
+  title?: string | null
+  description?: string | null
   created_at: string
   updated_at: string
   reporter_username: string | null

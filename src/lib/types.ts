@@ -11,8 +11,12 @@ export interface Pothole {
   citizen_first_reported_at: string
   latest_activity_at: string
   image_url: string | null
+  reporter_user_id?: string | null
   reporter_username: string | null
   reporter_avatar: string | null
+  caption?: string | null
+  title?: string | null
+  description?: string | null
   detectors_count: number
   street: string | null
   barangay: string | null
