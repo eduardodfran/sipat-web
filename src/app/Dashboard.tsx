@@ -7,6 +7,7 @@ import HazardSidebar from '@/features/map/components/HazardSidebar'
 import { SeverityDonutChart } from '@/features/dashboard/components/SeverityDonutChart'
 import { DetectionsTimeline } from '@/features/dashboard/components/DetectionsTimeline'
 import { TopHazardsList } from '@/features/dashboard/components/TopHazardsList'
+import { HazardsByArea } from '@/features/dashboard/components/HazardsByArea'
 import { TimeOfDayArc } from '@/features/dashboard/components/TimeOfDayArc'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { GuideCard } from '@/components/ui/GuideCard'
@@ -314,10 +315,13 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* RIGHT: Time of Day + Quick Actions */}
+        {/* RIGHT: Time of Day + Areas + Quick Actions */}
         <div className="space-y-6 lg:col-span-4">
           <div className="rounded-xl border border-border bg-surface">
             <TimeOfDayArc potholes={allPotholes} />
+          </div>
+          <div className="rounded-xl border border-border bg-surface">
+            <HazardsByArea potholes={filteredHazards} />
           </div>
           {/* Quick links */}
           <div className="rounded-xl border border-border bg-surface p-5">
