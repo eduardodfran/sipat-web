@@ -31,6 +31,7 @@ export interface Pothole {
   upvote_count: number
   downvote_count: number
   user_vote: 0 | 1 | -1
+  activity_status?: string | null
 }
 
 export interface Detector {

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
 import type { Pothole } from '@/lib/types'
@@ -57,6 +58,9 @@ function PhotoCard({ photo }: { photo: CommunityPhoto }) {
           {photo.worst_severity && (
             <span className="text-[11px] font-medium text-text-muted">{photo.worst_severity}</span>
           )}
+          {photo.activity_status === 'fixed' && (
+            <span className="rounded border border-green-safe/50 bg-green-safe/15 px-1.5 py-px text-[9px] font-bold tracking-wider text-green-safe">FIXED</span>
+          )}
           {photo.detection_status === 'processed' && photo.class_name && (
             <span className="text-[11px] text-cyan-accent">
               {photo.class_name}
@@ -96,6 +100,9 @@ function PotholeCard({ p }: { p: Pothole }) {
       <div className="p-3">
         <div className="flex items-center gap-2 mb-1">
           <Badge severity={p.worst_severity} size="sm" />
+          {p.activity_status === 'fixed' && (
+            <span className="rounded border border-green-safe/50 bg-green-safe/15 px-1.5 py-px text-[9px] font-bold tracking-wider text-green-safe">FIXED</span>
+          )}
           <span className="text-[9px] text-text-muted">{p.total_detection_hits} detection{p.total_detection_hits !== 1 ? 's' : ''}</span>
         </div>
         <p className="truncate text-[11px] text-text-secondary">{address ?? 'Unknown location'}</p>
@@ -110,6 +117,7 @@ function PotholeCard({ p }: { p: Pothole }) {
 export default function PublicProfilePage() {
   const params = useParams<{ userId: string }>()
   const { theme, toggle } = useTheme()
+  const { user } = useAuth()
   const [profile, setProfile] = useState<{ id: string; username: string | null; avatar_url: string | null } | null>(null)
   const [photos, setPhotos] = useState<CommunityPhoto[]>([])
   const [potholes, setPotholes] = useState<Pothole[]>([])
@@ -150,22 +158,26 @@ export default function PublicProfilePage() {
 
       setProfile(prof)
 
-      const [photosRes, potholesRes] = await Promise.all([
-        supabase
-          .from('community_photos')
-          .select('*')
-          .eq('user_id', prof.id)
-          .eq('activity_status', 'active')
-          .order('created_at', { ascending: false })
-          .limit(50),
-        supabase
-          .from('v_unified_potholes')
-          .select('pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, detectors_count, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, street, barangay, city, province, region, country, formatted_address')
-          .eq('reporter_username', prof.username ?? '')
-          .eq('activity_status', 'active')
-          .order('latest_activity_at', { ascending: false })
-          .limit(50),
-      ])
+      // Owners see their own fixed posts (badged) so a wrongful "fixed" can be
+      // contested from the detail page; other viewers only see active posts.
+      const isOwn = !!user && prof.id === user.id
+      const photosQuery = supabase
+        .from('community_photos')
+        .select('*')
+        .eq('user_id', prof.id)
+        .order('created_at', { ascending: false })
+        .limit(50)
+      const potholesQuery = supabase
+        .from('v_unified_potholes')
+        .select('pothole_id, consolidated_latitude, consolidated_longitude, worst_severity, total_detection_hits, detectors_count, citizen_first_reported_at, latest_activity_at, image_url, reporter_username, street, barangay, city, province, region, country, formatted_address, activity_status')
+        .eq('reporter_username', prof.username ?? '')
+        .order('latest_activity_at', { ascending: false })
+        .limit(50)
+      if (!isOwn) {
+        void photosQuery.eq('activity_status', 'active')
+        void potholesQuery.eq('activity_status', 'active')
+      }
+      const [photosRes, potholesRes] = await Promise.all([photosQuery, potholesQuery])
 
       setPhotos((photosRes.data ?? []) as CommunityPhoto[])
       setPotholes((potholesRes.data ?? []) as Pothole[])
@@ -173,7 +185,7 @@ export default function PublicProfilePage() {
     }
 
     load()
-  }, [params?.userId])
+  }, [params?.userId, user?.id])
 
   if (loading) {
     return (

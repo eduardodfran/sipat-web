@@ -158,6 +158,21 @@ function StatCard({
   )
 }
 
+/* ─── fixed-status banner ─── */
+
+function FixedBanner() {
+  return (
+    <div className="mx-auto mt-6 flex max-w-5xl items-center gap-2.5 rounded-2xl border border-green-safe/40 bg-green-safe/10 px-4 py-3">
+      <svg className="h-4 w-4 shrink-0 text-green-safe" fill="none" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p className="text-xs font-semibold leading-relaxed text-green-safe">
+        Marked as fixed and hidden from all lists — tap Still here below if it&apos;s still there.
+      </p>
+    </div>
+  )
+}
+
 /* ─── nearby hazards ─── */
 
 function NearbyHazards({ currentId }: { currentId: number }) {
@@ -279,6 +294,7 @@ function PotholeView({ id }: { id: string }) {
   return (
     <div className="min-h-screen bg-asphalt">
       <PageHeader title="Detection" theme={theme} toggle={toggle} />
+      {pothole.activity_status === 'fixed' && <FixedBanner />}
 
       <main className="mx-auto max-w-5xl px-6 py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
@@ -457,6 +473,7 @@ function PhotoView({ id }: { id: string }) {
   return (
     <div className="min-h-screen bg-asphalt">
       <PageHeader title="Photo Report" theme={theme} toggle={toggle} />
+      {photo.activity_status === 'fixed' && <FixedBanner />}
 
       <main className="mx-auto max-w-5xl px-6 py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
