@@ -155,6 +155,9 @@ export async function POST(request: NextRequest) {
     }
     if (!pothole) return NextResponse.json({ error: 'Pothole not found.' }, { status: 404 })
     const row = pothole as unknown as Record<string, unknown>
+    // Ownership must be provable via the first-detector ride. Orphan potholes
+    // (no ride, or ride row gone) are denied to everyone — including reporters.
+    let rideOwner: string | null = null
     if (row.ride_id) {
       const { data: ride, error: rideError } = await svc
         .from('rides_metadata')
@@ -164,12 +167,13 @@ export async function POST(request: NextRequest) {
       if (rideError) {
         return NextResponse.json({ error: 'Could not verify ownership.' }, { status: 500 })
       }
-      if (ride && (ride as unknown as Record<string, unknown>).user_id !== user.id) {
-        return NextResponse.json(
-          { error: 'You can only edit titles and descriptions for your own detections.' },
-          { status: 403 },
-        )
-      }
+      rideOwner = (ride as unknown as Record<string, unknown> | null)?.user_id as string | null ?? null
+    }
+    if (rideOwner !== user.id) {
+      return NextResponse.json(
+        { error: 'You can only edit titles and descriptions for your own detections.' },
+        { status: 403 },
+      )
     }
     return applyEdit(svc, 'pothole', id, user.id, row, updates)
   } catch {

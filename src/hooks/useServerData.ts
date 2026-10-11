@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export interface ProxyParams {
   table: string
@@ -57,9 +58,21 @@ export function useServerData<T = unknown>(params: ProxyParams) {
     const doFetch = async () => {
       setLoading(true)
       try {
+        // Attach the session token when present — required for
+        // rides_metadata row reads (route forces user_id == token owner).
+        // Public tables ignore it.
+        let authHeaders: Record<string, string> = { 'Content-Type': 'application/json' }
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession()
+          if (session?.access_token) {
+            authHeaders = { ...authHeaders, Authorization: `Bearer ${session.access_token}` }
+          }
+        } catch {}
         const res = await fetch('/api/cache/proxy', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders,
           body: JSON.stringify(params),
         })
 
