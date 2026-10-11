@@ -20,8 +20,11 @@ type UserResult = {
 
 type PhotoResult = {
   id: number
+  user_id: string
   image_url: string
   caption: string | null
+  title?: string | null
+  description?: string | null
   created_at: string
   detection_status: string | null
   worst_severity: string | null
@@ -31,8 +34,11 @@ type PhotoResult = {
 
 type PotholeResult = {
   pothole_id: number
+  reporter_user_id?: string | null
   image_url: string | null
   caption: string | null
+  title?: string | null
+  description?: string | null
   formatted_address: string | null
   worst_severity: string | null
   total_detection_hits: number
@@ -94,15 +100,15 @@ export default function SearchPage() {
         const [photosRes, potholesRes] = await Promise.all([
           supabase
             .from('community_photos')
-            .select('id, image_url, caption, created_at, detection_status, worst_severity, reporter_username, formatted_address')
-            .or(`caption.ilike.${pattern},reporter_username.ilike.${pattern},formatted_address.ilike.${pattern}`)
+            .select('id, user_id, image_url, caption, title, description, created_at, detection_status, worst_severity, reporter_username, formatted_address')
+            .or(`caption.ilike.${pattern},title.ilike.${pattern},reporter_username.ilike.${pattern},formatted_address.ilike.${pattern}`)
             .eq('activity_status', 'active')
             .order('created_at', { ascending: false })
             .limit(20),
           supabase
             .from('v_unified_potholes')
-            .select('pothole_id, image_url, caption, formatted_address, worst_severity, total_detection_hits, citizen_first_reported_at, reporter_username')
-            .or(`caption.ilike.${pattern},formatted_address.ilike.${pattern},reporter_username.ilike.${pattern}`)
+            .select('pothole_id, reporter_user_id, image_url, caption, title, description, formatted_address, worst_severity, total_detection_hits, citizen_first_reported_at, reporter_username')
+            .or(`caption.ilike.${pattern},title.ilike.${pattern},formatted_address.ilike.${pattern},reporter_username.ilike.${pattern}`)
             .eq('activity_status', 'active')
             .order('citizen_first_reported_at', { ascending: false, nullsFirst: false })
             .limit(20),

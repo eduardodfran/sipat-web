@@ -323,6 +323,12 @@ export function ReviewCard({
             </span>
           </div>
           <p className="mt-1.5 text-sm font-semibold leading-snug text-white">{item.address}</p>
+          {item.title && (
+            <p className="mt-1.5 text-[15px] font-bold leading-snug text-white">{item.title}</p>
+          )}
+          {item.description && (
+            <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-white/75">{item.description}</p>
+          )}
           <div className="mt-1.5 flex items-center gap-2 text-[11px] text-white/60">
             <span className="font-medium text-white/85">{reporterName}</span>
             <span aria-hidden>·</span>

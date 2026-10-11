@@ -14,6 +14,8 @@ export interface ReviewItem {
   imageUrl: string | null
   eyebrow: string
   severity: Severity | null
+  title: string | null
+  description: string | null
   address: string
   reporter: string | null
   time: string
@@ -33,6 +35,8 @@ function toPotholeItem(p: Pothole): ReviewItem {
     imageUrl: p.image_url,
     eyebrow: `Detection ${p.pothole_id}`,
     severity: (p.worst_severity as Severity) ?? 'Unknown',
+    title: p.title ?? null,
+    description: p.description ?? null,
     address: shortAddress(p),
     reporter: p.reporter_username,
     time: p.latest_activity_at || p.citizen_first_reported_at || '',
@@ -69,6 +73,8 @@ function toPhotoItem(ph: CommunityPhoto): ReviewItem {
     imageUrl: ph.image_url,
     eyebrow: `Community photo ${ph.id}`,
     severity: sev && SEVERITIES.includes(sev) ? (sev as Severity) : null,
+    title: ph.title ?? null,
+    description: ph.description ?? null,
     address: shortAddress(ph),
     reporter: ph.reporter_username,
     time: ph.created_at,
