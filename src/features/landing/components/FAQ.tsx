@@ -115,7 +115,7 @@ export function FAQ() {
               </a>
             </p>
             <a
-              href="https://expo.dev/accounts/eduardofran/projects/SipatApp/builds/5c72bfac-4261-4984-930e-5653529ac499"
+              href="https://drive.google.com/file/d/1m5Nul7v7p6fSnpJJVMs4zOeI83gf5vG5/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg bg-cyan-accent px-5 py-2.5 text-sm font-semibold text-asphalt transition-colors hover:bg-cyan-hover"

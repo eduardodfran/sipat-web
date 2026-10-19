@@ -11,7 +11,7 @@ const RESOURCE_LINKS = [
   { href: '/rides', label: 'Rides' },
 ]
 
-const DOWNLOAD_URL = 'https://expo.dev/accounts/eduardofran/projects/SipatApp/builds/5c72bfac-4261-4984-930e-5653529ac499'
+const DOWNLOAD_URL = 'https://drive.google.com/file/d/1m5Nul7v7p6fSnpJJVMs4zOeI83gf5vG5/view?usp=sharing'
 const CONTACT_EMAIL = 'franeduardo305@gmail.com'
 
 export function Footer() {

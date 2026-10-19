@@ -40,7 +40,7 @@ export function CTABanner() {
                 </div>
                 <p className="text-xs text-text-muted">Free to use</p>
                 <a
-                  href="https://expo.dev/accounts/eduardofran/projects/SipatApp/builds/5c72bfac-4261-4984-930e-5653529ac499"
+                  href="https://drive.google.com/file/d/1m5Nul7v7p6fSnpJJVMs4zOeI83gf5vG5/view?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-xs text-text-secondary transition-colors hover:text-cyan-accent"
