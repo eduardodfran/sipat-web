@@ -20,6 +20,7 @@ import { supabase } from '@/lib/supabase'
 import { fullAddress } from '@/lib/address'
 import CommunityPhotoMarker from './CommunityPhotoMarker'
 import { buildVoteReportHtml, initPopupInteractions } from './PopupInteractions'
+import { escapeHtml } from '@/lib/escapeHtml'
 
 export type ViewMode = 'routes' | 'potholes' | 'all'
 
@@ -56,12 +57,13 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
 
   // Image — smaller
   if (p.image_url) {
-    html += `<img src="/_next/image?url=${encodeURIComponent(p.image_url)}&w=384&q=70" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
+    const imgSrc = `/_next/image?url=${encodeURIComponent(p.image_url)}&w=384&q=70`
+    html += `<img src="${escapeHtml(imgSrc)}" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
   }
 
   // Row: badges + detectors + date
   html += `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">`
-  html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;color:${severityColor};background:${severityColor}15;">${p.worst_severity}</span>`
+  html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;color:${severityColor};background:${severityColor}15;">${escapeHtml(p.worst_severity)}</span>`
   html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;color:${statusColors[status]};background:${statusColors[status]}15;">${statusLabels[status]}</span>`
   html += `<span style="font-size:10px;color:#71717a;">${p.detectors_count} det</span>`
   html += `<span style="font-size:10px;color:#52525b;margin-left:auto;">${p.latest_activity_at ? new Date(p.latest_activity_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—'}</span>`
@@ -69,7 +71,7 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
 
   // Address — no background box
   if (addrLines.length > 0) {
-    html += `<div style="font-size:11px;color:#a1a1aa;margin-bottom:6px;line-height:1.4;">${addrLines.join(', ')}</div>`
+    html += `<div style="font-size:11px;color:#a1a1aa;margin-bottom:6px;line-height:1.4;">${escapeHtml(addrLines.join(', '))}</div>`
   } else {
     html += `<div style="font-size:10px;color:#52525b;margin-bottom:6px;">${p.consolidated_latitude?.toFixed(4)}, ${p.consolidated_longitude?.toFixed(4)}</div>`
   }
@@ -88,10 +90,10 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
     html += `<div style="max-height:80px;overflow-y:auto;margin-bottom:6px;">`
     html += `<div style="font-size:9px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:3px;">Detected by (${detectors.length})</div>`
     for (const d of show) {
-      const initial = (d.username ?? d.full_name ?? '?').charAt(0).toUpperCase()
+      const initial = escapeHtml((d.username ?? d.full_name ?? '?').charAt(0).toUpperCase() || '?')
       html += `<div style="display:flex;align-items:center;gap:6px;padding:2px 0;">`
       html += `<div style="width:18px;height:18px;border-radius:9px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#e6a817;flex-shrink:0;">${initial}</div>`
-      html += `<span style="font-size:11px;color:#e4e4e7;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.username ?? d.full_name ?? 'Unknown'}</span>`
+      html += `<span style="font-size:11px;color:#e4e4e7;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(d.username ?? d.full_name ?? 'Unknown')}</span>`
       html += `<span style="font-size:9px;color:#52525b;flex-shrink:0;">${new Date(d.detected_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>`
       html += `</div>`
     }
@@ -108,8 +110,8 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
     html += `<div style="font-size:9px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:3px;">Comments (${comments.length})</div>`
     for (const c of show) {
       html += `<div style="display:flex;gap:5px;padding:2px 0;">`
-      html += `<div style="width:16px;height:16px;border-radius:8px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#e6a817;flex-shrink:0;">${(c.username ?? '?')[0].toUpperCase()}</div>`
-      html += `<div style="flex:1;min-width:0;"><span style="font-size:10px;font-weight:600;color:#e4e4e7;">${c.username ?? 'Unknown'}</span> <span style="font-size:10px;color:#a1a1aa;">${c.body}</span></div>`
+      html += `<div style="width:16px;height:16px;border-radius:8px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#e6a817;flex-shrink:0;">${escapeHtml(((c.username ?? '?').charAt(0) || '?').toUpperCase())}</div>`
+      html += `<div style="flex:1;min-width:0;"><span style="font-size:10px;font-weight:600;color:#e4e4e7;">${escapeHtml(c.username ?? 'Unknown')}</span> <span style="font-size:10px;color:#a1a1aa;">${escapeHtml(c.body)}</span></div>`
       html += `</div>`
     }
     if (comments.length > 2) html += `<div style="font-size:10px;color:#71717a;text-align:center;">+${comments.length - 2} more</div>`

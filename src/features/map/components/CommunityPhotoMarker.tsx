@@ -6,6 +6,7 @@ import type { CommunityPhoto } from '@/lib/communityPhotoTypes'
 import type { DetectionComment } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 import { buildVoteReportHtml, initPopupInteractions } from './PopupInteractions'
+import { escapeHtml } from '@/lib/escapeHtml'
 
 const STATUS_STYLE: Record<string, { color: string; label: string }> = {
   pending: { color: '#f59e0b', label: 'Analyzing...' },
@@ -38,28 +39,28 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
   let html = `<div id="photo-popup-${pid}" style="min-width:240px;max-width:300px;font-family:system-ui,sans-serif;background:#0c0c14;border-radius:10px;padding:10px;">`
 
   // Image — smaller
-  html += `<img src="${thumbUrl(p.image_url, 384)}" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
+  html += `<img src="${escapeHtml(thumbUrl(p.image_url, 384))}" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
 
   // Row: badges + date
   html += `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">`
   if (p.worst_severity) {
-    html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;color:${severityColor};background:${severityColor}15;">${p.worst_severity}</span>`
+    html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;color:${severityColor};background:${severityColor}15;">${escapeHtml(p.worst_severity)}</span>`
   }
-  html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;color:${STATUS_STYLE[p.detection_status]?.color ?? '#6b7280'};background:${(STATUS_STYLE[p.detection_status]?.color ?? '#6b7280')}15;">${STATUS_STYLE[p.detection_status]?.label ?? p.detection_status}</span>`
+  html += `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;color:${STATUS_STYLE[p.detection_status]?.color ?? '#6b7280'};background:${(STATUS_STYLE[p.detection_status]?.color ?? '#6b7280')}15;">${escapeHtml(STATUS_STYLE[p.detection_status]?.label ?? p.detection_status)}</span>`
   html += `<span style="font-size:10px;color:#52525b;margin-left:auto;">${new Date(p.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>`
   html += `</div>`
 
   // Detection info — compact
   if (p.detection_status === 'processed' && p.class_name) {
     html += `<div style="font-size:11px;color:#a1a1aa;margin-bottom:6px;">`
-    html += `<span style="color:#e4e4e7;font-weight:600;">${p.class_name}</span>`
+    html += `<span style="color:#e4e4e7;font-weight:600;">${escapeHtml(p.class_name)}</span>`
     if (p.confidence != null) html += ` · ${(p.confidence * 100).toFixed(0)}%`
     html += `</div>`
   }
 
   // Address — no background box
   if (addrLines.length > 0) {
-    html += `<div style="font-size:11px;color:#a1a1aa;margin-bottom:6px;line-height:1.4;">${addrLines.join(', ')}</div>`
+    html += `<div style="font-size:11px;color:#a1a1aa;margin-bottom:6px;line-height:1.4;">${escapeHtml(addrLines.join(', '))}</div>`
   } else {
     html += `<div style="font-size:10px;color:#52525b;margin-bottom:6px;">${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}</div>`
   }
@@ -71,8 +72,8 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
     html += `<div style="font-size:9px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:3px;">Comments (${comments.length})</div>`
     for (const c of show) {
       html += `<div style="display:flex;gap:5px;padding:2px 0;">`
-      html += `<div style="width:16px;height:16px;border-radius:8px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#e6a817;flex-shrink:0;">${(c.username ?? '?')[0].toUpperCase()}</div>`
-      html += `<div style="flex:1;min-width:0;"><span style="font-size:10px;font-weight:600;color:#e4e4e7;">${c.username ?? 'Unknown'}</span> <span style="font-size:10px;color:#a1a1aa;">${c.body}</span></div>`
+      html += `<div style="width:16px;height:16px;border-radius:8px;background:rgba(230,168,23,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#e6a817;flex-shrink:0;">${escapeHtml(((c.username ?? '?').charAt(0) || '?').toUpperCase())}</div>`
+      html += `<div style="flex:1;min-width:0;"><span style="font-size:10px;font-weight:600;color:#e4e4e7;">${escapeHtml(c.username ?? 'Unknown')}</span> <span style="font-size:10px;color:#a1a1aa;">${escapeHtml(c.body)}</span></div>`
       html += `</div>`
     }
     if (comments.length > 2) html += `<div style="font-size:10px;color:#71717a;text-align:center;">+${comments.length - 2} more</div>`
@@ -112,7 +113,7 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
 
   // Footer — inline
   html += `<div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;">`
-  html += `<span style="font-size:9px;color:#52525b;">by ${p.reporter_username ?? 'Anonymous'}</span>`
+  html += `<span style="font-size:9px;color:#52525b;">by ${escapeHtml(p.reporter_username ?? 'Anonymous')}</span>`
   html += `<a href="/feed/photo/${pid}" target="_blank" style="font-size:10px;font-weight:600;color:#06b6d4;text-decoration:none;">Open in Feed →</a>`
   html += `</div>`
 
@@ -140,7 +141,7 @@ export default function CommunityPhotoMarker({ photos, map, onSelect, user }: Pr
       const cameraGlyph = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7.5 6.5H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-2.5L14.5 4Z"/><circle cx="12" cy="13" r="3.2"/></svg>`
 
       const photoLayer = p.image_url
-        ? `<img src="${thumbUrl(p.image_url, 96)}" alt="" decoding="async" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" />`
+        ? `<img src="${escapeHtml(thumbUrl(p.image_url, 96))}" alt="" decoding="async" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" />`
         : ''
 
       const icon = L.divIcon({
