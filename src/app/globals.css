@@ -345,3 +345,16 @@ body {
   height: 60%;
   border-right: 2px dashed rgba(8, 145, 178, 0.2);
 }
+
+/* Community photo markers — subtle hover lift */
+.community-photo-marker-circle {
+  transition: transform 120ms ease;
+}
+.community-photo-marker:hover .community-photo-marker-circle {
+  transform: scale(1.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  .community-photo-marker:hover .community-photo-marker-circle {
+    transform: none;
+  }
+}

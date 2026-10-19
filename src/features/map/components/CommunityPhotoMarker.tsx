@@ -7,16 +7,20 @@ import type { DetectionComment } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 import { buildVoteReportHtml, initPopupInteractions } from './PopupInteractions'
 
-const STATUS_STYLE: Record<string, { color: string; icon: string; label: string }> = {
-  pending: { color: '#6b7280', icon: '?', label: 'Analyzing...' },
-  processed: { color: '#06b6d4', icon: '!', label: 'Detected' },
-  no_detection: { color: '#3f3f46', icon: '—', label: 'No Distress' },
+const STATUS_STYLE: Record<string, { color: string; label: string }> = {
+  pending: { color: '#f59e0b', label: 'Analyzing...' },
+  processed: { color: '#06b6d4', label: 'Detected' },
+  no_detection: { color: '#71717a', label: 'No Distress' },
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
   Severe: '#dc2626',
   Moderate: '#f59e0b',
   Minor: '#22c55e',
+}
+
+function thumbUrl(url: string, w: number): string {
+  return `/_next/image?url=${encodeURIComponent(url)}&w=${w}&q=70`
 }
 
 function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInteractions?: boolean, user?: { email?: string } | null): string {
@@ -34,7 +38,7 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
   let html = `<div id="photo-popup-${pid}" style="min-width:240px;max-width:300px;font-family:system-ui,sans-serif;background:#0c0c14;border-radius:10px;padding:10px;">`
 
   // Image — smaller
-  html += `<img src="${p.image_url}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
+  html += `<img src="${thumbUrl(p.image_url, 384)}" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
 
   // Row: badges + date
   html += `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">`
@@ -133,20 +137,26 @@ export default function CommunityPhotoMarker({ photos, map, onSelect, user }: Pr
       const style = STATUS_STYLE[p.detection_status] ?? STATUS_STYLE.pending
       const pid = p.id
 
+      const cameraGlyph = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7.5 6.5H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-2.5L14.5 4Z"/><circle cx="12" cy="13" r="3.2"/></svg>`
+
+      const photoLayer = p.image_url
+        ? `<img src="${thumbUrl(p.image_url, 96)}" alt="" decoding="async" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" />`
+        : ''
+
       const icon = L.divIcon({
         className: 'community-photo-marker',
-        html: `<div style="
-          width:32px;height:32px;border-radius:8px;
-          background:${style.color};border:2px solid rgba(255,255,255,0.3);
-          display:flex;align-items:center;justify-content:center;
-          font-weight:700;font-size:14px;color:white;
-          box-shadow:0 2px 8px rgba(0,0,0,0.4);
-        ">${style.icon}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+        html: `<div style="position:relative;width:40px;height:40px;">
+          <div class="community-photo-marker-circle" style="position:absolute;inset:0;border-radius:50%;overflow:hidden;border:2px solid #fff;box-sizing:border-box;background:#18181b;box-shadow:0 2px 8px rgba(0,0,0,0.35);">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">${cameraGlyph}</div>
+            ${photoLayer}
+          </div>
+          <div style="position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:50%;background:${style.color};border:2px solid #fff;box-sizing:border-box;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+        </div>`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
       })
 
-      const marker = L.marker([p.latitude, p.longitude], { icon })
+      const marker = L.marker([p.latitude, p.longitude], { icon, title: `Photo · ${style.label}`, zIndexOffset: 1000 })
       marker.bindPopup(popupHtml(p, undefined, false, user), { maxWidth: 300, className: 'community-photo-popup' })
       marker.on('click', () => onSelect?.(p))
 

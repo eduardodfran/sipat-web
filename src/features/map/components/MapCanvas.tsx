@@ -56,7 +56,7 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
 
   // Image — smaller
   if (p.image_url) {
-    html += `<img src="${p.image_url}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
+    html += `<img src="/_next/image?url=${encodeURIComponent(p.image_url)}&w=384&q=70" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
   }
 
   // Row: badges + detectors + date
@@ -223,7 +223,7 @@ export default function MapCanvas({
         iconCreateFunction: (cluster: any) => {
           const count = cluster.getChildCount()
           return L.divIcon({
-            html: `<div class="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-accent text-asphalt text-xs font-bold">${count}</div>`,
+            html: `<div style="width:30px;height:30px;margin:5px;border:2px solid #fff;border-radius:9999px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:var(--color-cyan-accent);color:var(--color-asphalt);font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.35);">${count}</div>`,
             className: 'marker-cluster',
             iconSize: L.point(40, 40),
           })
