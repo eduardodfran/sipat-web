@@ -310,11 +310,11 @@ export default function MapCanvas({
           const marker = LObj.circleMarker(
             [p.consolidated_latitude!, p.consolidated_longitude!],
             {
-              radius: 7,
-              color,
+              radius: 8,
+              color: '#ffffff',
               fillColor: color,
-              fillOpacity: 0.9,
-              weight: 0,
+              fillOpacity: 0.95,
+              weight: 2,
             },
           )
           clusterGroupRef.current.addLayer(marker)
