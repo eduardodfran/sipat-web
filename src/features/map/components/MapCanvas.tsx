@@ -57,8 +57,8 @@ function buildPotholePopupHtml(p: Pothole, detectors?: Detector[], comments?: De
 
   // Image — smaller
   if (p.image_url) {
-    const imgSrc = `/_next/image?url=${encodeURIComponent(p.image_url)}&w=384&q=70`
-    html += `<img src="${escapeHtml(imgSrc)}" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
+    const imgSrc = `/_next/image?url=${encodeURIComponent(p.image_url)}&w=384&q=75`
+    html += `<img src="${escapeHtml(imgSrc)}" decoding="async" onerror="this.remove()" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
   }
 
   // Row: badges + detectors + date

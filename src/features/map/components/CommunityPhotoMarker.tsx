@@ -21,7 +21,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 }
 
 function thumbUrl(url: string, w: number): string {
-  return `/_next/image?url=${encodeURIComponent(url)}&w=${w}&q=70`
+  return `/_next/image?url=${encodeURIComponent(url)}&w=${w}&q=75`
 }
 
 function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInteractions?: boolean, user?: { email?: string } | null): string {
@@ -39,7 +39,7 @@ function popupHtml(p: CommunityPhoto, comments?: DetectionComment[], showInterac
   let html = `<div id="photo-popup-${pid}" style="min-width:240px;max-width:300px;font-family:system-ui,sans-serif;background:#0c0c14;border-radius:10px;padding:10px;">`
 
   // Image — smaller
-  html += `<img src="${escapeHtml(thumbUrl(p.image_url, 384))}" decoding="async" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
+  html += `<img src="${escapeHtml(thumbUrl(p.image_url, 384))}" decoding="async" onerror="this.remove()" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;" />`
 
   // Row: badges + date
   html += `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">`
