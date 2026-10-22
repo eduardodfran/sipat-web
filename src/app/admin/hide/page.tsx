@@ -7,6 +7,13 @@ import { supabase } from '@/lib/supabase'
 
 const ADMIN_EMAIL = 'franeduardo305@gmail.com'
 
+const SEVERITIES = ['Severe', 'Moderate', 'Minor', 'Unknown'] as const
+type SeverityOption = (typeof SEVERITIES)[number]
+
+function severityOption(value: string | null): SeverityOption {
+  return SEVERITIES.includes(value as SeverityOption) ? (value as SeverityOption) : 'Unknown'
+}
+
 type Row = {
   content_type: 'pothole' | 'photo'
   content_id: string
@@ -27,6 +34,7 @@ export default function HiddenAdminHidePage() {
   const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
+  const [severityBusy, setSeverityBusy] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [zoom, setZoom] = useState<Row | null>(null)
@@ -82,6 +90,35 @@ export default function HiddenAdminHidePage() {
     setBusy(null)
   }
 
+  const saveSeverity = async (row: Row, severity: SeverityOption) => {
+    const key = `${row.content_type}:${row.content_id}`
+    if (severityOption(row.severity) === severity) return
+    setSeverityBusy(key)
+    setError(null)
+    const { error } = await supabase.rpc('admin_set_severity', {
+      p_content_type: row.content_type,
+      p_content_id: row.content_id,
+      p_severity: severity,
+    })
+    if (error) {
+      setError(error.message)
+    } else {
+      setRows((prev) =>
+        prev.map((r) =>
+          r.content_type === row.content_type && r.content_id === row.content_id
+            ? { ...r, severity }
+            : r,
+        ),
+      )
+      setZoom((prev) =>
+        prev && prev.content_type === row.content_type && prev.content_id === row.content_id
+          ? { ...prev, severity }
+          : prev,
+      )
+    }
+    setSeverityBusy(null)
+  }
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return rows
@@ -115,12 +152,12 @@ export default function HiddenAdminHidePage() {
 
   return (
     <div className="min-h-screen bg-asphalt px-4 py-8">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-4xl">
         <p className="text-[11px] uppercase tracking-widest text-text-muted">Unlisted utility — not in navigation</p>
         <h1 className="mt-1 text-xl font-bold text-text-primary">Hide / Unhide detections</h1>
         <p className="mt-1 text-xs text-text-muted">
           Hiding removes the item from map, feed, heatmap and driving alerts immediately (same mechanism as 3
-          reports). Unhide restores it. Use before defense to clean bad pins.
+          reports). Unhide restores it. Use the severity dropdown to correct a classification.
         </p>
 
         <div className="mt-4 flex gap-2">
@@ -159,10 +196,10 @@ export default function HiddenAdminHidePage() {
                     className="shrink-0"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={thumb} alt="" className="h-12 w-12 rounded-lg object-cover transition-transform hover:scale-105" />
+                    <img src={thumb} alt="" className="h-20 w-20 rounded-xl object-cover transition-transform hover:scale-105 sm:h-24 sm:w-24" />
                   </button>
                 ) : (
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/5 text-[10px] text-text-muted">
+                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-white/5 text-[10px] text-text-muted sm:h-24 sm:w-24">
                     {r.content_type}
                   </div>
                 )}
@@ -172,15 +209,33 @@ export default function HiddenAdminHidePage() {
                     {r.is_hidden && <span className="ml-2 text-[10px] font-bold uppercase text-text-muted">hidden</span>}
                   </p>
                   <p className="truncate text-[11px] text-text-muted">
-                    {r.content_type} #{r.content_id} · {r.severity ?? '—'} · {r.caption ?? 'no caption'}
+                    {r.content_type} #{r.content_id} · {r.caption ?? 'no caption'}
                     {isNearby && <span> · nearby photo ~{Math.round(r.nearby_m ?? 0)}m</span>}
                   </p>
+                  <label className="mt-1.5 flex items-center gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                      Severity
+                    </span>
+                    <select
+                      value={severityOption(r.severity)}
+                      onChange={(e) => saveSeverity(r, e.target.value as SeverityOption)}
+                      disabled={busy === key || severityBusy === key}
+                      className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] font-semibold text-text-primary outline-none focus:border-cyan-accent disabled:opacity-50"
+                    >
+                      {SEVERITIES.map((severity) => (
+                        <option key={severity} value={severity}>
+                          {severity}
+                        </option>
+                      ))}
+                    </select>
+                    {severityBusy === key && <span className="text-[10px] text-text-muted">Saving…</span>}
+                  </label>
                   {r.lat != null && r.lng != null && (
                     <a
                       href={`https://www.google.com/maps?q=${r.lat},${r.lng}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[11px] text-cyan-accent underline"
+                      className="mt-1 inline-block text-[11px] text-cyan-accent underline"
                     >
                       Open location in Maps
                     </a>
@@ -188,7 +243,7 @@ export default function HiddenAdminHidePage() {
                 </div>
                 <button
                   onClick={() => toggle(r)}
-                  disabled={busy === key}
+                  disabled={busy === key || severityBusy === key}
                   className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold disabled:opacity-50 ${
                     r.is_hidden
                       ? 'bg-green-500/15 text-green-400 hover:bg-green-500/25'
@@ -212,7 +267,7 @@ export default function HiddenAdminHidePage() {
           onClick={() => setZoom(null)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-asphalt p-4"
+            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-asphalt p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-start justify-between gap-3">
@@ -240,17 +295,38 @@ export default function HiddenAdminHidePage() {
               <img
                 src={(zoom.image_url ?? zoom.nearby_image_url) as string}
                 alt=""
-                className="max-h-[60vh] w-full rounded-xl object-contain bg-black"
+                className="max-h-[72vh] w-full rounded-xl object-contain bg-black"
               />
             )}
             <p className="mt-2 truncate text-[11px] text-text-muted">{zoom.caption ?? 'no caption'}</p>
-            <div className="mt-3 flex items-center gap-2">
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <label className="flex items-center gap-2 text-xs text-text-muted">
+                Severity
+                <select
+                  value={severityOption(zoom.severity)}
+                  onChange={(e) => saveSeverity(zoom, e.target.value as SeverityOption)}
+                  disabled={
+                    busy === `${zoom.content_type}:${zoom.content_id}` ||
+                    severityBusy === `${zoom.content_type}:${zoom.content_id}`
+                  }
+                  className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-text-primary outline-none focus:border-cyan-accent disabled:opacity-50"
+                >
+                  {SEVERITIES.map((severity) => (
+                    <option key={severity} value={severity}>
+                      {severity}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <button
                 onClick={() => {
                   toggle(zoom)
                   setZoom(null)
                 }}
-                disabled={busy === `${zoom.content_type}:${zoom.content_id}`}
+                disabled={
+                  busy === `${zoom.content_type}:${zoom.content_id}` ||
+                  severityBusy === `${zoom.content_type}:${zoom.content_id}`
+                }
                 className={`rounded-lg px-4 py-2 text-xs font-bold disabled:opacity-50 ${
                   zoom.is_hidden
                     ? 'bg-green-500/15 text-green-400 hover:bg-green-500/25'
